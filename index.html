@@ -14,7 +14,7 @@
 		<meta name="description" content="">
 		<meta name="author" content="Maxime Usdin">
 		
-		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<!-- Replace favicon.ico & apple-titleouch-icon.png in the root of your domain and delete these references -->
 		<link rel="shortcut icon" href="/favicon.ico">
@@ -30,11 +30,14 @@
 	 	<span id="viewer"> </span>
 	 	<span id="controlBox">
 		<br />
+		
 		<span class='btn' id="makeButton">  Make a MOF  <img id="makeIconRight" class="makeIcon" src="./Icons/SVG/arrow-right-thin.svg" />
 		<img id="makeIconDown" class="makeIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>
 		<br />
+		
 		<span id="maker"> 
-		<div id="accordion">
+			
+		<div class="accordion">
 		<h3>Metals</h3>
 		<div> 
 		<a> <img hash="cu2" class="buildBlock" src="./Images/Metal/cn3_cu_paddlewheel.png" />   </a>   
@@ -56,11 +59,25 @@
 		<span class='controlButton btn' id='generate'> Generate! </span> 
 	 	<span class='controlButton btn' id='clear'> Clear </span> <br />
 	 	<br />
+	 	
 		</span>
+		
 		<br /><br /> 
+		
+		
 	 	<a class='btn' id="learnMore"> Learn More </a> <br /> <br />
-	 	<span>Periodic Boundary Conditions</span>
-	 	<form id="supercellSelector">
+	 	
+	 	
+	 	<span class="btn" id="supercellButton">Periodic Boundary Conditions<img id="spIconRight" class="spIcon" src="./Icons/SVG/arrow-right-thin.svg" />
+		<img id="spIconDown" class="spIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>  <br /> <br />
+	 	
+	 	
+	 	
+	 	<span id="supercellContainer">
+			<div class="accordion">
+				
+	 	<div>
+			<form id="supercellSelector">
 			<table>
 				<tr>
 	 	<td><input type="radio" name="x" value="1">x1</td>
@@ -70,6 +87,9 @@
 	 	</tr>
 	 	</table>
 	 	</form>
+	 	</div>
+	 	
+	 	<div>
 	 	<form id="supercellSelector">
 			<table>
 				<tr>
@@ -81,6 +101,9 @@
 	 	</tr>
 	 	</table>
 	 	</form>
+	 	</div>
+	 	
+	 	<div>
 	 	<form id="supercellSelector">
 			<table>
 				<tr>
@@ -92,11 +115,35 @@
 	 	</tr>
 	 	</table>
 	 	</form>
+	 	</div>
 	 	
-	 	<br />
+	 	<br /> <br />
 		<span class="btn" id="submitSupercell">Apply boundary conditions</span> <br /> <br />
+		
+		</div>
+		<br /> <br />
+		
+		</span>
+		
+		
+		
+	 	 <br />
+	 	 <span class="btn" id="showMCButton">Monte Carlo Simulation<img id="MCIconRight" class="MCIcon" src="./Icons/SVG/arrow-right-thin.svg" />
+		<img id="MCIconDown" class="MCIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>  <br /> <br />
+	 	 <span id="MCContainer">
+			 
+	 	 <div class="accordion">
+	 	 <div><span class="btn" id="runSimulation">Run Monte Carlo Simulation</span> <br /> <br /></div>
+	 	 <div><span class="btn" id="mcDemo">Monte Carlo Demonstration</span> <br /> <br /></div>
+	 	 <div><span class="btn" id="clearMC">Clear</span></div> 
+	 	 </div>
+	 	 </span>
+	 	 <br /> <br /> <br />
 	 	 
-	 	 <span class="btn" id="runSimulation">Run Monte Carlo Simulation</span> <br /> <br />
+	 	 
+	 	 
+	 	 
+	 	 
 	 	  <span class="btn" id="remove">Remove</span>
 	 	  <span class="btn" id="spacefill">Spacefilling</span>
 	 	  <span class="btn" id="ballStick">Ball and Stick</span>
