@@ -2,8 +2,10 @@ var overlap = '';
 
 onmessage = function(e) {	
 	var array = e.data[0];
-	var correction = e.data[1];
-	var length = array.length;
+	var atoms = e.data[1];
+	var correction = e.data[2];
+	var lengthA = array.length;
+	var lengthB = atoms.length;
 	var index = 0;
 	var x1=0;
 	var y1=0;
@@ -15,18 +17,39 @@ onmessage = function(e) {
 	var dist=0;
 	var flagged = [];
 	var distArray = [];
-	for (i=0;i<length;i++) {
+	for (i=0;i<lengthA;i++) {
 		x1 = array[i][0];
 		y1 = array[i][1];
 		z1 = array[i][2];
-		if (!isInArray(i,flagged)) {
-				for (j=i+1;j<length-1;j++) {
-			x2 = array[j][0];
-			y2 = array[j][1];
-			z2 = array[j][2];
+		
+		
+		
+		 if (!isInArray(i,flagged)) {
+			
+		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
+			x2 = atoms[k]['x'];
+			y2 = atoms[k]['y'];
+			z2 = atoms[k]['z'];
 			
 			dist = distance(x1,y1,z1,x2,y2,z2);
-			if (dist < 1.7) { // VDW radius of B is 0.85
+			if (dist < 0.85) { // VDW radius of B is 0.85 A
+				distArray[index] = dist;
+				flagged[index] = i;
+				val = correction + i + 1; 
+				overlap += 'B' + val + ', ';
+				index++;
+			}
+		}	
+	} 	
+		if (!isInArray(i,flagged)) {
+			
+				for (j=i+1;j<lengthA-1;j++) { // compare to coordinates of other probes
+			x3 = array[j][0];
+			y3 = array[j][1];
+			z3 = array[j][2];
+			
+			dist = distance(x1,y1,z1,x3,y3,z3);
+			if (dist < 0.85) { // VDW radius of B is 0.85
 				distArray[index] = dist;
 				flagged[index] = i;
 				val = correction + j; 
@@ -34,8 +57,9 @@ onmessage = function(e) {
 				index++;
 			}
 		}
+	   }
 	  }		
-	}
+	
 		
 	
 	
@@ -46,6 +70,9 @@ function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
 }
 	overlap = overlap.slice(0,-2);
+	overlap=overlap.split(',').filter(function(item,i,allItems){
+    return i==allItems.indexOf(item);
+}).join(',');
 	postMessage(overlap);
 };
 

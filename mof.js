@@ -5,7 +5,7 @@
 	var cellA = 0;
 	var cellB = 0;
 	var cellC = 0;
-	var probeNumber = 100;
+	var probeNumber = 1000;
 	var currentNumber = 0;
 
 	// JSmol config
@@ -38,11 +38,11 @@ $(document).ready(function() {
 
 
 // define the web worker, overlap_worker.js which performs MC computations in the background
-/*
+
 if (typeof(w) == "undefined") {
 			var worker = new Worker("overlap_worker.js");
 		}
-*/
+
 // get JSON files which act as hashtables for MOF generation
 $.getJSON("MOF-database.json", function(data) {
 			MOFdata = data;
@@ -52,13 +52,14 @@ $.getJSON("Blocks-database.json", function(data) {
 			blockdata = data;
 		});
 		
-		// x1, y1, z1 checked by default
+		
+		 // x1, y1, z1 checked by default
 		$('input:radio[name="x"]').filter('[value="1"]').attr('checked', true);
 		$('input:radio[name="y"]').filter('[value="1"]').attr('checked', true);
 		$('input:radio[name="z"]').filter('[value="1"]').attr('checked', true);
 		
 		// MOF generation accordion
-		$(".accordion").accordion();
+		$(".accordion").accordion(); 
 		
 		// prevent form submission when supercell is submitted
 		$("#supercellSelector").submit(function(event) {
@@ -76,7 +77,6 @@ $.getJSON("Blocks-database.json", function(data) {
 		
 		$("#runSimulation").click(function() {		
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
-
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];	
@@ -103,15 +103,37 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				inlineString+= ' B ' + coordinates + '\n';
 			}
-		worker.postMessage([coordinateArray, currentNumber]);
+		
+		//var x = Jmol.evaluateVar(jmolApplet0, "script('set autobond off; var q = " + inlineString  +  ";  load APPEND " + '@q' + "; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;')");
+		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;');
+
+		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+		console.log(molInfo[0]['x']);
+		worker.postMessage([coordinateArray, molInfo, currentNumber]);
 		worker.onmessage = function(event) {
 			var overString = event.data;
-			Jmol.script(jmolApplet0, 'hide ' + overString + ';'); 
+			console.log(overString);
+			var count = (overString.match(/B/g) || []).length;
+			console.log(count);
+			Jmol.script(jmolApplet0, 'select ' + overString + ';'); 
+			var numberSelfOverlap = (overString.length+2)/6;
+			console.log(numberSelfOverlap);
+			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped either with each other or with the given structure.');
+			//Jmol.script(jmolApplet0, 'console; select {B* and visible}; var q = {selected}.length; print q;');
+			
+			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+			
+			
+			
 		  }
 		
 		
-		Jmol.script(jmolApplet0, 'console; set autobond off; var q = "' + inlineString + '"; load APPEND "@q";');
 		
+
+			var upperBound = currentNumber + probeNumber; 
+			//Jmol.script(jmolApplet0, 'function test() {for (j=' + currentNumber + ';j<=' + upperBound + ';j++) {  var k = "B" + j; print k; select on add @k and within(1.0, B* and not @k); var r = {selected}.length; print r;}; }; test(); ');	
+
+			
 		
 		return true;
 			
@@ -130,10 +152,6 @@ $.getJSON("Blocks-database.json", function(data) {
 
 			// check overlap with MOF then with other B
 			//////////////////
-			Jmol.script(jmolApplet0, 'console; print "testing"; select *; select on B* and within(0.8, O*, C*, H*); var x = {selected}.length; print x;');
-			var upperBound = currentNumber + probeNumber; 
-			Jmol.script(jmolApplet0, 'function test() {for (j=' + currentNumber + ';j<=' + upperBound + ';j++) {  var k = "B" + j; print k; select on add @k and within(1.0, B* and not @k); var r = {selected}.length; print r;}; }; test(); ');	
-
 			
 			// zap to remove atoms
 			//Jmol.script(jmolApplet0, 'define MOF *; restrict MOF;');
@@ -210,7 +228,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		$("#infoBox").hide();
 		$("#maker").hide();
 		$("#MCContainer").hide();
-		//	$("#supercellContainer").hide();
+		$("#supercellContainer").hide();
 		$('#clear').click(function() {
 			clearAll();
 			$("#mofFail").hide();	
@@ -255,6 +273,7 @@ $.getJSON("Blocks-database.json", function(data) {
 				}
 		});
 				$("#supercellButton").click(function() {
+					/*
 			
 				if ( $('#supercellContainer').is(':visible') ) {
 					
@@ -269,7 +288,8 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 					$("#supercellContainer").slideDown("slow");
 					
-				}
+				} */
+				console.log('everythings ok');
 		});
 		
 		$(".buildBlock").click(function () {
@@ -291,5 +311,6 @@ $.getJSON("Blocks-database.json", function(data) {
 });
 ////////////
 
-		
+
  });
+ 
