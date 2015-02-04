@@ -5,7 +5,7 @@
 	var cellA = 0;
 	var cellB = 0;
 	var cellC = 0;
-	var probeNumber = 1000;
+	var probeNumber = 10000;
 	var currentNumber = 0;
 
 	// JSmol config
@@ -77,6 +77,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		
 		$("#runSimulation").click(function() {		
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
+		
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];	
@@ -84,7 +85,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			//Jmol.script(jmolApplet0, 'select *; var s = {selected}.lines.length; print s;');
 			//var currentShown = Jmol.evaluateVar(jmolApplet0, "{*}.lines.length");
 			currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
-			console.log(currentNumber);
+	//		console.log(currentNumber);
 			
 			//Jmol.script(jmolApplet0, 'set autobond off; load APPEND ./MOFs/Nitrogens.cif;');
 			
@@ -108,16 +109,16 @@ $.getJSON("Blocks-database.json", function(data) {
 		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;');
 
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		console.log(molInfo[0]['x']);
+		//console.log(molInfo[0]['x']);
 		worker.postMessage([coordinateArray, molInfo, currentNumber]);
 		worker.onmessage = function(event) {
 			var overString = event.data;
-			console.log(overString);
+		//	console.log(overString);
 			var count = (overString.match(/B/g) || []).length;
-			console.log(count);
+			//console.log(count);
 			Jmol.script(jmolApplet0, 'select ' + overString + ';'); 
 			var numberSelfOverlap = (overString.length+2)/6;
-			console.log(numberSelfOverlap);
+			//console.log(numberSelfOverlap);
 			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped either with each other or with the given structure.');
 			//Jmol.script(jmolApplet0, 'console; select {B* and visible}; var q = {selected}.length; print q;');
 			
