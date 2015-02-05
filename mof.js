@@ -14,6 +14,7 @@
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
    height: "120%",      // pixels (but it may be in percent, like "100%")
    width: "100%",
+   zIndex: "1",
   use: "HTML5",     // "HTML5" or "Java" (case-insensitive)
    j2sPath: "./jsmol/j2s",          // only used in the HTML5 modality
    jarPath: "java",               // only used in the Java modality
