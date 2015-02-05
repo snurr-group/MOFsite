@@ -1,7 +1,7 @@
 		 #viewercontainer {height:400px;}
 		 #infoBox {width:170px; height:300px; border-style:solid; border-width:5px; margin-right:20px; position:fixed; left:280px;}
-		 #viewer {position:absolute; z-index:-1;}
-		 #controlBox {width:400px; height:480px; border-style:solid; border-width:1px; position:absolute; top:60px; left:75%; z-index:auto; 
+		 #viewer {position:relative; z-index:-1;}
+		 #controlBox {width:300px; height:480px; border-style:solid; border-width:1px; position:absolute; top:60px; left:75%; z-index:auto; 
 			-webkit-border-radius: 8;
 			-moz-border-radius: 8;
 			border-radius: 8px;
