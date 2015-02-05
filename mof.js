@@ -5,8 +5,9 @@
 	var cellA = 0;
 	var cellB = 0;
 	var cellC = 0;
-	var probeNumber = 10000;
+	var probeNumber = 3000;
 	var currentNumber = 0;
+	var demo = false;
 
 	// JSmol config
 	 var Info = {
@@ -20,7 +21,7 @@
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "set antialiasDisplay;background white; set appendNew false; load ./MOFs/DOTSOV.cif {1 1 1}; animation mode palindrome; animation on;",       // script to run
+   script: "set antialiasDisplay;background white; set appendNew false; load ./MOFs/DOTSOV.cif {1 1 1}; spacefill only;",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -58,6 +59,12 @@ $.getJSON("Blocks-database.json", function(data) {
 		$('input:radio[name="y"]').filter('[value="1"]').attr('checked', true);
 		$('input:radio[name="z"]').filter('[value="1"]').attr('checked', true);
 		
+		$('input:radio[name="box"]').filter('[value="box1"]').prop('checked', true);
+		$('input:radio[name="box"]').filter('[value="box2"]').prop('checked', false);
+		$('input:radio[name="box"]').filter('[value="box3"]').prop('checked', false);
+		
+		
+		
 		// MOF generation accordion
 		$(".accordion").accordion(); 
 		
@@ -65,6 +72,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		$("#supercellSelector").submit(function(event) {
 			event.preventDefault();
 		});
+		
 		
 		//  load supercell of current structure based on radio input
 		$("#submitSupercell").click(function() {
@@ -74,8 +82,16 @@ $.getJSON("Blocks-database.json", function(data) {
 			loadSupercell(x, y, z); 
 		});
 		
-		
+	//	$("#boxSelector").hide();
 		$("#runSimulation").click(function() {		
+			if (demo) {
+				var boxSize = $('input[name=box]:checked').val();
+				name = "Kr" + boxSize;
+				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
+			}
+			demo = false;
+			console.log(boxSize);
+			probeNumber = $("#probeCount").val();
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		
 			cellA = modelInfo['models'][0]['_cell_length_a'];
@@ -106,7 +122,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			}
 		
 		//var x = Jmol.evaluateVar(jmolApplet0, "script('set autobond off; var q = " + inlineString  +  ";  load APPEND " + '@q' + "; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;')");
-		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;');
+		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; zoom 10; spacefill only; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;');
 
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		//console.log(molInfo[0]['x']);
@@ -116,19 +132,23 @@ $.getJSON("Blocks-database.json", function(data) {
 		//	console.log(overString);
 			var count = (overString.match(/B/g) || []).length;
 			//console.log(count);
-			Jmol.script(jmolApplet0, 'select ' + overString + ';'); 
+			Jmol.script(jmolApplet0, 'select ' + overString + '; hide {selected}; zoom 10;'); 
 			var numberSelfOverlap = (overString.length+2)/6;
 			//console.log(numberSelfOverlap);
 			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped either with each other or with the given structure.');
 			//Jmol.script(jmolApplet0, 'console; select {B* and visible}; var q = {selected}.length; print q;');
 			
-			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "modelInfo");
 			
-			
+			if (name.indexOf('Kr') > -1) {
+				var remainingProbes = probeNumber - count; 
+				var probeRadius=1.818769733; // volume of probe is 25.2
+				var krVol = cellA*cellB*cellC - remainingProbes*(Math.pow(probeRadius,3) * Math.PI * 4/3);
+				krVol = krVol.toFixed(2); 
+				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
+			}
 			
 		  }
-		
-		
 		
 
 			var upperBound = currentNumber + probeNumber; 
@@ -147,16 +167,9 @@ $.getJSON("Blocks-database.json", function(data) {
 			var coords = rX + ' ' + rY + ' ' + rZ;
 			coordinateArray[p-1] = [rX, rY, rZ]; 
 			return coords; 
-		}
+		} // end of MC simulation
 		
-		$("#remove").click(function() {
 
-			// check overlap with MOF then with other B
-			//////////////////
-			
-			// zap to remove atoms
-			//Jmol.script(jmolApplet0, 'define MOF *; restrict MOF;');
-		});
 		
 		$("#spacefill").click(function() {
 			Jmol.script(jmolApplet0,'select *; cartoons off; spacefill only;');
@@ -200,20 +213,19 @@ $.getJSON("Blocks-database.json", function(data) {
 		});
 		
 		
-		
-		
-		
-		
-		
 		$("#mcDemo").click(function() {
+			demo = true; 
+			$("#boxText").show();
+			$("#boxRadio").show();
 			name = "Kr5";
 			console.log(name);
+			//$("#boxSelector").show();
 			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
 		});
 		
 		function loadViewer(name) {
 			name = name.toString();
-			Jmol.script(jmolApplet0,'load ./MOFs/' + name + '.cif {1 1 1};');
+			Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1};');
 		}
 		
 		function loadSupercell(x,y,z) {
@@ -230,6 +242,8 @@ $.getJSON("Blocks-database.json", function(data) {
 		$("#maker").hide();
 		$("#MCContainer").hide();
 		$("#supercellContainer").hide();
+		$("#boxText").hide();
+		$("#boxRadio").hide();
 		$('#clear').click(function() {
 			clearAll();
 			$("#mofFail").hide();	
@@ -238,59 +252,87 @@ $.getJSON("Blocks-database.json", function(data) {
 			Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1};');
 		});
 		
+		
+		
+		// Collapsible menu controls - needs streamlining
+		function hideMC() {
+			$("#MCIconDown").hide();
+			$('#MCIconRight').show();			
+			$("#MCContainer").slideUp("slow");
+		}
+		function showMC() {
+			$("#MCIconRight").hide();
+			$('#MCIconDown').show();
+			$("#MCContainer").slideDown("slow");
+		}
+		
+		function hideSupercell() {
+			$("#spIconDown").hide();
+			$('#spIconRight').show();		
+			$("#supercellContainer").slideUp("slow");
+		}
+		
+		function showSupercell() {
+			$("#spIconRight").hide();
+			$('#spIconDown').show();		
+			$("#supercellContainer").slideDown("slow");
+		}
+		
+		function hideMaker() {
+			$("#makeIconDown").hide();
+			$('#makeIconRight').show();
+			$("#maker").slideUp("slow");
+		}
+
+		function showMaker() {
+			$("#makeIconRight").hide();
+			$('#makeIconDown').show();	
+			$("#maker").slideDown("slow");
+		}
+			
 		$("#makeButton").click(function() {
 			
 				if ( $('#maker').is(':visible') ) {
-					
-					$("#makeIconDown").hide();
-					$('#makeIconRight').show();
-					
-					$("#maker").slideUp("slow");
+					hideMaker();					
 				}
 				else {
-					$("#makeIconRight").hide();
-					$('#makeIconDown').show();
-				
-					$("#maker").slideDown("slow");
-					
+					showMaker();
+				}
+				if ( $('#supercellContainer').is(':visible') ) {					
+					hideSupercell();					
+				}
+				if ( $('#MCContainer').is(':visible') ) {
+					hideMC();
 				}
 		});
 		
 		$("#showMCButton").click(function() {
-			
 				if ( $('#MCContainer').is(':visible') ) {
-					
-					$("#MCIconDown").hide();
-					$('#MCIconRight').show();
-					
-					$("#MCContainer").slideUp("slow");
+					hideMC();
 				}
 				else {
-					$("#MCIconRight").hide();
-					$('#MCIconDown').show();
-				
-					$("#MCContainer").slideDown("slow");
-					
+					showMC();
+				}
+				if ( $('#supercellContainer').is(':visible') ) {					
+					hideSupercell();					
+				}
+				if ( $('#maker').is(':visible') ) {
+					hideMaker();					
 				}
 		});
-				$("#supercellButton").click(function() {
-					/*
-			
-				if ( $('#supercellContainer').is(':visible') ) {
-					
-					$("#spIconDown").hide();
-					$('#spIconRight').show();
-					
-					$("#supercellContainer").slideUp("slow");
+		$("#supercellButton").click(function() {
+				if ( $('#supercellContainer').is(':visible') ) {					
+					hideSupercell();					
 				}
 				else {
-					$("#spIconRight").hide();
-					$('#spIconDown').show();
-				
-					$("#supercellContainer").slideDown("slow");
-					
-				} */
-				console.log('everythings ok');
+					showSupercell();					
+				}
+				if ( $('#MCContainer').is(':visible') ) {
+					hideMC();
+				}
+				if ( $('#maker').is(':visible') ) {
+					hideMaker();					
+				}
 		});
 		
 		$(".buildBlock").click(function () {
