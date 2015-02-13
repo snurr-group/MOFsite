@@ -1,23 +1,29 @@
-var overlap = '';
+
 
 onmessage = function(e) {	
+	var overlap = '';
 	var array = e.data[0];
 	var atoms = e.data[1];
-	console.log(atoms);
 	var correction = e.data[2];
+	var probeRadius = e.data[3];
+	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
 	var lengthA = array.length;
 	var lengthB = atoms.length;
 	var index = 0;
 	var x1=0;
+	var x1pbc=0;
 	var y1=0;
+	var y1pbc=0;
 	var z1=0;
+	var z1pbc=0;
 	var x2=0;
 	var y2=0;
 	var z2=0;
 	var val=0;
 	var dist=0;
-	var probeRadius=1.818769733;
+	var distpcb=0;
 	var radius=0;
+	var pcb = false; 
 	var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
@@ -125,16 +131,33 @@ Zr:	2.783167595,
 }	
 	var flagged = [];
 	var distArray = [];
-	console.log(atoms);
 	for (i=0;i<lengthA;i++) { // probes
 		x1 = array[i][0];
 		y1 = array[i][1];
 		z1 = array[i][2];
 		
-		
+		// periodic boundary considerations
+		x1pcb = x1;
+		y1pcb = y1;
+		z1pcb = z1;
+		pcb = false;
+		if (x1 > cellSize[0]/2) {
+			x1pbc = x1 - cellSize[0];
+			pcb = true;
+		}
+		if (y1 > cellSize[1]/2) {
+			y1pbc = y1 - cellSize[1];
+			pcb = true;
+		}
+		if (z1 > cellSize[2]/2) {
+			z1pbc = z1 - cellSize[2];
+			pcb = true;
+		}
 		
 		 if (!isInArray(i,flagged)) {
+		
 			// periodic boundary conditions, output volume 
+		
 		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
 			x2 = atoms[k]['x'];
 			y2 = atoms[k]['y'];
@@ -143,7 +166,12 @@ Zr:	2.783167595,
 			
 			
 			dist = distance(x1,y1,z1,x2,y2,z2);
-			if (dist < (probeRadius + radius)) { // VDW radius of probe is hardcoded
+			if (pcb) {
+				distpcb=distance(x1pcb,y1pcb,z1pcb,x2,y2,z2);
+			}
+			
+			
+			if (dist < (probeRadius + radius) || (distpcb < (probeRadius + radius) && pcb)) { 
 				flagged[index] = i;
 				val = correction + i + 1; 
 				overlap += 'B' + val + ', ';

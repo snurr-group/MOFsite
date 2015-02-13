@@ -92,6 +92,10 @@ $.getJSON("Blocks-database.json", function(data) {
 			demo = false;
 			console.log(boxSize);
 			probeNumber = $("#probeCount").val();
+			probeSize = $("#probeSize").val();
+			if (probeSize < 0.05) {
+				probeSize = 0.1;
+			}
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		
 			cellA = modelInfo['models'][0]['_cell_length_a'];
@@ -122,17 +126,17 @@ $.getJSON("Blocks-database.json", function(data) {
 			}
 		
 		//var x = Jmol.evaluateVar(jmolApplet0, "script('set autobond off; var q = " + inlineString  +  ";  load APPEND " + '@q' + "; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;')");
-		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; zoom 10; spacefill only; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;');
+		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; zoom 60; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s; select boron; spacefill ' + probeSize + ';');
 
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		//console.log(molInfo[0]['x']);
-		worker.postMessage([coordinateArray, molInfo, currentNumber]);
+		worker.postMessage([coordinateArray, molInfo, currentNumber, probeSize, [cellA, cellB, cellC]]);
 		worker.onmessage = function(event) {
 			var overString = event.data;
 		//	console.log(overString);
 			var count = (overString.match(/B/g) || []).length;
 			//console.log(count);
-			Jmol.script(jmolApplet0, 'select ' + overString + '; hide {selected}; zoom 10;'); 
+			Jmol.script(jmolApplet0, 'select ' + overString + '; hide {selected}; zoom 60;'); 
 			var numberSelfOverlap = (overString.length+2)/6;
 			//console.log(numberSelfOverlap);
 			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped either with each other or with the given structure.');
@@ -142,8 +146,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			if (name.indexOf('Kr') > -1) {
 				var remainingProbes = probeNumber - count; 
-				var probeRadius=1.818769733; // volume of probe is 25.2
-				var krVol = cellA*cellB*cellC - remainingProbes*(Math.pow(probeRadius,3) * Math.PI * 4/3);
+				var krVol = cellA*cellB*cellC - remainingProbes*(Math.pow(probeSize,3) * Math.PI * 4/3);
 				krVol = krVol.toFixed(2); 
 				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
 			}
@@ -152,7 +155,6 @@ $.getJSON("Blocks-database.json", function(data) {
 		
 
 			var upperBound = currentNumber + probeNumber; 
-			//Jmol.script(jmolApplet0, 'function test() {for (j=' + currentNumber + ';j<=' + upperBound + ';j++) {  var k = "B" + j; print k; select on add @k and within(1.0, B* and not @k); var r = {selected}.length; print r;}; }; test(); ');	
 
 			
 		
@@ -249,7 +251,8 @@ $.getJSON("Blocks-database.json", function(data) {
 			$("#mofFail").hide();	
 		});
 		$("#clearMC").click(function() {
-			Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1};');
+			Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
+			$("#addme").empty();
 		});
 		
 		
