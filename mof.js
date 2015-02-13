@@ -83,14 +83,23 @@ $.getJSON("Blocks-database.json", function(data) {
 		});
 		
 	//	$("#boxSelector").hide();
+	var count = 0;
 		$("#runSimulation").click(function() {		
+			$("#addme").empty(); // clear previous output
+			
+			//Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only; zoom 60;');
+			
+			if (count != 0) {
+			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
+			console.log(count);
+		}
+			var overString = '';
 			if (demo) {
 				var boxSize = $('input[name=box]:checked').val();
 				name = "Kr" + boxSize;
 				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
 			}
 			demo = false;
-			console.log(boxSize);
 			probeNumber = $("#probeCount").val();
 			probeSize = $("#probeSize").val();
 			if (probeSize < 0.05) {
@@ -118,7 +127,6 @@ $.getJSON("Blocks-database.json", function(data) {
 			var coordArray = [];
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 			
-			
 			for (i=1;i<=probeNumber;i++) {
 				coordinates = getRandomCo(i);
 				
@@ -132,12 +140,12 @@ $.getJSON("Blocks-database.json", function(data) {
 		//console.log(molInfo[0]['x']);
 		worker.postMessage([coordinateArray, molInfo, currentNumber, probeSize, [cellA, cellB, cellC]]);
 		worker.onmessage = function(event) {
-			var overString = event.data;
-		//	console.log(overString);
-			var count = (overString.match(/B/g) || []).length;
+			overString = event.data;
+			count = (overString.match(/B/g) || []).length;
 			//console.log(count);
+			if (count != 0) {
 			Jmol.script(jmolApplet0, 'select ' + overString + '; hide {selected}; zoom 60;'); 
-			var numberSelfOverlap = (overString.length+2)/6;
+			}
 			//console.log(numberSelfOverlap);
 			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped either with each other or with the given structure.');
 			//Jmol.script(jmolApplet0, 'console; select {B* and visible}; var q = {selected}.length; print q;');
@@ -252,6 +260,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		});
 		$("#clearMC").click(function() {
 			Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
+			count=0;
 			$("#addme").empty();
 		});
 		
