@@ -5,7 +5,7 @@ onmessage = function(e) {
 	var array = e.data[0];
 	var atoms = e.data[1];
 	var correction = e.data[2];
-	var probeRadius = e.data[3];
+	var probeRadius = parseFloat(e.data[3]);
 	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
 	var lengthA = array.length;
 	var lengthB = atoms.length;
@@ -156,8 +156,7 @@ Zr:	2.783167595,
 		
 		 if (!isInArray(i,flagged)) {
 		
-			// periodic boundary conditions, output volume 
-		
+		var dr = 0;
 		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
 			x2 = atoms[k]['x'];
 			y2 = atoms[k]['y'];
@@ -165,13 +164,34 @@ Zr:	2.783167595,
 			radius = atomDiameters[atoms[k]['sym']]/2;
 			
 			
+			
 			dist = distance(x1,y1,z1,x2,y2,z2);
-			if (pcb) {
-				distpcb=distance(x1pcb,y1pcb,z1pcb,x2,y2,z2);
+			
+			//dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
+			
+			if (dist[0] > cellSize[0]/2) {
+					dist[0] = dist[0] - cellSize[0]; 
+			}
+			if (dist[1] > cellSize[1]/2) {
+					dist[1] = dist[1] - cellSize[1]; 
+			}
+			if (dist[2] > cellSize[2]/2) {
+					dist[2] = dist[2] - cellSize[2]; 
 			}
 			
+			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+						
+						
 			
-			if (dist < (probeRadius + radius) || (distpcb < (probeRadius + radius) && pcb)) { 
+			/*if (pcb) {
+				dist=distance(x1pcb,y1pcb,z1pcb,x2,y2,z2);
+			}*/
+			
+			
+			
+			//console.log(totalDist);
+			
+			if (dr < (probeRadius + radius)) { 
 				flagged[index] = i;
 				val = correction + i + 1; 
 				overlap += 'B' + val + ', ';
@@ -179,9 +199,12 @@ Zr:	2.783167595,
 			}
 		}	
 	} 	
+		/*
 		if (!isInArray(i,flagged)) {
-			
-		for (j=i+1;j<lengthA-1;j++) { // compare to coordinates of other probes
+		
+		
+		// remove check of overlap with other probes	
+		 for (j=i+1;j<lengthA-1;j++) { // compare to coordinates of other probes
 			x3 = array[j][0];
 			y3 = array[j][1];
 			z3 = array[j][2];
@@ -194,15 +217,18 @@ Zr:	2.783167595,
 				overlap += 'B' + val + ', ';
 				index++;
 			}
-		}
-	   }
+		} 
+	   } */ 
 	  }		
 	
 		
 	
 	
+	
+	
 function distance(x1,y1,z1,x2,y2,z2) {
-	return Math.sqrt(Math.pow(x1-x2,2) + Math.pow(y1-y2,2) + Math.pow(z1-z2,2));
+	var distanceVector = [Math.sqrt(Math.pow(x1-x2,2)),   Math.sqrt(Math.pow(y1-y2,2)),   Math.sqrt(Math.pow(z1-z2,2))]; 
+	return distanceVector;
 }	
 function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
@@ -211,6 +237,7 @@ function isInArray(value, arr) {
 	overlap=overlap.split(',').filter(function(item,i,allItems){ // kill duplicates 
     return i==allItems.indexOf(item);
 }).join(',');
+
 	postMessage(overlap);
 };
 

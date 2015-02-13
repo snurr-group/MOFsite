@@ -142,12 +142,12 @@ $.getJSON("Blocks-database.json", function(data) {
 		worker.onmessage = function(event) {
 			overString = event.data;
 			count = (overString.match(/B/g) || []).length;
-			//console.log(count);
+			//console.log(overString);
 			if (count != 0) {
 			Jmol.script(jmolApplet0, 'select ' + overString + '; hide {selected}; zoom 60;'); 
 			}
 			//console.log(numberSelfOverlap);
-			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped either with each other or with the given structure.');
+			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped with each other.');
 			//Jmol.script(jmolApplet0, 'console; select {B* and visible}; var q = {selected}.length; print q;');
 			
 			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "modelInfo");
