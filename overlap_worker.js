@@ -1,12 +1,16 @@
 
 
 onmessage = function(e) {	
-	var overlap = '';
+	var overlap = [];
+	var done = false;
+	var overlapString = '';
 	var array = e.data[0];
 	var atoms = e.data[1];
 	var correction = e.data[2];
 	var probeRadius = parseFloat(e.data[3]);
 	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
+	var adjustment = e.data[5];
+	var numProbes = e.data[6];
 	var lengthA = array.length;
 	var lengthB = atoms.length;
 	var index = 0;
@@ -131,7 +135,18 @@ Zr:	2.783167595,
 }	
 	var flagged = [];
 	var distArray = [];
-	for (i=0;i<lengthA;i++) { // probes
+	var timecount = 0;
+    var MCcalculate = function() {
+				
+		for (i=0;i<lengthA;i++) { // probes
+		
+		if (i+1 < lengthA && i % 50 == 0) {
+			setTimeout(MCcalculate, 5);
+			//console.log('timeout ' + timecount);
+			timecount++;
+		}
+		
+		
 		x1 = array[i][0];
 		y1 = array[i][1];
 		z1 = array[i][2];
@@ -181,20 +196,11 @@ Zr:	2.783167595,
 			
 			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
 						
-						
-			
-			/*if (pcb) {
-				dist=distance(x1pcb,y1pcb,z1pcb,x2,y2,z2);
-			}*/
-			
-			
-			
-			//console.log(totalDist);
 			
 			if (dr < (probeRadius + radius)) { 
 				flagged[index] = i;
-				val = correction + i + 1; 
-				overlap += 'B' + val + ', ';
+				val = correction + i + 1 + 500*adjustment; 
+				overlap[index] = 'B' + val;
 				index++;
 			}
 		}	
@@ -203,7 +209,6 @@ Zr:	2.783167595,
 		if (!isInArray(i,flagged)) {
 		
 		
-		// remove check of overlap with other probes	
 		 for (j=i+1;j<lengthA-1;j++) { // compare to coordinates of other probes
 			x3 = array[j][0];
 			y3 = array[j][1];
@@ -219,25 +224,29 @@ Zr:	2.783167595,
 			}
 		} 
 	   } */ 
-	  }		
-	
-		
-	
-	
-	
-	
+}		// end for loop 
+} // end function
+
+MCcalculate();
+
+
+
 function distance(x1,y1,z1,x2,y2,z2) {
-	var distanceVector = [Math.sqrt(Math.pow(x1-x2,2)),   Math.sqrt(Math.pow(y1-y2,2)),   Math.sqrt(Math.pow(z1-z2,2))]; 
+	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; 
 	return distanceVector;
 }	
 function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
-}
-	overlap = overlap.slice(0,-2);
-	overlap=overlap.split(',').filter(function(item,i,allItems){ // kill duplicates 
+}	
+	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
     return i==allItems.indexOf(item);
 }).join(',');
 
-	postMessage(overlap);
+
+if (500*(adjustment+1)>=numProbes) {
+	done = true;
+}
+
+	postMessage([overlap,done]);
 };
 

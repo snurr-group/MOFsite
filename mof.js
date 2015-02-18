@@ -21,7 +21,7 @@
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "set antialiasDisplay;background white; set appendNew false; load ./MOFs/DOTSOV.cif {1 1 1}; zoom 60; spacefill only;",       // script to run
+   script: "set antialiasDisplay;background white; load ./MOFs/DOTSOV.cif {1 1 1}; set appendNew false; zoom 60; spacefill only;",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -30,19 +30,10 @@
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 
-$(document).ready(function() {
+
   $("#viewer")
   .append(myJmol)
   .addClass("padded");
-})
-
-
-
-// define the web worker, overlap_worker.js which performs MC computations in the background
-
-if (typeof(w) == "undefined") {
-			var worker = new Worker("overlap_worker.js");
-		}
 
 // get JSON files which act as hashtables for MOF generation
 $.getJSON("MOF-database.json", function(data) {
@@ -54,6 +45,55 @@ $.getJSON("Blocks-database.json", function(data) {
 		});
 		
 		
+		
+		
+	/*	
+		function handleFileSelect(event) {
+			var files = event.target.files; 
+			var reader = new FileReader();
+			reader.onload = (function(theFile) {
+				return function(e) {
+					console.log(e.target.result);
+					
+				}
+				
+			});
+			}
+
+		*/
+		
+		var t = '';
+		var userLoaded = false; 
+		function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          t = e.target.result;
+          Jmol.script(jmolApplet0, 'var t = "' + t + '"; print t; load "@t" {1 1 1}; spacefill only;');
+          var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // use to establish size
+		  cellA = c['corner1'][0] - c['corner0'][0];
+		  cellB = c['corner1'][1] - c['corner0'][1];
+		  cellC = c['corner1'][2] - c['corner0'][2];
+		  userLoaded = true; 
+        };
+      })(f);
+
+      // Read 
+      reader.readAsText(f);
+    }
+  }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+		
+		
 		 // x1, y1, z1 checked by default
 		$('input:radio[name="x"]').filter('[value="1"]').attr('checked', true);
 		$('input:radio[name="y"]').filter('[value="1"]').attr('checked', true);
@@ -62,7 +102,6 @@ $.getJSON("Blocks-database.json", function(data) {
 		$('input:radio[name="box"]').filter('[value="box1"]').prop('checked', true);
 		$('input:radio[name="box"]').filter('[value="box2"]').prop('checked', false);
 		$('input:radio[name="box"]').filter('[value="box3"]').prop('checked', false);
-		
 		
 		
 		// MOF generation accordion
@@ -83,15 +122,26 @@ $.getJSON("Blocks-database.json", function(data) {
 		});
 		
 	//	$("#boxSelector").hide();
-	var count = 0;
+		var flaggedProbeCount = 0;
+		var firstRun = true;
 		$("#runSimulation").click(function() {		
+			
+		
+			Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
+			
+			
+			// define the web worker, overlap_worker.js which performs MC computations in the background
+
+		
+			if (typeof(w) == "undefined") {
+			var worker = new Worker("overlap_worker.js");
+		}
+		
 			$("#addme").empty(); // clear previous output
 			
-			//Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only; zoom 60;');
 			
-			if (count != 0) {
+			if (flaggedProbeCount != 0) {
 			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
-			console.log(count);
 		}
 			var overString = '';
 			if (demo) {
@@ -102,27 +152,20 @@ $.getJSON("Blocks-database.json", function(data) {
 			demo = false;
 			probeNumber = $("#probeCount").val();
 			probeSize = $("#probeSize").val();
-			if (probeSize < 0.05) {
+
+			/*if (probeSize < 0.05) {
 				probeSize = 0.1;
-			}
+			}*/
+			if (!userLoaded) {
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];	
-			Jmol.script(jmolApplet0, 'define MOF C*,H*,N*,O*; define nah A*');
-			//Jmol.script(jmolApplet0, 'select *; var s = {selected}.lines.length; print s;');
-			//var currentShown = Jmol.evaluateVar(jmolApplet0, "{*}.lines.length");
+			}
+			
 			currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
-	//		console.log(currentNumber);
-			
-			//Jmol.script(jmolApplet0, 'set autobond off; load APPEND ./MOFs/Nitrogens.cif;');
-			
-			// get cell length
-			
-			//console.log(modelInfo['models'][0]['_cell_length_a']);
-			
-			/////
+
 			var coordinates = '';
 			var coordArray = [];
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
@@ -132,40 +175,62 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				inlineString+= ' B ' + coordinates + '\n';
 			}
+			
+			if (isNaN(probeSize) || isNaN(probeNumber)) {
+				$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
+				return;
+			}
+			else {
+				probeSize = +probeSize;	// convert string to number
+			}
+			
+			var probeDisplaySize = probeSize;
+			if (probeDisplaySize < 0.01) {
+				probeDisplaySize = 0.1; 
+			}
+			if (probeDisplaySize == 1.0) { // error with precisely 1 as input for "spacefill" Jmol function 
+				probeDisplaySize = 1.001;
+			} 
 		
-		//var x = Jmol.evaluateVar(jmolApplet0, "script('set autobond off; var q = " + inlineString  +  ";  load APPEND " + '@q' + "; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s;')");
-		Jmol.script(jmolApplet0, 'set autobond off; var q = "' + inlineString + '";  load APPEND "@q"; zoom 60; select on {B* and within(0.8, O*, C*, H*)}; var s = {selected}.length; print s; select boron; spacefill ' + probeSize + ';');
+		
+		// see JMOL documentation for x = contact{ ...
+
+		Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
+
 
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		//console.log(molInfo[0]['x']);
-		worker.postMessage([coordinateArray, molInfo, currentNumber, probeSize, [cellA, cellB, cellC]]);
-		worker.onmessage = function(event) {
-			overString = event.data;
-			count = (overString.match(/B/g) || []).length;
-			//console.log(overString);
-			if (count != 0) {
-			Jmol.script(jmolApplet0, 'select ' + overString + '; hide {selected}; zoom 60;'); 
+		var adjustment = 0;
+		var done = false; 
+
+		
+		flaggedProbeCount = 0;
+		var upperBound = probeNumber/500;
+		for (i=0;i<upperBound;i++) {
+			var start = 500*i;
+			var end = 500*(i+1);
+			worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber]);
+			worker.onmessage = function(event) {
+				response = event.data;
+				overString = response[0];
+				done = response[1];
+				flaggedProbeCount += (overString.match(/B/g) || []).length;
+				if (done) {
+					$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');			
+					} 			
 			}
-			//console.log(numberSelfOverlap);
-			$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + count + ' probes overlapped with each other.');
-			//Jmol.script(jmolApplet0, 'console; select {B* and visible}; var q = {selected}.length; print q;');
+		}
+		
+		//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');
 			
 			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "modelInfo");
 			
 			if (name.indexOf('Kr') > -1) {
-				var remainingProbes = probeNumber - count; 
-				var krVol = cellA*cellB*cellC - remainingProbes*(Math.pow(probeSize,3) * Math.PI * 4/3);
+				var remainingProbes = probeNumber - flaggedProbeCount; 
+				var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
 				krVol = krVol.toFixed(2); 
 				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
 			}
 			
-		  }
-		
-
-			var upperBound = currentNumber + probeNumber; 
-
-			
-		
 		return true;
 			
 		});
@@ -185,15 +250,12 @@ $.getJSON("Blocks-database.json", function(data) {
 			Jmol.script(jmolApplet0,'select *; cartoons off; spacefill only;');
 		}); 
 		
-				$("#ballStick").click(function() {
+		$("#ballStick").click(function() {
 			Jmol.script(jmolApplet0,'select *; cartoons off; spacefill 23%; wireframe 0.15;');		
 		}); 
 		
-
 		
 		$('#generate').click(function() {
-		
-			
 			
 			 var hashArray =[];
 			 i=0;
@@ -204,10 +266,7 @@ $.getJSON("Blocks-database.json", function(data) {
 
 			hashArray = hashArray.sort();
 			hash = hashArray.join('');
-			console.log(hash);
-			console.log(MOFdata);
 			mof = MOFdata[hash];
-			console.log(mof);
 			  if (mof == null) {
 				  $("#mofFail").show();
 				  clearAll();
@@ -228,8 +287,6 @@ $.getJSON("Blocks-database.json", function(data) {
 			$("#boxText").show();
 			$("#boxRadio").show();
 			name = "Kr5";
-			console.log(name);
-			//$("#boxSelector").show();
 			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
 		});
 		
@@ -239,7 +296,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		}
 		
 		function loadSupercell(x,y,z) {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}');
+			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill only;	');
 		}
 		
 		function clearAll() {
@@ -259,7 +316,10 @@ $.getJSON("Blocks-database.json", function(data) {
 			$("#mofFail").hide();	
 		});
 		$("#clearMC").click(function() {
-			Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
+			//Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete B*;');
+			$("#probeCount").val('');
+			$("#probeSize").val('');
 			count=0;
 			$("#addme").empty();
 		});
