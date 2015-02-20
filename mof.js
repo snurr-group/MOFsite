@@ -215,7 +215,8 @@ $.getJSON("Blocks-database.json", function(data) {
 				done = response[1];
 				flaggedProbeCount += (overString.match(/B/g) || []).length;
 				if (done) {
-					$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');			
+					$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');		
+					worker.terminate();	
 					} 			
 			}
 		}
@@ -292,7 +293,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		
 		function loadViewer(name) {
 			name = name.toString();
-			Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1};');
+			Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
 		}
 		
 		function loadSupercell(x,y,z) {
