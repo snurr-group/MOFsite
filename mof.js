@@ -153,9 +153,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			probeNumber = $("#probeCount").val();
 			probeSize = $("#probeSize").val();
 
-			/*if (probeSize < 0.05) {
-				probeSize = 0.1;
-			}*/
+
 			if (!userLoaded) {
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		

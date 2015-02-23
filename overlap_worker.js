@@ -136,53 +136,33 @@ Zr:	2.783167595,
 	var flagged = [];
 	var distArray = [];
 	var timecount = 0;
+	var removeCount = 0;
+    var testvar = 0;
+    var max =0;
     var MCcalculate = function() {
-				
+		
+		
 		for (i=0;i<lengthA;i++) { // probes
-		
-		if (i+1 < lengthA && i % 50 == 0) {
-			setTimeout(MCcalculate, 5);
-			//console.log('timeout ' + timecount);
-			timecount++;
-		}
-		
-		
+				
 		x1 = array[i][0];
 		y1 = array[i][1];
 		z1 = array[i][2];
-		
-		// periodic boundary considerations
-		x1pcb = x1;
-		y1pcb = y1;
-		z1pcb = z1;
-		pcb = false;
-		if (x1 > cellSize[0]/2) {
-			x1pbc = x1 - cellSize[0];
-			pcb = true;
-		}
-		if (y1 > cellSize[1]/2) {
-			y1pbc = y1 - cellSize[1];
-			pcb = true;
-		}
-		if (z1 > cellSize[2]/2) {
-			z1pbc = z1 - cellSize[2];
-			pcb = true;
-		}
-		
-		 if (!isInArray(i,flagged)) {
-		
+
+		var fixedI = i + 500*adjustment;
+		if (!isInArray(fixedI,flagged)) {
 		var dr = 0;
 		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
+			if (!isInArray(fixedI,flagged)) {
 			x2 = atoms[k]['x'];
 			y2 = atoms[k]['y'];
 			z2 = atoms[k]['z'];
+			
 			radius = atomDiameters[atoms[k]['sym']]/2;
-			
-			
 			
 			dist = distance(x1,y1,z1,x2,y2,z2);
 			
 			//dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
+			
 			
 			if (dist[0] > cellSize[0]/2) {
 					dist[0] = dist[0] - cellSize[0]; 
@@ -194,36 +174,19 @@ Zr:	2.783167595,
 					dist[2] = dist[2] - cellSize[2]; 
 			}
 			
-			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
-						
+			
+			
+			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
 			
 			if (dr < (probeRadius + radius)) { 
-				flagged[index] = i;
+				flagged[index] = fixedI;
 				val = correction + i + 1 + 500*adjustment; 
 				overlap[index] = 'B' + val;
 				index++;
 			}
+		}
 		}	
-	} 	
-		/*
-		if (!isInArray(i,flagged)) {
-		
-		
-		 for (j=i+1;j<lengthA-1;j++) { // compare to coordinates of other probes
-			x3 = array[j][0];
-			y3 = array[j][1];
-			z3 = array[j][2];
-			
-			dist = distance(x1,y1,z1,x3,y3,z3);
-			if (dist < (2*probeRadius)) { 
-				distArray[index] = dist;
-				flagged[index] = i;
-				val = correction + j; 
-				overlap += 'B' + val + ', ';
-				index++;
-			}
-		} 
-	   } */ 
+	} // end if  	
 }		// end for loop 
 } // end function
 
@@ -238,6 +201,7 @@ function distance(x1,y1,z1,x2,y2,z2) {
 function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
 }	
+	
 	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
     return i==allItems.indexOf(item);
 }).join(',');
@@ -245,8 +209,8 @@ function isInArray(value, arr) {
 
 if (500*(adjustment+1)>=numProbes) {
 	done = true;
-}
 
+}
 	postMessage([overlap,done]);
 };
 
