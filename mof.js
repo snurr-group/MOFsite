@@ -214,7 +214,13 @@ $.getJSON("Blocks-database.json", function(data) {
 				flaggedProbeCount += (overString.match(/B/g) || []).length;
 				if (done) {
 					$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');		
-					worker.terminate();	
+					worker.terminate();
+					if (name.indexOf('Kr') > -1) {
+				var remainingProbes = probeNumber - flaggedProbeCount; 
+				var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
+				krVol = krVol.toFixed(2); 
+				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
+			}	
 					} 			
 			}
 		}
@@ -223,12 +229,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "modelInfo");
 			
-			if (name.indexOf('Kr') > -1) {
-				var remainingProbes = probeNumber - flaggedProbeCount; 
-				var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
-				krVol = krVol.toFixed(2); 
-				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
-			}
+			
 			
 		return true;
 			

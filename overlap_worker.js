@@ -9,23 +9,19 @@ onmessage = function(e) {
 	var correction = e.data[2];
 	var probeRadius = parseFloat(e.data[3]);
 	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
-	var adjustment = e.data[5];
-	var numProbes = e.data[6];
-	var lengthA = array.length;
-	var lengthB = atoms.length;
+	var adjustment = e.data[5]; // number of iterations
+	var numProbes = e.data[6]; // total number of probes (user given)
+	var lengthA = array.length; // number of probes in this iteration (set to 500 on main thread)
+	var lengthB = atoms.length; // number of structure atoms, useful for pinpointing probes
 	var index = 0;
 	var x1=0;
-	var x1pbc=0;
 	var y1=0;
-	var y1pbc=0;
 	var z1=0;
-	var z1pbc=0;
 	var x2=0;
 	var y2=0;
 	var z2=0;
 	var val=0;
 	var dist=0;
-	var distpcb=0;
 	var radius=0;
 	var pcb = false; 
 	var atomDiameters = {
@@ -134,11 +130,7 @@ Zn:	2.461553158,
 Zr:	2.783167595,
 }	
 	var flagged = [];
-	var distArray = [];
-	var timecount = 0;
-	var removeCount = 0;
     var testvar = 0;
-    var max =0;
     var MCcalculate = function() {
 		
 		
@@ -149,10 +141,11 @@ Zr:	2.783167595,
 		z1 = array[i][2];
 
 		var fixedI = i + 500*adjustment;
-		if (!isInArray(fixedI,flagged)) {
 		var dr = 0;
 		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
+			
 			if (!isInArray(fixedI,flagged)) {
+				testvar++;
 			x2 = atoms[k]['x'];
 			y2 = atoms[k]['y'];
 			z2 = atoms[k]['z'];
@@ -160,8 +153,6 @@ Zr:	2.783167595,
 			radius = atomDiameters[atoms[k]['sym']]/2;
 			
 			dist = distance(x1,y1,z1,x2,y2,z2);
-			
-			//dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
 			
 			
 			if (dist[0] > cellSize[0]/2) {
@@ -184,10 +175,9 @@ Zr:	2.783167595,
 				overlap[index] = 'B' + val;
 				index++;
 			}
-		}
-		}	
-	} // end if  	
-}		// end for loop 
+		} // end if flagged 
+		} // end for loop (structure)	
+}		// end for loop (probes)
 } // end function
 
 MCcalculate();
@@ -195,21 +185,20 @@ MCcalculate();
 
 
 function distance(x1,y1,z1,x2,y2,z2) {
-	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; 
+	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	
 function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
 }	
-	
+
 	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
     return i==allItems.indexOf(item);
 }).join(',');
-
+	
 
 if (500*(adjustment+1)>=numProbes) {
 	done = true;
-
 }
 	postMessage([overlap,done]);
 };
