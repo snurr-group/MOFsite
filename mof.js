@@ -5,7 +5,7 @@
 	var cellA = 0;
 	var cellB = 0;
 	var cellC = 0;
-	var probeNumber = 3000;
+	var probeNumber = 0;
 	var currentNumber = 0;
 	var demo = false;
 
@@ -44,24 +44,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			blockdata = data;
 		});
 		
-		
-		
-		
-	/*	
-		function handleFileSelect(event) {
-			var files = event.target.files; 
-			var reader = new FileReader();
-			reader.onload = (function(theFile) {
-				return function(e) {
-					console.log(e.target.result);
-					
-				}
-				
-			});
-			}
-
-		*/
-		
+		 
 		var t = '';
 		var userLoaded = false; 
 		function handleFileSelect(evt) {
@@ -125,7 +108,8 @@ $.getJSON("Blocks-database.json", function(data) {
 		var flaggedProbeCount = 0;
 		var firstRun = true;
 		$("#runSimulation").click(function() {		
-			
+			var transf  = Jmol.getPropertyAsArray(jmolApplet0, "transformInfo"); 
+		 console.log(transf);
 		
 			Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
 			
@@ -148,18 +132,22 @@ $.getJSON("Blocks-database.json", function(data) {
 				var boxSize = $('input[name=box]:checked').val();
 				name = "Kr" + boxSize;
 				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
+				cellA = +boxSize;
+				cellB = +boxSize;
+				cellC = +boxSize;
+
 			}
-			demo = false;
+			
 			probeNumber = $("#probeCount").val();
 			probeSize = $("#probeSize").val();
 
-
-			if (!userLoaded) {
+			if (!userLoaded && !demo) {
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
-		
+			
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];	
+			
 			}
 			
 			currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
@@ -168,6 +156,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			var coordArray = [];
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 			
+			console.log(cellA);
 			for (i=1;i<=probeNumber;i++) {
 				coordinates = getRandomCo(i);
 				
@@ -220,19 +209,11 @@ $.getJSON("Blocks-database.json", function(data) {
 				var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
 				krVol = krVol.toFixed(2); 
 				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
-			}	
+					}	
 					} 			
 			}
 		}
-		
-		//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');
-			
-			var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "modelInfo");
-			
-			
-			
-		return true;
-			
+					
 		});
 		var coordinateArray = [];
 		function getRandomCo(p) {
@@ -287,7 +268,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			$("#boxText").show();
 			$("#boxRadio").show();
 			name = "Kr5";
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
+			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1};');
 		});
 		
 		function loadViewer(name) {

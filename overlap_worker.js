@@ -154,16 +154,9 @@ Zr:	2.783167595,
 			
 			dist = distance(x1,y1,z1,x2,y2,z2);
 			
+			dist = pbCond(dist);
 			
-			if (dist[0] > cellSize[0]/2) {
-					dist[0] = dist[0] - cellSize[0]; 
-			}
-			if (dist[1] > cellSize[1]/2) {
-					dist[1] = dist[1] - cellSize[1]; 
-			}
-			if (dist[2] > cellSize[2]/2) {
-					dist[2] = dist[2] - cellSize[2]; 
-			}
+			
 			
 			
 			
@@ -188,6 +181,20 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	
+function pbCond(dist) {
+			
+			if (dist[0] > cellSize[0]/2) {
+					dist[0] = dist[0] - cellSize[0]; 
+			}
+			if (dist[1] > cellSize[1]/2) {
+					dist[1] = dist[1] - cellSize[1]; 
+			}
+			if (dist[2] > cellSize[2]/2) {
+					dist[2] = dist[2] - cellSize[2]; 
+			}
+			return dist;
+		}
+
 function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
 }	
