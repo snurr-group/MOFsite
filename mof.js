@@ -8,6 +8,8 @@
 	var probeNumber = 0;
 	var currentNumber = 0;
 	var demo = false;
+	var loaded = true;
+	var transf = [];
 
 	// JSmol config
 	 var Info = {
@@ -66,6 +68,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		  cellB = c['corner1'][1] - c['corner0'][1];
 		  cellC = c['corner1'][2] - c['corner0'][2];
 		  userLoaded = true; 
+		  loaded = true; 
         };
       })(f);
 
@@ -107,9 +110,13 @@ $.getJSON("Blocks-database.json", function(data) {
 	//	$("#boxSelector").hide();
 		var flaggedProbeCount = 0;
 		var firstRun = true;
-		$("#runSimulation").click(function() {		
-			var transf  = Jmol.getPropertyAsArray(jmolApplet0, "transformInfo"); 
-		 console.log(transf);
+		$("#runSimulation").click(function() {	
+			
+			if (loaded) {
+			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); 
+		}
+		
+			console.log(transf);
 		
 			Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
 			
@@ -141,8 +148,10 @@ $.getJSON("Blocks-database.json", function(data) {
 			probeNumber = $("#probeCount").val();
 			probeSize = $("#probeSize").val();
 
-			if (!userLoaded && !demo) {
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
+
+			if (!userLoaded && !demo) {
+			
 			
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
@@ -150,18 +159,52 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			}
 			
+			
+			
 			currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
-
-			var coordinates = '';
-			var coordArray = [];
+			
+			var isTriclinic = triclinicCheck();
+			
+			function triclinicCheck() {
+				var center = transf['center'];
+				var vect = transf['vector'];
+				
+				return Math.abs(center[0] - center[1]) > 0.01 || Math.abs(center[0] - center[2]) > 0.01 || Math.abs(center[1] - center[2]) > 0.01;
+				
+			}
+			
+			
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 			
-			console.log(cellA);
+			if (!isTriclinic) {
+				console.log('not tric');
+			var coordinates = '';
+			var coordArray = [];
+			
 			for (i=1;i<=probeNumber;i++) {
 				coordinates = getRandomCo(i);
 				
 				inlineString+= ' B ' + coordinates + '\n';
 			}
+			}
+			else {
+			for (i=1;i<=probeNumber;i++) {
+				var xx = Math.random();
+				var yy = Math.random();
+				var zz = Math.random();
+				var tricCoords = Jmol.evaluateVar(jmolApplet0, '[{' + xx + '/1 ' + yy + '/1 ' + zz + '/1}.x {' + xx + '/1 ' + yy + '/1 ' + zz + '/1}.y {' + xx + '/1 ' + yy + '/1 ' + zz + '/1}.z];');
+				tricCoords[0] = Math.abs(tricCoords[0]).toString();
+				tricCoords[1] = Math.abs(tricCoords[1]).toString();
+				tricCoords[2] = Math.abs(tricCoords[2]).toString();
+				coordinateArray[i-1] = tricCoords;
+				inlineString += ' B ' + tricCoords[0] + ' ' + tricCoords[1] + ' ' + tricCoords[2] + '\n';
+				
+			}	
+			loaded = false; 
+			}
+			
+			
+			
 			
 			if (isNaN(probeSize) || isNaN(probeNumber)) {
 				$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
@@ -181,8 +224,11 @@ $.getJSON("Blocks-database.json", function(data) {
 		
 		
 		// see JMOL documentation for x = contact{ ...
-
 		Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
+		
+		
+		
+		
 
 
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
