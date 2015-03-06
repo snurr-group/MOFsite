@@ -179,17 +179,9 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 			
-			if (!isTriclinic || demo) {
-			var coordinates = '';
-			var coordArray = [];
 			
-			for (i=1;i<=probeNumber;i++) {
-				coordinates = getRandomCo(i);
-				
-				inlineString+= ' B ' + coordinates + '\n';
-			}
-			}
-			else {
+			
+			var tricFunc = function() {	
 			for (i=1;i<=probeNumber;i++) {
 				var xx = Math.random();
 				var yy = Math.random();
@@ -201,9 +193,31 @@ $.getJSON("Blocks-database.json", function(data) {
 				coordinateArray[i-1] = tricCoords;
 				inlineString += ' B ' + tricCoords[0] + ' ' + tricCoords[1] + ' ' + tricCoords[2] + '\n';
 				
+		/*	if (i+2 < probeNumber && i%500 ==0) {
+					setTimeout(function() {console.log('pause ' + i); }, 100);
+					
+				} */ 	
+					
 			}	
 			loaded = false; 
-			}
+		};
+			
+			
+			
+			
+			
+			if (!isTriclinic || demo) {
+			var coordinates = '';
+			var coordArray = [];
+			
+			for (i=1;i<=probeNumber;i++) {
+				coordinates = getRandomCo(i);
+				
+				inlineString+= ' B ' + coordinates + '\n';
+				}
+			}			
+			else { tricFunc(); 
+			}	
 			
 			
 			
