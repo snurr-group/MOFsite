@@ -69,6 +69,11 @@ $.getJSON("Blocks-database.json", function(data) {
 		  cellC = c['corner1'][2] - c['corner0'][2];
 		  userLoaded = true; 
 		  loaded = true; 
+		  $("#boxText").hide();
+		  $("#boxRadio").hide();
+		  demo = false; 
+		  name = 'userloaded';
+		  
         };
       })(f);
 
@@ -115,8 +120,6 @@ $.getJSON("Blocks-database.json", function(data) {
 			if (loaded) {
 			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); 
 		}
-		
-			console.log(transf);
 		
 			Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
 			
@@ -176,8 +179,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 			
-			if (!isTriclinic) {
-				console.log('not tric');
+			if (!isTriclinic || demo) {
 			var coordinates = '';
 			var coordArray = [];
 			
@@ -215,7 +217,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			}
 			
 			var probeDisplaySize = probeSize;
-			if (probeDisplaySize < 0.01) {
+			if (probeDisplaySize < 0.1) {
 				probeDisplaySize = 0.1; 
 			}
 			if (probeDisplaySize == 1.0) { // error with precisely 1 as input for "spacefill" Jmol function 
@@ -251,7 +253,7 @@ $.getJSON("Blocks-database.json", function(data) {
 					$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');		
 					worker.terminate();
 					if (name.indexOf('Kr') > -1) {
-				var remainingProbes = probeNumber - flaggedProbeCount; 
+			//	var remainingProbes = probeNumber - flaggedProbeCount; 
 				var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
 				krVol = krVol.toFixed(2); 
 				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
