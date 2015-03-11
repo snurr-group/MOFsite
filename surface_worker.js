@@ -134,9 +134,9 @@ var probeY = 0;
 var probeZ = 0;
 
 // coordinates of structure atom being compared to probe
-var x2 = 0;
-var y2 = 0;
-var z2 = 0;
+var xa = 0;
+var ya = 0;
+var za = 0;
 
 // additional variables
 var dist = 0;
