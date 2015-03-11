@@ -115,22 +115,14 @@ $.getJSON("Blocks-database.json", function(data) {
 	//	$("#boxSelector").hide();
 		var flaggedProbeCount = 0;
 		var firstRun = true;
-		$("#runSimulation").click(function() {	
+		$(".run").click(function() {	
 			
 			if (loaded) {
 			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); 
-		}
+			}
 		
 			Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
 			
-			
-			// define the web worker, overlap_worker.js which performs MC computations in the background
-
-		
-			if (typeof(w) == "undefined") {
-			var worker = new Worker("overlap_worker.js");
-		}
-		
 			$("#addme").empty(); // clear previous output
 			
 			
@@ -153,18 +145,14 @@ $.getJSON("Blocks-database.json", function(data) {
 
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 
-			if (!userLoaded && !demo) {
-			
-			
+			if (!userLoaded && !demo) {			
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];	
-			
 			}
-			
-			
-			
+						
 			currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
+			
 			
 			var isTriclinic = triclinicCheck();
 			
@@ -173,15 +161,42 @@ $.getJSON("Blocks-database.json", function(data) {
 				var vect = transf['vector'];
 				
 				return Math.abs(center[0] - center[1]) > 0.01 || Math.abs(center[0] - center[2]) > 0.01 || Math.abs(center[1] - center[2]) > 0.01;
-				
 			}
 			
-			
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
+						
 			
+			if (isNaN(probeSize) || isNaN(probeNumber)) {
+				$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
+				return;
+			}
+			else {
+				probeSize = +probeSize;	// convert string to number
+			}
 			
-			
-			var tricFunc = function() {	
+			var probeDisplaySize = probeSize;
+			if (probeDisplaySize < 0.1) {
+				probeDisplaySize = 0.1; 
+			}
+			if (probeDisplaySize == 1.0) { // error with precisely 1 as input for "spacefill" Jmol function 
+				probeDisplaySize = 1.001;
+			} 
+		
+		
+		// see JMOL documentation for x = contact{ ...
+		
+
+		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+		var adjustment = 0;
+		var done = false; 
+		
+		////////////////// For VOID FRACTION
+		if ($(this).attr('id') == 'VF') {
+				if (typeof(w) == "undefined") {
+					var worker = new Worker("overlap_worker.js");
+				}
+				
+				var tricFunc = function() {	
 			for (i=1;i<=probeNumber;i++) {
 				var xx = Math.random();
 				var yy = Math.random();
@@ -203,9 +218,6 @@ $.getJSON("Blocks-database.json", function(data) {
 		};
 			
 			
-			
-			
-			
 			if (!isTriclinic || demo) {
 			var coordinates = '';
 			var coordArray = [];
@@ -220,63 +232,60 @@ $.getJSON("Blocks-database.json", function(data) {
 			}	
 			
 			
-			
-			
-			if (isNaN(probeSize) || isNaN(probeNumber)) {
-				$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
-				return;
-			}
-			else {
-				probeSize = +probeSize;	// convert string to number
-			}
-			
-			var probeDisplaySize = probeSize;
-			if (probeDisplaySize < 0.1) {
-				probeDisplaySize = 0.1; 
-			}
-			if (probeDisplaySize == 1.0) { // error with precisely 1 as input for "spacefill" Jmol function 
-				probeDisplaySize = 1.001;
-			} 
-		
-		
-		// see JMOL documentation for x = contact{ ...
-		Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
-		
-		
-		
-		
+			Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
 
-
-		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		var adjustment = 0;
-		var done = false; 
-
-		
-		flaggedProbeCount = 0;
-		var upperBound = probeNumber/500;
-		for (i=0;i<upperBound;i++) {
-			var start = 500*i;
-			var end = 500*(i+1);
-			worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber]);
-			worker.onmessage = function(event) {
-				response = event.data;
-				overString = response[0];
-				done = response[1];
-				flaggedProbeCount += (overString.match(/B/g) || []).length;
-				if (done) {
-					$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');		
-					worker.terminate();
-					if (name.indexOf('Kr') > -1) {
-			//	var remainingProbes = probeNumber - flaggedProbeCount; 
-				var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
-				krVol = krVol.toFixed(2); 
-				$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
+			flaggedProbeCount = 0;
+			var upperBound = probeNumber/500;
+				for (i=0;i<upperBound;i++) {
+						var start = 500*i;
+						var end = 500*(i+1);
+						worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber]);
+						worker.onmessage = function(event) {
+						response = event.data;
+						overString = response[0];
+						done = response[1];
+						flaggedProbeCount += (overString.match(/B/g) || []).length;
+							if (done) {
+								$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');		
+								worker.terminate();
+							if (name.indexOf('Kr') > -1) {
+								//	var remainingProbes = probeNumber - flaggedProbeCount; 
+								var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
+								krVol = krVol.toFixed(2); 
+								$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
 					}	
 					} 			
 			}
-		}
+		}	
+			} // end if void fraction calculations are requested (as opposed to surface area)
+		
+		////////////// FOR SURFACE AREA 
+				if ($(this).attr('id') == 'SA') {
+				
+				var workerSA = new Worker("surface_worker.js");
+				
+				
+				var probeBound = Math.floor(probeNumber/currentNumber); // number of probes per atom
+				var surfaceArea = 0;
+				$("#addme").empty();
+				for (j=0;j<currentNumber;j++) {
+					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC]]);
+					workerSA.onmessage = function(event) {
+						surfaceArea +=event.data[0];
+						done = event.data[1];
+						//console.log(surfaceArea);
+						if (done) {
+							$("#addme").append('<br /> The surface area is ' + surfaceArea.toFixed(2) + 'A^2.');
+						}
+					}	
+				}
+				}
 					
-		});
+		}); // end of MC simulation
+		
+		
+		
+		
 		var coordinateArray = [];
 		function getRandomCo(p) {
 			var rX = (Math.random() * cellA).toFixed(5);
@@ -285,7 +294,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			var coords = rX + ' ' + rY + ' ' + rZ;
 			coordinateArray[p-1] = [rX, rY, rZ]; 
 			return coords; 
-		} // end of MC simulation
+		} 
 		
 
 		

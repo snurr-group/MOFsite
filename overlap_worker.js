@@ -145,7 +145,6 @@ Zr:	2.783167595,
 		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
 			
 			if (!isInArray(fixedI,flagged)) {
-				testvar++;
 			x2 = atoms[k]['x'];
 			y2 = atoms[k]['y'];
 			z2 = atoms[k]['z'];
@@ -155,10 +154,6 @@ Zr:	2.783167595,
 			dist = distance(x1,y1,z1,x2,y2,z2);
 			
 			dist = pbCond(dist);
-			
-			
-			
-			
 			
 			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
 			
