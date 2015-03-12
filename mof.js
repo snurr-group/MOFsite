@@ -64,6 +64,7 @@ $.getJSON("Blocks-database.json", function(data) {
           t = e.target.result;
           Jmol.script(jmolApplet0, 'var t = "' + t + '"; print t; load "@t" {1 1 1}; spacefill only;');
           var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // use to establish size
+          console.log(c);
 		  cellA = c['corner1'][0] - c['corner0'][0];
 		  cellB = c['corner1'][1] - c['corner0'][1];
 		  cellC = c['corner1'][2] - c['corner0'][2];
@@ -264,6 +265,14 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				var workerSA = new Worker("surface_worker.js");
 				
+				var cellVol = 0;
+				
+				if (!isTriclinic) {
+					cellVol = cellA*cellB*cellC;
+				}
+				else {
+					console.log(modelInfo);
+				}
 				
 				var probeBound = Math.floor(probeNumber/currentNumber); // number of probes per atom
 				var surfaceArea = 0;
@@ -275,7 +284,8 @@ $.getJSON("Blocks-database.json", function(data) {
 						done = event.data[1];
 						//console.log(surfaceArea);
 						if (done) {
-							$("#addme").append('<br /> The surface area is ' + surfaceArea.toFixed(2) + 'A^2.');
+							surfaceArea = surfaceArea * 10000 / cellVol;
+							$("#addme").append('<br /> The surface area is ' + surfaceArea.toFixed(2) + ' m^2 / cm^3.');
 						}
 					}	
 				}
