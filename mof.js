@@ -64,7 +64,7 @@ $.getJSON("Blocks-database.json", function(data) {
           t = e.target.result;
           Jmol.script(jmolApplet0, 'var t = "' + t + '"; print t; load "@t" {1 1 1}; spacefill only;');
           var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // use to establish size
-          console.log(c);
+		  //console.log(t);
 		  cellA = c['corner1'][0] - c['corner0'][0];
 		  cellB = c['corner1'][1] - c['corner0'][1];
 		  cellC = c['corner1'][2] - c['corner0'][2];
@@ -271,7 +271,7 @@ $.getJSON("Blocks-database.json", function(data) {
 					cellVol = cellA*cellB*cellC;
 				}
 				else {
-					console.log(modelInfo);
+					cellVol = triclinicVol(cellA, cellB, cellC);
 				}
 				
 				var probeBound = Math.floor(probeNumber/currentNumber); // number of probes per atom
@@ -289,11 +289,31 @@ $.getJSON("Blocks-database.json", function(data) {
 						}
 					}	
 				}
-				}
+				} // end for SA
+				
+				
+		/////////////////// FOR PORE SIZE DISTRIBUTION
+		
+			if ($(this).attr('id') == 'PSD') { 
+				var workerPSD = new Worker('poresize_worker.js');
+				var probeCount = 0;
+				// add support for triclinic cell
+					workerPSD.postMessage([probeNumber, probeSize, molInfo, [cellA, cellB, cellC]]);
+					workerPSD.onmessage = function(event) {
+					console.log(event.data[0]);
 					
+				
+				}
+				
+			}
+	
+		function triclinicVol(a,b,c) {
+			
+		}
+		
 		}); // end of MC simulation
 		
-		
+	
 		
 		
 		var coordinateArray = [];

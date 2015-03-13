@@ -152,17 +152,21 @@ var mag = 0;
 for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
 	overlap = false; 
 	
-	// random value (-1,1)
-	probeX = (Math.random()*2-1);
-	probeY = (Math.random()*2-1);
-	probeZ = (Math.random()*2-1);
+	// random point of sphere
+	thetha = 0.0;
+	phi = 0.0;
+	theta = 2*Math.PI*Math.random();
+	phi = Math.acos(2*Math.random()-1.0);
+	xu = Math.cos(theta)*Math.sin(phi);
+	yu = Math.sin(theta)*Math.sin(phi);
+	zu = Math.cos(phi);
 	
-	// position the probe at the appropriate distance using a normalized vector and the sum of the radii
-	mag = vectMag([probeX, probeY, probeZ]);
-	probeX = x + probeX/mag*(atomRad+probeRad);
-	probeY = y + probeY/mag*(atomRad+probeRad);
-	probeZ = z + probeZ/mag*(atomRad+probeRad);
-		
+	rad = atomRad + probeRad;
+	
+	probeX = x + rad*xu;
+	probeY = y + rad*yu;
+	probeZ = z + rad*zu;
+	
 		
 	for (j=0;j<structureCount;j++) { // compare to rest of structure
 		if (!overlap) { // if the probe has not overlapped with any structure atoms
