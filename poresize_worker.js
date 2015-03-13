@@ -123,7 +123,7 @@ var probeZ = 0;
 var probeCount = [];
 var probeCoords = [0, 0, 0];
 
-var iterations = 30;
+var iterations = 500;
 
 for (p=0;p<iterations;p++) {
 	probeCount[p] = 0;

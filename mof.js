@@ -123,9 +123,8 @@ $.getJSON("Blocks-database.json", function(data) {
 		/////////////
 		
 		$(".run").click(function() {	
-		console.log('run');	
 			if (hidden) {
-				console.log(name);
+				console.log('hidden');
 				Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
 				$("#hideMOF").html('Hide Structure');
 			}
@@ -312,7 +311,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			if ($(this).attr('id') == 'PSD') { 
 				var workerPSD = new Worker('poresize_worker.js');
 				var probeCount = 0;
-				var incrementStep = 0.01;
+				var incrementStep = 0.05;
 				// add support for triclinic cell
 					workerPSD.postMessage([probeNumber, probeSize, molInfo, [cellA, cellB, cellC], incrementStep]);
 					workerPSD.onmessage = function(event) {
@@ -328,7 +327,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			var upper =  minSize + (rawData.indexOf(0) + 2)*inc;
 			
-			histOptions = {yaxis: {max: 2}, xaxis : {max: upper}};
+			histOptions = {yaxis: {max: 1}, xaxis : {max: upper}};
 			
 			var data = [];
 			var xval = 0;
