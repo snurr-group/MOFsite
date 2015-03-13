@@ -283,10 +283,10 @@ $.getJSON("Blocks-database.json", function(data) {
 	} // worker call for VF
 	
 			if (mode == 'PSD') {
-				iterations = 50;
+				iterations = 100;
 				var overCount = [];
 				var tmp =0;
-				var stepSize = 0.05
+				var stepSize = 0.1
 				for (q=0;q<iterations;q++) {
 				overCount[q] = 0;
 				}
@@ -321,7 +321,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			}
 		//} // for upperbound
 	}
-			} // end if PSD, worker call
+			} // end if PSD, worker call 
 	
 			} // end if void fraction calculations are requested (as opposed to surface area)
 		
@@ -360,9 +360,9 @@ $.getJSON("Blocks-database.json", function(data) {
 		/////////////////// FOR PORE SIZE DISTRIBUTION
 		/*
 			if ($(this).attr('id') == 'PSD') { 
-				var workerPSD = new Worker('poresize_worker.js');
+				var workerPSD = new Worker('poresize_worker_2.js');
 				var probeCount = 0;
-				var incrementStep = 0.05;
+				var incrementStep = 0.1;
 				// add support for triclinic cell
 					workerPSD.postMessage([probeNumber, probeSize, molInfo, [cellA, cellB, cellC], incrementStep]);
 					workerPSD.onmessage = function(event) {
@@ -371,14 +371,14 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				}
 				
-			} */
-		
+			} 
+		*/
 		function generateHistogram(rawData, minSize, stepSize) {
 			
 			
 			var upper =  minSize + (rawData.indexOf(0) + 2)*stepSize;
 			
-			histOptions = {yaxis: {max: 1}, xaxis : {max: 3}};
+			histOptions = {yaxis: {max: 1}, xaxis : {max: upper}};
 			
 			var data = [];
 			var xval = 0;

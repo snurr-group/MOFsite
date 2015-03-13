@@ -132,7 +132,7 @@ for (p=0;p<iterations;p++) {
 for (i=0;i<numProbes;i++) {
 	overlap = false; 
 	
-	
+	probeRad = 0;
 	probeCoords = generateProbeCoords();
 	probeX = probeCoords[0]; 
 	probeY = probeCoords[1]; 
@@ -140,7 +140,7 @@ for (i=0;i<numProbes;i++) {
 	
 	flag = false; 
 	
-	for (inc=0;inc<iterations;inc++) {	
+	for (inc=1;inc<=iterations;inc++) {	
 	//overlap = false;
 		
 	if (!flag) {
@@ -162,7 +162,7 @@ for (i=0;i<numProbes;i++) {
 	
 	} // end compare to structure for loop 
 		
-	if (overlap) {
+	if (overlap && !flag) {
 		//overlap = false;
 		flag = true;
 		if (inc!=0) {
@@ -228,6 +228,6 @@ function pbCond(dist) {
 			}
 			return dist;
 		}
-				
+console.log(probeCount);				
 postMessage([probeCount]);
 };
