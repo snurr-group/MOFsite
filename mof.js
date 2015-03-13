@@ -201,11 +201,16 @@ $.getJSON("Blocks-database.json", function(data) {
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		var adjustment = 0;
 		var done = false; 
+		var mode = $(this).attr('id');
 		
-		////////////////// For VOID FRACTION
-		if ($(this).attr('id') == 'VF') {
-				if (typeof(w) == "undefined") {
+		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
+		if (mode == 'VF' || mode == 'PSD') {
+			
+				if (typeof(w) == "undefined" && mode == 'VF') {
 					var worker = new Worker("overlap_worker.js");
+				}
+				if (typeof(w) == "undefined" && mode == 'PSD') {
+					var worker = new Worker("poresize_worker.js");
 				}
 				
 				var tricFunc = function() {	
@@ -246,7 +251,10 @@ $.getJSON("Blocks-database.json", function(data) {
 			
 			Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
 
+
+		
 			flaggedProbeCount = 0;
+			if (mode == 'VF') {
 			var upperBound = probeNumber/500;
 				for (i=0;i<upperBound;i++) {
 						var start = 500*i;
@@ -272,10 +280,53 @@ $.getJSON("Blocks-database.json", function(data) {
 					} 			
 			}
 		}	
+	} // worker call for VF
+	
+			if (mode == 'PSD') {
+				iterations = 50;
+				var overCount = [];
+				var tmp =0;
+				var stepSize = 0.05
+				for (q=0;q<iterations;q++) {
+				overCount[q] = 0;
+				}
+				for (p=0;p<iterations;p++) {
+			//	var upperBound = probeNumber/500;
+			//	for (i=0;i<upperBound;i++) {
+					//	var start = 500*i;
+					//	var end = 500*(i+1);
+						worker.postMessage([coordinateArray, molInfo, currentNumber, probeSize, [cellA, cellB, cellC], probeNumber, p, stepSize]);
+						worker.onmessage = function(event) {
+						response = event.data;
+						
+						
+//						console.log(response[0]);
+
+						done = response[1];
+
+							if (done) {
+							//	console.log(q + ' ' + response[0]);
+								//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
+								vFraction = (1-response[0]/probeNumber).toFixed(3);	
+								cellVol = cellA*cellB*cellC;
+								overCount[response[2]] = vFraction;
+								if (response[2]+1 == iterations) {
+								generateHistogram(overCount, probeSize, stepSize);
+								console.log(overCount);
+							}
+								//$("#addme").append('<br /><br /> The void fraction is ' + vFraction);		
+								//worker.terminate();	
+								done = false;
+					} 			
+			}
+		//} // for upperbound
+	}
+			} // end if PSD, worker call
+	
 			} // end if void fraction calculations are requested (as opposed to surface area)
 		
 		////////////// FOR SURFACE AREA 
-				if ($(this).attr('id') == 'SA') {
+				if (mode == 'SA') {
 				
 				var workerSA = new Worker("surface_worker.js");
 				
@@ -307,7 +358,7 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				
 		/////////////////// FOR PORE SIZE DISTRIBUTION
-		
+		/*
 			if ($(this).attr('id') == 'PSD') { 
 				var workerPSD = new Worker('poresize_worker.js');
 				var probeCount = 0;
@@ -320,38 +371,38 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				}
 				
-			}
+			} */
 		
-		function generateHistogram(rawData, minSize, inc) {
+		function generateHistogram(rawData, minSize, stepSize) {
 			
 			
-			var upper =  minSize + (rawData.indexOf(0) + 2)*inc;
+			var upper =  minSize + (rawData.indexOf(0) + 2)*stepSize;
 			
-			histOptions = {yaxis: {max: 1}, xaxis : {max: upper}};
+			histOptions = {yaxis: {max: 1}, xaxis : {max: 3}};
 			
 			var data = [];
 			var xval = 0;
 			var yval = 0;
 			var tmp = 0;
 			for (i=0;i<rawData.length;i++) {
-				xval = minSize + i*inc;
+				xval = minSize + i*stepSize;
+				
 				
 				if (i!=0 && i+1 < rawData.length) {
-					m1 = (rawData[i] - rawData[i-1])/inc;
-					m2 = (rawData[i+1] - rawData[i])/inc;
+					m1 = (rawData[i] - rawData[i-1])/stepSize;
+					m2 = (rawData[i+1] - rawData[i])/stepSize;
 					yval = -1*(m1+m2)/2;
 				}
 				if (i==0) {
-					yval = -1*(rawData[i+1] - rawData[i])/inc;
+					yval = -1*(rawData[i+1] - rawData[i])/stepSize;
 				}
 				if (i+1 == rawData.length) {
-					yval = -1*(rawData[i] - rawData[i-1])/inc;
+					yval = -1*(rawData[i] - rawData[i-1])/stepSize;
 				}
 				
 				if (tmp < yval) {
 					tmp = yval;
 				}
-				
 				data[i] = [xval, yval];
 			}
 			

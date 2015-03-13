@@ -197,8 +197,6 @@ function isInArray(value, arr) {
 	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
     return i==allItems.indexOf(item);
 }).join(',');
-	
-
 if (500*(adjustment+1)>=numProbes) {
 	done = true;
 }

@@ -1,5 +1,32 @@
-onmessage = function(e) {
-var atomDiameters = {
+
+
+onmessage = function(e) {	
+	var overlap = 0; // for psd, only need numerical value
+	var done = false;
+	var overlapString = '';
+	var array = e.data[0];
+	var atoms = e.data[1];
+	var correction = e.data[2];
+	var probeRadius = parseFloat(e.data[3]);
+	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
+	//var adjustment = e.data[5]; // number of iterations
+	var numProbes = e.data[5]; // total number of probes (user given)
+	var inc = e.data[6];
+	var stepSize = e.data[7];
+	var lengthA = array.length; // number of probes in this iteration (set to 500 on main thread)
+	var lengthB = atoms.length; // number of structure atoms, useful for pinpointing probes
+	var index = 0;
+	var x1=0;
+	var y1=0;
+	var z1=0;
+	var x2=0;
+	var y2=0;
+	var z2=0;
+	var val=0;
+	var dist=0;
+	var radius=0;
+	var pcb = false; 
+	var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
 Al:	4.008153333,
@@ -104,132 +131,80 @@ Yb:	2.988965199,
 Zn:	2.461553158,
 Zr:	2.783167595,
 }	
-
-var numProbes = e.data[0]/1;
-var probeRad = e.data[1]/2;
-//var increment = e.data[2];
-var atomInfo = e.data[2];
-var cellInfo = e.data[3];
-
-var stepSize = e.data[4]; // size to increment probe by on each iteration
-
-
-var numStructureAtoms = atomInfo.length;
-
-var probeX = 0;
-var probeY = 0;
-var probeZ = 0;
-
-var probeCount = [];
-var probeCoords = [0, 0, 0];
-
-var iterations = 500;
-
-for (p=0;p<iterations;p++) {
-	probeCount[p] = 0;
-}
-
-for (i=0;i<numProbes;i++) {
-	overlap = false; 
-	
-	
-
-	
-	probeCoords = generateProbeCoords();
-	probeX = probeCoords[0]; 
-	probeY = probeCoords[1]; 
-	probeZ = probeCoords[2]; 
-	
-	flag = false; 
-	
-	for (inc=0;inc<iterations;inc++) {	
-
+	var flagged = [];
+    var testvar = 0;
+    var flag = false;
+    var MCcalculate = function() {
 		
-	if (!flag) {
-	probeRad = probeRad + (inc-1)*stepSize; // using inc-1 to generate false values of less than probe size by one increment. Probe size smaller than increment OK, values discarded
-	
-	for (j=0;j<numStructureAtoms;j++) {
-	if (!overlap) {
-	x2 = atomInfo[j]['x'];
-	y2 = atomInfo[j]['y'];
-	z2 = atomInfo[j]['z'];
-	
-	atomRad = atomDiameters[atomInfo[j]['sym']]/2;
-	dist = [Math.abs(x2-probeX), Math.abs(y2-probeY), Math.abs(z2-probeZ)];
-	dist = pbCond(dist);
-	dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
-	totalRad = atomRad + probeRad;
-	overlap = dr < totalRad; 	
-
-	
-	} // end compare to structure for loop 
 		
-	if (overlap) {
-		overlap = false;
-		flag = true;
-		if (inc!=0) {
-			for (q=0;q<inc;q++) {
-			probeCount[q]++;
-		}
+		for (i=0;i<lengthA;i++) { // probes
+				flag = false; 
+		x1 = array[i][0];
+		y1 = array[i][1];
+		z1 = array[i][2];
+
+		//var fixedI = i + 500*adjustment;
+		var dr = 0;
+		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
 			
-		}
-		
-	} // end if overlap
-}
-} // end if flag
-} // end increment for loop	
+			if (!flag) {
+			x2 = atoms[k]['x'];
+			y2 = atoms[k]['y'];
+			z2 = atoms[k]['z'];
+			
+			radius = atomDiameters[atoms[k]['sym']]/2;
+			
+			dist = distance(x1,y1,z1,x2,y2,z2);
+			
+			dist = pbCond(dist);
+			
+			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
+			
+			if (dr < (probeRadius + inc*stepSize + radius) && !flag) { 
+				overlap++;
+				flag = true;
+			}
+		} // end if flagged 
+		} // end for loop (structure)	
+}		// end for loop (probes)
+} // end function
+
+MCcalculate();
 
 
 
-} // end all probes for loop
-
-
-
-function generateProbeCoords() {
-	
-	pX = Math.random()*cellInfo[0];
-	pY = Math.random()*cellInfo[1];
-	pZ = Math.random()*cellInfo[2];
-	var oc = false;
-	oc = occupiedSpace(pX,pY,pZ); 
-	if (oc) {
-		return generateProbeCoords();
-	}
-	else {
-		return [pX,pY,pZ];
-	}
-}
-
-function occupiedSpace(x,y,z) {
-	var occupied = false;
-	for (k=0;k<numStructureAtoms;k++) {
-		if (!occupied) {
-		xs = atomInfo[k]['x'];
-		ys = atomInfo[k]['y'];
-		zs = atomInfo[k]['z'];
-		
-		atomRad = atomDiameters[atomInfo[k]['sym']]/2;
-		dist = [Math.abs(xs-x), Math.abs(ys-y), Math.abs(zs-z)];
-		dist = pbCond(dist);
-		occupied = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2)) < (atomRad); 		
-	}
-	}
-	return occupied;
-}
-
+function distance(x1,y1,z1,x2,y2,z2) {
+	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
+	return distanceVector;
+}	
 function pbCond(dist) {
 			
-			if (dist[0] > cellInfo[0]/2) {
-					dist[0] = dist[0] - cellInfo[0]; 
+			if (dist[0] > cellSize[0]/2) {
+					dist[0] = dist[0] - cellSize[0]; 
 			}
-			if (dist[1] > cellInfo[1]/2) {
-					dist[1] = dist[1] - cellInfo[1]; 
+			if (dist[1] > cellSize[1]/2) {
+					dist[1] = dist[1] - cellSize[1]; 
 			}
-			if (dist[2] > cellInfo[2]/2) {
-					dist[2] = dist[2] - cellInfo[2]; 
+			if (dist[2] > cellSize[2]/2) {
+					dist[2] = dist[2] - cellSize[2]; 
 			}
 			return dist;
 		}
-				
-postMessage([probeCount]);
+
+function isInArray(value, arr) {
+  return arr.indexOf(value) > -1;
+}	
+/*
+	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
+    return i==allItems.indexOf(item);
+}).join(',');
+	*/
+
+
+	done = true;
+
+if (done) {
+	postMessage([overlap,done,inc]);
+}
 };
+
