@@ -1,20 +1,18 @@
 		 /*  IDs */ 
 		 
-		 #controlBox {width:300px; height:480px; border-style:solid; border-width:1px; position:absolute; top:60px; left:75%; z-index:2; 
-			-webkit-border-radius: 8;
-			-moz-border-radius: 8;
-			border-radius: 8px;
+		 #controlBox {width:300px; height:400px; position:absolute; top:60px; left:75%; z-index:2; 
+
 			/* http://www.colorzilla.com/gradient-editor/ */ 
-background: -moz-linear-gradient(top, rgba(47,119,145,0.51) 0%, rgba(70,99,163,0.61) 100%); /* FF3.6+ */
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(47,119,145,0.51)), color-stop(100%,rgba(70,99,163,0.61))); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top, rgba(47,119,145,0.51) 0%,rgba(70,99,163,0.61) 100%); /* Chrome10+,Safari5.1+ */
-background: -o-linear-gradient(top, rgba(47,119,145,0.51) 0%,rgba(70,99,163,0.61) 100%); /* Opera 11.10+ */
-background: -ms-linear-gradient(top, rgba(47,119,145,0.51) 0%,rgba(70,99,163,0.61) 100%); /* IE10+ */
-background: linear-gradient(to bottom, rgba(47,119,145,0.51) 0%,rgba(70,99,163,0.61) 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#822f7791', endColorstr='#9c4663a3',GradientType=0 ); /* IE6-9 */
+
 		 }	
+		 
+		 
+		 
+		 
+		  */
+		 #clear {margin-left:10px; padding-left:10px;}
 		  
-		 #clear {margin-left:10px;}
+		 #histogram {width:150px; height: 150px;} 
 		  
 		 #infoBox {width:170px; height:300px; border-style:solid; border-width:5px; margin-right:20px; position:fixed; left:280px;}
 		  
@@ -22,8 +20,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#822f7791', e
 		  
 		 #makeIconDown, #MCIconDown, #spIconDown {display:none;}
 		  
+		  
+		  
 	/*	 #makeButton, #learnMore, #showMCButton {margin-left:100px;} */
 		 #mofFail {display:none;}
+		 
+		 
+		 ul {list-style-type:none}
 		 
 		 #pageTitle {position:relative; left:30%;}
 		 

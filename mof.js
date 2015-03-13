@@ -99,6 +99,9 @@ $.getJSON("Blocks-database.json", function(data) {
 		// MOF generation accordion
 		$(".accordion").accordion(); 
 		
+		// and tabs
+		$( "#tabs" ).tabs();
+ 		
 		// prevent form submission when supercell is submitted
 		$("#supercellSelector").submit(function(event) {
 			event.preventDefault();
@@ -116,7 +119,16 @@ $.getJSON("Blocks-database.json", function(data) {
 	//	$("#boxSelector").hide();
 		var flaggedProbeCount = 0;
 		var firstRun = true;
+		
+		/////////////
+		
 		$(".run").click(function() {	
+		console.log('run');	
+			if (hidden) {
+				console.log(name);
+				Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
+				$("#hideMOF").html('Hide Structure');
+			}
 			
 			if (loaded) {
 			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); 
@@ -244,10 +256,13 @@ $.getJSON("Blocks-database.json", function(data) {
 						worker.onmessage = function(event) {
 						response = event.data;
 						overString = response[0];
+						Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;'); // hide overlapping probes
 						done = response[1];
 						flaggedProbeCount += (overString.match(/B/g) || []).length;
 							if (done) {
-								$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');		
+								//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
+								vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);	
+								$("#addme").append('<br /><br /> The void fraction is ' + vFraction);		
 								worker.terminate();
 							if (name.indexOf('Kr') > -1) {
 								//	var remainingProbes = probeNumber - flaggedProbeCount; 
@@ -297,15 +312,60 @@ $.getJSON("Blocks-database.json", function(data) {
 			if ($(this).attr('id') == 'PSD') { 
 				var workerPSD = new Worker('poresize_worker.js');
 				var probeCount = 0;
+				var incrementStep = 0.01;
 				// add support for triclinic cell
-					workerPSD.postMessage([probeNumber, probeSize, molInfo, [cellA, cellB, cellC]]);
+					workerPSD.postMessage([probeNumber, probeSize, molInfo, [cellA, cellB, cellC], incrementStep]);
 					workerPSD.onmessage = function(event) {
 					console.log(event.data[0]);
-					
+					generateHistogram(event.data[0], probeSize, incrementStep);
 				
 				}
 				
 			}
+		
+		function generateHistogram(rawData, minSize, inc) {
+			
+			
+			var upper =  minSize + (rawData.indexOf(0) + 2)*inc;
+			
+			histOptions = {yaxis: {max: 2}, xaxis : {max: upper}};
+			
+			var data = [];
+			var xval = 0;
+			var yval = 0;
+			var tmp = 0;
+			for (i=0;i<rawData.length;i++) {
+				xval = minSize + i*inc;
+				
+				if (i!=0 && i+1 < rawData.length) {
+					m1 = (rawData[i] - rawData[i-1])/inc;
+					m2 = (rawData[i+1] - rawData[i])/inc;
+					yval = -1*(m1+m2)/2;
+				}
+				if (i==0) {
+					yval = -1*(rawData[i+1] - rawData[i])/inc;
+				}
+				if (i+1 == rawData.length) {
+					yval = -1*(rawData[i] - rawData[i-1])/inc;
+				}
+				
+				if (tmp < yval) {
+					tmp = yval;
+				}
+				
+				data[i] = [xval, yval];
+			}
+			
+			for (j=0;j<rawData.length;j++) {
+				data[j][1] = data[j][1]/tmp; 
+			}
+			
+			
+			var maxVal = Math.max.apply(null,data);
+			
+			$.plot($('#histogram'), [data], histOptions);
+
+		}
 	
 		function triclinicVol(a,b,c) {
 			
@@ -363,14 +423,26 @@ $.getJSON("Blocks-database.json", function(data) {
 		 
 		});
 		
-		
+		clicked = false;
 		$("#mcDemo").click(function() {
 			demo = true; 
 			$("#boxText").show();
 			$("#boxRadio").show();
 			name = "Kr5";
+			
+			if (clicked) {
+			$("#mcDemo").html('"Sphere in a Box" Demonstration');
+			Jmol.script(jmolApplet0, 'zap; load ./MOFs/DOTSOV.cif {1 1 1}; spacefill only;');
+			clicked = false;
+			}
+			else {if (!clicked) {
+			$("#mcDemo").html('Return');
 			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1};');
-		});
+			clicked = true;
+			}
+			}
+	
+			});
 		
 		function loadViewer(name) {
 			name = name.toString();
@@ -406,17 +478,32 @@ $.getJSON("Blocks-database.json", function(data) {
 			$("#addme").empty();
 		});
 		
+		var hidden = false;
+		$("#hideMOF").click(function() {
+			Jmol.script(jmolApplet0, 'hide not B*;');
+			if (!hidden) {
+				$(this).html('Show Structure');
+				hidden = true;
+			}
+			else {
+				hidden = false;
+				Jmol.script(jmolApplet0, 'load APPEND ./MOFs/' + name + '.cif; select {not B*}; spacefill;');
+				$(this).html('Hide Structure');
+
+			}
+			
+		});
 		
 		
 		// Collapsible menu controls - needs streamlining
 		function hideMC() {
-			$("#MCIconDown").hide();
-			$('#MCIconRight').show();			
+			$("#makeIconDown").hide();
+			$('#makeIconRight').show();			
 			$("#MCContainer").slideUp("slow");
 		}
 		function showMC() {
-			$("#MCIconRight").hide();
-			$('#MCIconDown').show();
+			$("#makeIconRight").hide();
+			$('#makeIconDown').show();
 			$("#MCContainer").slideDown("slow");
 		}
 		
@@ -443,29 +530,17 @@ $.getJSON("Blocks-database.json", function(data) {
 			$('#makeIconDown').show();	
 			$("#maker").slideDown("slow");
 		}
-			
-		$("#makeButton").click(function() {
-			
-				if ( $('#maker').is(':visible') ) {
-					hideMaker();					
-				}
-				else {
-					showMaker();
-				}
-				if ( $('#supercellContainer').is(':visible') ) {					
-					hideSupercell();					
-				}
-				if ( $('#MCContainer').is(':visible') ) {
-					hideMC();
-				}
-		});
+
 		
-		$("#showMCButton").click(function() {
-				if ( $('#MCContainer').is(':visible') ) {
-					hideMC();
+		var MCvis = false;
+		$("#makeButton").click(function() {
+				if (!MCvis) {
+					showMC();
+					MCvis = true;
 				}
 				else {
-					showMC();
+					hideMC();
+					MCvis = false;
 				}
 				if ( $('#supercellContainer').is(':visible') ) {					
 					hideSupercell();					
@@ -483,6 +558,7 @@ $.getJSON("Blocks-database.json", function(data) {
 				}
 				if ( $('#MCContainer').is(':visible') ) {
 					hideMC();
+					MCvis = false;
 				}
 				if ( $('#maker').is(':visible') ) {
 					hideMaker();					

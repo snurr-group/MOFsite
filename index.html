@@ -10,6 +10,8 @@
 		  <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 		 <script src="./jsmol/JSmol.min.nojq.js"></script>
 		 <script src="./mof.js"></script>
+		 <script src="./flot/jquery.flot.min.js"></script>
+		 
 		<title>MOF</title>
 		<meta name="description" content="">
 		<meta name="author" content="Maxime Usdin">
@@ -20,9 +22,12 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
+		 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css">
 	</head>
 
 	<body>
+		
+
 	 	<h1 id="pageTitle">Metal Organic Framework (MOF) Generator </h1>
 	 	<div id='viewercontainer'> 
 	 	
@@ -31,13 +36,35 @@
 	 	<span id="controlBox">
 		<br />
 		
-		<span class='btn' id="makeButton">  Make a MOF  <img id="makeIconRight" class="makeIcon" src="./Icons/SVG/arrow-right-thin.svg" />
+<!-- TABS START -->
+		
+<div id="tabs">
+    <ul>
+        <li><a href="#tabs-1">User Controls</a>
+        </li>
+        <li><a href="#tabs-2">Physical Properties</a>
+        </li>
+    <!--    <li><a href="#tabs-3">Other</a>
+        </li> -->
+    </ul>
+    <!-- --------------------------- -->
+    
+    <div id="tabs-1">
+        <p><span class='btn' id="makeButton">  Make a MOF  <img id="makeIconRight" class="makeIcon" src="./Icons/SVG/arrow-right-thin.svg" />
 		<img id="makeIconDown" class="makeIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>
 		<br />
 		
-		<span id="maker"> 
+		
+		
+		
+		
+		
+		
+		<div id="MCContainer">	
 			
-		<div class="accordion">
+			
+			
+		
 		<h3>Metals</h3>
 		<div> 
 		<a> <img hash="cu2" class="buildBlock" src="./Images/Metal/cu_paddlewheel.png" />   </a>   
@@ -54,19 +81,20 @@
 		<div>
 		<a> <img hash="n2" class="buildBlock" src="./Images/Linkers/amide.png" /> </a>
 		</div>
-		</div>
+		
 		<span id="mofFail">No MOF could be made from these building blocks, please try again. <br /></span>
 		<span class='controlButton btn' id='generate'> Generate! </span> 
 	 	<span class='controlButton btn' id='clear'> Clear </span> <br />
 	 	<br />
 	 	
-		</span>
+		</div>
+		
+		
+		
+		
 		
 		<br /><br /> 
-		
-		
-	 	<!-- <span class='btn' id="learnMore"> Learn More </span> <br /> <br /> -->
-	 	
+			 	
 	 	
 	 	<span class="btn" id="supercellButton">Supercell<img id="spIconRight" class="spIcon" src="./Icons/SVG/arrow-right-thin.svg" />
 		<img id="spIconDown" class="spIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>  <br /> <br />
@@ -110,21 +138,23 @@
 		
 		<br /> <br />
 		
-		</span>
-		
-		
-		
-	 	 <br />
-	 	 <span class="btn" id="showMCButton">Monte Carlo Simulation<img id="MCIconRight" class="MCIcon" src="./Icons/SVG/arrow-right-thin.svg" />
-		<img id="MCIconDown" class="MCIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>  <br /> <br />
-	 	 <span id="MCContainer">
+		</span></p>
+    </div>
+    
+    <!-- --------------------------- -->
+    
+    <div id="tabs-2">
+        <p>
+	 	<!-- <span class="btn" id="showMCButton">Monte Carlo Simulation<img id="MCIconRight" class="MCIcon" src="./Icons/SVG/arrow-right-thin.svg" /> 
+		<img id="MCIconDown" class="MCIcon" src="./Icons/SVG/arrow-down-thin.svg" /></span>  <br /> <br /> -->
+	 	 
 			 
 	 	 <div class="accordion2">
 	 	
 	 	 
-	 	 <div><span id="enterProbeCount">Enter Number of Probes to use and probe diameter<span id="boxText"> and box size</span>:</span><br /><br />
+	 	 <div><span id="enterProbeCount">Enter number of probes to use and probe diameter<span id="boxText"> and box size</span>:</span><br /><br />
 	 	 <input type="text" id="probeCount"> Probes
-	 	 <input type="text" id="probeSize"> Angstroms (d)
+	 	 <input type="text" id="probeSize"> Angstroms 
 	 	<br />
 	 	 <span id="boxRadio">
 			 
@@ -139,13 +169,22 @@
 	     <br /> <br /> <br/>
 	     <span class="btn run" id="PSD">Pore Size Distribution</span>   
 	     <br /> <br /> <br/>
+	     <span class="btn" id="hideMOF">Hide Structure </span>
 	     <span class="btn" id="clearMC">Clear </span><br /> <br /><br /></div>
 	 	  
 	 	  <div><span class="btn" id="mcDemo">"Sphere in a Box" Demonstration</span> <br /> <br /></div>
 	 	  
 	 	 </div>
-	 	 </span>
-	 	 <br /> <br /> <br />
+	 	 </p>
+    </div>
+    
+    <!-- --------------------------- -->
+   <!-- 
+    <div id="tabs-3">
+        <p>Content for Tab 3</p>
+    </div>
+</div> -->
+
 	 	 <input type="file" id="files" name="files[]" multiple />
 		
 	 	 
@@ -159,6 +198,7 @@
 	 	  -->
 	 	 
 	 	 <div id="addme"></div>
+	 	 <div id="histogram"></div>
 	 	 </span>
 	 	 
 			

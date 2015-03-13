@@ -111,7 +111,7 @@ var probeRad = e.data[1]/2;
 var atomInfo = e.data[2];
 var cellInfo = e.data[3];
 
-var stepSize = 0.01; // size to increment probe by on each iteration
+var stepSize = e.data[4]; // size to increment probe by on each iteration
 
 
 var numStructureAtoms = atomInfo.length;
@@ -123,7 +123,7 @@ var probeZ = 0;
 var probeCount = [];
 var probeCoords = [0, 0, 0];
 
-var iterations = 200;
+var iterations = 30;
 
 for (p=0;p<iterations;p++) {
 	probeCount[p] = 0;
@@ -146,7 +146,7 @@ for (i=0;i<numProbes;i++) {
 
 		
 	if (!flag) {
-	probeRad = probeRad + (inc-1)*stepSize; // using inc-1 to generate false values of less than probe size by one increment. NB: probe size may not smaller than increment
+	probeRad = probeRad + (inc-1)*stepSize; // using inc-1 to generate false values of less than probe size by one increment. Probe size smaller than increment OK, values discarded
 	
 	for (j=0;j<numStructureAtoms;j++) {
 	if (!overlap) {
@@ -168,7 +168,10 @@ for (i=0;i<numProbes;i++) {
 		overlap = false;
 		flag = true;
 		if (inc!=0) {
-			probeCount[inc-1]++;
+			for (q=0;q<inc;q++) {
+			probeCount[q]++;
+		}
+			
 		}
 		
 	} // end if overlap
@@ -178,7 +181,6 @@ for (i=0;i<numProbes;i++) {
 
 
 
-//console.log(probeCount);
 } // end all probes for loop
 
 
