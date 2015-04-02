@@ -1,31 +1,13 @@
 
 
 onmessage = function(e) {	
-	var overlap = 0; // for psd, only need numerical value
-	var done = false;
-	var overlapString = '';
-	var array = e.data[0];
-	var atoms = e.data[1];
-	var correction = e.data[2];
-	var probeRadius = parseFloat(e.data[3]);
-	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
-	//var adjustment = e.data[5]; // number of iterations
-	var numProbes = e.data[5]; // total number of probes (user given)
-	var inc = e.data[6];
-	var stepSize = e.data[7];
-	var lengthA = array.length; // number of probes in this iteration (set to 500 on main thread)
-	var lengthB = atoms.length; // number of structure atoms, useful for pinpointing probes
-	var index = 0;
-	var x1=0;
-	var y1=0;
-	var z1=0;
-	var x2=0;
-	var y2=0;
-	var z2=0;
-	var val=0;
-	var dist=0;
-	var radius=0;
-	var pcb = false; 
+	var atoms = e.data[0];
+	var numProbes = e.data[1];
+	var cellSize = e.data[2];	
+	var stepSize = 0.01;
+
+	
+	
 	var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
@@ -131,46 +113,211 @@ Yb:	2.988965199,
 Zn:	2.461553158,
 Zr:	2.783167595,
 }	
-	var flagged = [];
-    var testvar = 0;
-    var flag = false;
-    var MCcalculate = function() {
+	
+	
+	
+	
+	var cellVol = cellSize[0]*cellSize[1]*cellSize[2];
+	var gridSize = Math.floor(Math.pow(numProbes, 1/3));
+	var unitResolution = cellSize[0] / gridSize;
+	var points = [];
 		
-		
-		for (i=0;i<lengthA;i++) { // probes
-				flag = false; 
-		x1 = array[i][0];
-		y1 = array[i][1];
-		z1 = array[i][2];
+// generate grid of evenly spaced points
+	for (i=0;i<=gridSize;i++) { 
+		for (j=0;j<=gridSize;j++) {
+			for (k=0;k<=gridSize;k++) {
+				index = i + gridSize*j + Math.pow(gridSize,2)*k;
+				points[index] = [unitResolution*i, unitResolution*j, unitResolution*k];
+	}
+	}
+	}
 
-		//var fixedI = i + 500*adjustment;
-		var dr = 0;
-		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
+	var atomX = [];
+	var atomY = [];
+	var atomZ = [];
+	for (l=0;l<atoms.length;l++) {
+		atomX[l] = atoms[l]['x'];
+		atomY[l] = atoms[l]['y'];
+		atomZ[l] = atoms[l]['z'];
+	}
+
+
+	var pointsa = []; // grid of points outside of structure atoms
+	var p = 0; // counter
+	for (m=0;m<points.length;m++) {
+		x1 = points[m][0];
+		z1 = points[m][1];
+		y1 = points[m][2];
 			
-			if (!flag) {
-			x2 = atoms[k]['x'];
-			y2 = atoms[k]['y'];
-			z2 = atoms[k]['z'];
-			
-			radius = atomDiameters[atoms[k]['sym']]/2;
-			
-			dist = distance(x1,y1,z1,x2,y2,z2);
-			
-			dist = pbCond(dist);
-			
-			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));			
-			
-			if (dr < (probeRadius + inc*stepSize + radius) && !flag) { 
-				overlap++;
-				flag = true;
+		if (!checkOverlap([x1,y1,z1], 0)) {
+			pointsa[p] = points[m];
+			p++;
+		}			
+	}
+	
+	/*
+		x2 = atomX[m];
+		y2 = atomY[m];
+		z2 = atomZ[m];
+		
+		
+		dist = distance(x1,y1,z1,x2,y2,z2);
+		dist = pbCond(dist);
+		
+		dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));	
+		
+		radius = atomDiameters[atoms[m]['sym']]/2;
+		
+		if (dr > radius) {
+			pointsa[p] = points[m];
+			p++;
+		}
+		*/
+	
+
+	
+	// now we have a grid of points outside of any structure atoms, next we find the largest possible probe at each point
+	
+	var rada = [];
+	var flagged = false; 
+	var increments = 1000;
+	
+	for (n=0;n<pointsa.length;n++) {		
+		flagged = false;
+		for (o=0;o<increments;o++) { // increments of stepSize each
+			if (!flagged) {
+			testRad = o*stepSize;
+			if (checkOverlap(pointsa[n],testRad,n)) {
+				rada[n] = testRad;
+				flagged = true;
 			}
-		} // end if flagged 
-		} // end for loop (structure)	
-}		// end for loop (probes)
-} // end function
+			
+		}
+	}
+	}
+	console.log(rada);
+	
+	// now have two arrays, pointsa with the locations of grid points and rada with the radii of the largest sphere at each point
+	
+	// next, we generate random points outside of the structure, compare to pointsa and find largest containing sphere
+	
+	function randomCoords() {
+		var pt = [];
+		
+		x1 = Math.random()*cellSize[0]/1;
+		y1 = Math.random()*cellSize[1]/1;
+		z1 = Math.random()*cellSize[2]/1;
+		
+		pt = [x1, y1, z1];
+		
+		if (checkOverlap(pt,0)) {
+			return randomCoords();
+		}
+		else {
+			return pt;
+		}
+		}
+	
+	var maxDist = 0;
+	var probeSizeArray = []; // bin this array up to max probe size at point
+	var probePoint = [0, 0, 0];
+		for (w=0;w<increments;w++) {
+		probeSizeArray[w]=0;
+	}
 
-MCcalculate();
 
+	for (s=0;s<numProbes;s++) {
+		maxDist = 0;
+		probePoint = randomCoords(); // generates a point outside of structure
+		
+
+		for (t=0;t<pointsa.length;t++) {
+			dist = distance(probePoint[0], probePoint[1], probePoint[2], pointsa[t][0], pointsa[t][1], pointsa[t][2]);
+			dist = pbCond(dist);
+			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+			if (dr < rada[t] && dr > maxDist) { // if probe is within sphere AND this is the largest sphere
+				maxDist = rada[t];				
+			}
+			
+		}
+		binArray(maxDist);
+	}
+	
+	
+	function binArray(max) {
+		maxIndex = Math.floor(max/stepSize);
+		for (u=0;u<maxIndex;u++) {
+			probeSizeArray[u]++;	
+		}
+	}
+	
+	
+	
+	function checkOverlap(pt, r,a) {
+		x = pt[0];
+		y = pt[1];
+		z = pt[2];
+		
+		var overlap = false;
+		var flag = false;
+		
+		for (b=0;b<atoms.length;b++) {
+			if (!flag) {
+		xa = atomX[b];
+		ya = atomY[b];
+		za = atomZ[b];
+			
+		
+		radius = atomDiameters[atoms[b]['sym']]/2;
+		
+		
+		dist = distance(x,y,z,xa,ya,za);	
+		dist = pbCond(dist);	
+		dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+		//console.log(dist);
+			if (dr < (radius+r)) {
+				overlap = true;
+				flag = true;
+				}
+				else {
+					overlap = false;
+				}
+							
+		}
+			
+
+		} 
+		return overlap;
+		}// 
+	/*	
+		for (a=0;a<atoms.length;a++) {
+			xa = atomX[a];
+			ya = atomY[a];
+			za = atomZ[a];
+			
+	
+			dist = distance(x,y,z,xa,ya,za);
+			
+			dist = pbCond(dist);	
+		
+			
+			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));	
+		
+			radius = atomDiameters[atoms[a]['sym']]/2;
+			
+			
+			if (dr < radius+r) {
+				return true;
+			}
+			else {
+				return false;
+			}
+			
+		} */
+		
+		
+	
+	
 
 
 function distance(x1,y1,z1,x2,y2,z2) {
@@ -200,11 +347,15 @@ function isInArray(value, arr) {
 }).join(',');
 	*/
 
+console.log(probeSizeArray);
+postMessage([probeSizeArray, stepSize]);
 
+
+/*
 	done = true;
 
 if (done) {
 	postMessage([overlap,done,inc]);
-}
+} */
 };
 

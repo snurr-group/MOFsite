@@ -240,7 +240,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			var coordArray = [];
 			
 			for (i=1;i<=probeNumber;i++) {
-				coordinates = getRandomCo(i);
+				coordinates = getRandomCo(i); // updates coordinateArray as well
 				
 				inlineString+= ' B ' + coordinates + '\n';
 				}
@@ -282,7 +282,21 @@ $.getJSON("Blocks-database.json", function(data) {
 		}	
 	} // worker call for VF
 	
+			
 			if (mode == 'PSD') {
+				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC]]);
+				worker.onmessage = function(event) {
+					response = event.data;
+					histArray = response[0];
+					stepSize = response[1];
+					
+					generateHistogram(histArray, probeSize, stepSize);
+				}
+				
+				
+				/*
+				
+				
 				iterations = 100;
 				var overCount = [];
 				var tmp =0;
@@ -318,10 +332,10 @@ $.getJSON("Blocks-database.json", function(data) {
 								//worker.terminate();	
 								done = false;
 					} 			
-			}
+			} */
 		//} // for upperbound
-	}
-			} // end if PSD, worker call 
+	}// end if PSD, worker call 
+			//} 
 	
 			} // end if void fraction calculations are requested (as opposed to surface area)
 		
@@ -356,29 +370,13 @@ $.getJSON("Blocks-database.json", function(data) {
 				}
 				} // end for SA
 				
-				
-		/////////////////// FOR PORE SIZE DISTRIBUTION
-		/*
-			if ($(this).attr('id') == 'PSD') { 
-				var workerPSD = new Worker('poresize_worker_2.js');
-				var probeCount = 0;
-				var incrementStep = 0.1;
-				// add support for triclinic cell
-					workerPSD.postMessage([probeNumber, probeSize, molInfo, [cellA, cellB, cellC], incrementStep]);
-					workerPSD.onmessage = function(event) {
-					console.log(event.data[0]);
-					generateHistogram(event.data[0], probeSize, incrementStep);
-				
-				}
-				
-			} 
-		*/
+
 		function generateHistogram(rawData, minSize, stepSize) {
 			
 			
 			var upper =  minSize + (rawData.indexOf(0) + 2)*stepSize;
 			
-			histOptions = {yaxis: {max: 1}, xaxis : {max: upper}};
+			histOptions = {yaxis: {max: 1}, xaxis : {max: 30}};
 			
 			var data = [];
 			var xval = 0;
