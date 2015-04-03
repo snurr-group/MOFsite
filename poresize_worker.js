@@ -117,22 +117,25 @@ Zr:	2.783167595,
 	
 	
 	
+	// global variables
 	var cellVol = cellSize[0]*cellSize[1]*cellSize[2];
-	var gridSize = Math.floor(Math.pow(numProbes, 1/3));
+	var gridSize = Math.floor(Math.pow(numProbes, 1/3)); // a single dimension of the grid
 	var unitResolution = cellSize[0] / gridSize;
-	stepSize = unitResolution;
+	stepSize = unitResolution; // the increment for possible probe radii is the distance between two points on the grid
 	var points = [];
 		
 // generate grid of evenly spaced points
 	for (i=0;i<=gridSize;i++) { 
 		for (j=0;j<=gridSize;j++) {
 			for (k=0;k<=gridSize;k++) {
-				index = i + gridSize*j + Math.pow(gridSize,2)*k;
+				index = i + gridSize*j + Math.pow(gridSize,2)*k; // counter based on a + bx + cx^2 
 				points[index] = [unitResolution*i, unitResolution*j, unitResolution*k];
 	}
 	}
 	}
 
+
+	// arrays of x,y,z coordinates
 	var atomX = [];
 	var atomY = [];
 	var atomZ = [];
@@ -145,6 +148,7 @@ Zr:	2.783167595,
 
 	var pointsa = []; // grid of points outside of structure atoms
 	var p = 0; // counter
+	// pointsa is populated with grid points that do not overlap the structure 
 	for (m=0;m<points.length;m++) {
 		x1 = points[m][0];
 		z1 = points[m][1];
@@ -167,8 +171,8 @@ Zr:	2.783167595,
 		flagged = false;
 		for (o=0;o<increments;o++) { // increments of stepSize each
 			if (!flagged) {
-			testRad = o*stepSize;
-			if (checkOverlap(pointsa[n],testRad,n)) {
+			testRad = o*stepSize; // radius of probe to test at the point 
+			if (checkOverlap(pointsa[n],testRad)) {
 				rada[n] = testRad;
 				flagged = true;
 			}
@@ -226,7 +230,7 @@ Zr:	2.783167595,
 	
 	
 	function binArray(max) {
-		maxIndex = Math.floor(max/stepSize);
+		maxIndex = Math.round(max/stepSize); // floor and round interchangeable? 
 		for (u=0;u<maxIndex;u++) {
 			probeSizeArray[u]++;	
 		}
@@ -234,7 +238,7 @@ Zr:	2.783167595,
 	
 	
 	
-	function checkOverlap(pt, r,a) {
+	function checkOverlap(pt, r) {
 		x = pt[0];
 		y = pt[1];
 		z = pt[2];
@@ -255,21 +259,18 @@ Zr:	2.783167595,
 		dist = distance(x,y,z,xa,ya,za);	
 		dist = pbCond(dist);	
 		dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
-		//console.log(dist);
+		
 			if (dr < (radius+r)) {
 				overlap = true;
 				flag = true;
-				}
+			}
 				else {
 					overlap = false;
-				}
-							
+				}					
 		}
-			
-
 		} 
 		return overlap;
-		}// 
+		} // end checkOverlap 
 
 
 function distance(x1,y1,z1,x2,y2,z2) {

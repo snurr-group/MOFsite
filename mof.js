@@ -234,7 +234,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			loaded = false; 
 		};
 			
-			
+			if (mode == 'VF') {
 			if (!isTriclinic || demo) {
 			var coordinates = '';
 			var coordArray = [];
@@ -254,7 +254,7 @@ $.getJSON("Blocks-database.json", function(data) {
 
 		
 			flaggedProbeCount = 0;
-			if (mode == 'VF') {
+			
 			var upperBound = probeNumber/500;
 				for (i=0;i<upperBound;i++) {
 						var start = 500*i;
@@ -292,50 +292,7 @@ $.getJSON("Blocks-database.json", function(data) {
 					
 					generateHistogram(histArray, probeSize, stepSize);
 				}
-				
-				
-				/*
-				
-				
-				iterations = 100;
-				var overCount = [];
-				var tmp =0;
-				var stepSize = 0.1
-				for (q=0;q<iterations;q++) {
-				overCount[q] = 0;
-				}
-				for (p=0;p<iterations;p++) {
-			//	var upperBound = probeNumber/500;
-			//	for (i=0;i<upperBound;i++) {
-					//	var start = 500*i;
-					//	var end = 500*(i+1);
-						worker.postMessage([coordinateArray, molInfo, currentNumber, probeSize, [cellA, cellB, cellC], probeNumber, p, stepSize]);
-						worker.onmessage = function(event) {
-						response = event.data;
-						
-						
-//						console.log(response[0]);
-
-						done = response[1];
-
-							if (done) {
-							//	console.log(q + ' ' + response[0]);
-								//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
-								vFraction = (1-response[0]/probeNumber).toFixed(3);	
-								cellVol = cellA*cellB*cellC;
-								overCount[response[2]] = vFraction;
-								if (response[2]+1 == iterations) {
-								generateHistogram(overCount, probeSize, stepSize);
-								console.log(overCount);
-							}
-								//$("#addme").append('<br /><br /> The void fraction is ' + vFraction);		
-								//worker.terminate();	
-								done = false;
-					} 			
-			} */
-		//} // for upperbound
 	}// end if PSD, worker call 
-			//} 
 	
 			} // end if void fraction calculations are requested (as opposed to surface area)
 		
