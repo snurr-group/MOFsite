@@ -4,7 +4,7 @@ onmessage = function(e) {
 	var atoms = e.data[0];
 	var numProbes = e.data[1];
 	var cellSize = e.data[2];	
-	var stepSize = 0.01;
+	var stepSize = 0;
 
 	
 	
@@ -120,6 +120,7 @@ Zr:	2.783167595,
 	var cellVol = cellSize[0]*cellSize[1]*cellSize[2];
 	var gridSize = Math.floor(Math.pow(numProbes, 1/3));
 	var unitResolution = cellSize[0] / gridSize;
+	stepSize = unitResolution;
 	var points = [];
 		
 // generate grid of evenly spaced points
@@ -155,32 +156,12 @@ Zr:	2.783167595,
 		}			
 	}
 	
-	/*
-		x2 = atomX[m];
-		y2 = atomY[m];
-		z2 = atomZ[m];
-		
-		
-		dist = distance(x1,y1,z1,x2,y2,z2);
-		dist = pbCond(dist);
-		
-		dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));	
-		
-		radius = atomDiameters[atoms[m]['sym']]/2;
-		
-		if (dr > radius) {
-			pointsa[p] = points[m];
-			p++;
-		}
-		*/
-	
 
-	
 	// now we have a grid of points outside of any structure atoms, next we find the largest possible probe at each point
 	
 	var rada = [];
 	var flagged = false; 
-	var increments = 1000;
+	var increments = 100;
 	
 	for (n=0;n<pointsa.length;n++) {		
 		flagged = false;
@@ -236,7 +217,7 @@ Zr:	2.783167595,
 			dist = pbCond(dist);
 			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
 			if (dr < rada[t] && dr > maxDist) { // if probe is within sphere AND this is the largest sphere
-				maxDist = rada[t];				
+				maxDist = rada[t]*2;				
 			}
 			
 		}
@@ -289,35 +270,6 @@ Zr:	2.783167595,
 		} 
 		return overlap;
 		}// 
-	/*	
-		for (a=0;a<atoms.length;a++) {
-			xa = atomX[a];
-			ya = atomY[a];
-			za = atomZ[a];
-			
-	
-			dist = distance(x,y,z,xa,ya,za);
-			
-			dist = pbCond(dist);	
-		
-			
-			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));	
-		
-			radius = atomDiameters[atoms[a]['sym']]/2;
-			
-			
-			if (dr < radius+r) {
-				return true;
-			}
-			else {
-				return false;
-			}
-			
-		} */
-		
-		
-	
-	
 
 
 function distance(x1,y1,z1,x2,y2,z2) {
@@ -341,21 +293,10 @@ function pbCond(dist) {
 function isInArray(value, arr) {
   return arr.indexOf(value) > -1;
 }	
-/*
-	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
-    return i==allItems.indexOf(item);
-}).join(',');
-	*/
 
 console.log(probeSizeArray);
 postMessage([probeSizeArray, stepSize]);
 
 
-/*
-	done = true;
-
-if (done) {
-	postMessage([overlap,done,inc]);
-} */
 };
 
