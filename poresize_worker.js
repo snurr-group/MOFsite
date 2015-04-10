@@ -119,9 +119,11 @@ Zr:	2.783167595,
 	
 	// global variables
 	var cellVol = cellSize[0]*cellSize[1]*cellSize[2];
-	var gridSize = Math.floor(Math.pow(numProbes, 1/3)); // a single dimension of the grid
+	//var gridSize = Math.floor(Math.pow(numProbes, 1/3)); // a single dimension of the grid
+	var gridSize = 40;
 	var unitResolution = cellSize[0] / gridSize;
-	stepSize = unitResolution; // the increment for possible probe radii is the distance between two points on the grid
+	//stepSize = unitResolution; // the increment for possible probe radii is the distance between two points on the grid
+	stepSize = 0.1;
 	var points = [];
 		
 // generate grid of evenly spaced points
@@ -165,13 +167,14 @@ Zr:	2.783167595,
 	
 	var rada = [];
 	var flagged = false; 
-	var increments = 100;
+	var increments = 0;
+	increments = cellSize[0]/stepSize; // increments of stepSize each will lead to probe sizes up to that of the unit cell
 	
 	for (n=0;n<pointsa.length;n++) {		
 		flagged = false;
 		for (o=0;o<increments;o++) { // increments of stepSize each
 			if (!flagged) {
-			testRad = o*stepSize; // radius of probe to test at the point 
+			testRad = o*0.1; // radius of probe to test at the point 
 			if (checkOverlap(pointsa[n],testRad)) {
 				rada[n] = testRad;
 				flagged = true;
@@ -180,6 +183,7 @@ Zr:	2.783167595,
 		}
 	}
 	}
+	console.log(pointsa);
 	console.log(rada);
 	
 	// now have two arrays, pointsa with the locations of grid points and rada with the radii of the largest sphere at each point
@@ -221,7 +225,7 @@ Zr:	2.783167595,
 			dist = pbCond(dist);
 			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
 			if (dr < rada[t] && dr > maxDist) { // if probe is within sphere AND this is the largest sphere
-				maxDist = rada[t]*2;				
+				maxDist = rada[t];				
 			}
 			
 		}
@@ -231,12 +235,21 @@ Zr:	2.783167595,
 	
 	function binArray(max) {
 		maxIndex = Math.round(max/stepSize); // floor and round interchangeable? 
+		// Probe size is the DIAMETER of the pores found with probes. The data collected is the radii of probes filling these pores. 
+		// To account for this, the following array has a bin width of double the step size so for d=2r. The step size value is 
+		// passed to the main thread. 
 		for (u=0;u<maxIndex;u++) {
 			probeSizeArray[u]++;	
 		}
 	}
 	
-	
+	/*
+	function binArray(max) {
+	//	console.log(max);
+		index = Math.floor(max/0.1);
+		probeSizeArray[index]++;
+	}
+	*/
 	
 	function checkOverlap(pt, r) {
 		x = pt[0];
@@ -296,7 +309,7 @@ function isInArray(value, arr) {
 }	
 
 console.log(probeSizeArray);
-postMessage([probeSizeArray, stepSize]);
+postMessage([probeSizeArray, stepSize*2]);
 
 
 };

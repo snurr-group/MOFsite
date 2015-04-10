@@ -1,4 +1,5 @@
-onmessage = function(e) {
+ onmessage = function(e) {
+	 console.log('in');
 var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
@@ -105,129 +106,191 @@ Zn:	2.461553158,
 Zr:	2.783167595,
 }	
 
-var numProbes = e.data[0]/1;
-var probeRad = e.data[1]/2;
-//var increment = e.data[2];
-var atomInfo = e.data[2];
-var cellInfo = e.data[3];
 
-var stepSize = e.data[4]; // size to increment probe by on each iteration
+var atoms = e.data[0];
+var numProbes = e.data[1]/1;
+var cellSize = e.data[2];
+
+var stepSize = 0.1; // size to increment probe by on each iteration
 
 
-var numStructureAtoms = atomInfo.length;
+var numStructureAtoms = atoms.length;
 
 var probeX = 0;
 var probeY = 0;
 var probeZ = 0;
 
 var probeCount = [];
+var probeSizeArray = [];
 var probeCoords = [0, 0, 0];
+var maxProbe = 0;
 
-var iterations = 500;
 
-for (p=0;p<iterations;p++) {
+var increments = 1000;
+var spherePoints = 100;
+
+for (p=0;p<increments;p++) {
 	probeCount[p] = 0;
 }
 
+var atomX = [];
+	var atomY = [];
+	var atomZ = [];
+	for (l=0;l<atoms.length;l++) {
+		atomX[l] = atoms[l]['x'];
+		atomY[l] = atoms[l]['y'];
+		atomZ[l] = atoms[l]['z'];
+	}
+
+
 for (i=0;i<numProbes;i++) {
-	overlap = false; 
-	
-	probeRad = 0;
-	probeCoords = generateProbeCoords();
-	probeX = probeCoords[0]; 
-	probeY = probeCoords[1]; 
-	probeZ = probeCoords[2]; 
-	
-	flag = false; 
-	
-	for (inc=1;inc<=iterations;inc++) {	
-	//overlap = false;
+	maxProbe = 0;
+	flag2 = false;
+	flag3 = false;
+	probePoint = randomCoords(); // random point P outside of any structure atoms
+	//console.log(probePoint);
+	for (j=0;j<=increments;j++) {
+		if (!flag2 || !flag3) {
 		
-	if (!flag) {
-	probeRad = probeRad + (inc-1)*stepSize; // using inc-1 to generate false values of less than probe size by one increment. Probe size smaller than increment OK, values discarded
-	
-	for (j=0;j<numStructureAtoms;j++) {
-	if (!overlap) {
-	x2 = atomInfo[j]['x'];
-	y2 = atomInfo[j]['y'];
-	z2 = atomInfo[j]['z'];
-	
-	atomRad = atomDiameters[atomInfo[j]['sym']]/2;
-	dist = [Math.abs(x2-probeX), Math.abs(y2-probeY), Math.abs(z2-probeZ)];
-	dist = pbCond(dist);
-	dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
-	totalRad = atomRad + probeRad;
-	overlap = dr < totalRad; 	
-
-	
-	} // end compare to structure for loop 
-		
-	if (overlap && !flag) {
-		//overlap = false;
-		flag = true;
-		if (inc!=0) {
-			for (q=0;q<inc;q++) {
-			probeCount[q]++;
+		r1 = stepSize*j;
+		//console.log('r1 ' +r1);	// radius of hypothetical sphere S surrounding probe point
+		tmp = maxProbe;
+		for (k=0;k<spherePoints;k++) {
+			flag = false;
+			surfacePoint = randomOnSphere(probePoint,r1); // a point P' on S
+			for (l=0;l<=increments;l++) {
+				if (!flag) {
+				r2 = r1+stepSize*l; // radius of hypothetical sphere S' around P'
+				//console.log('r2 ' + r2);
+				
+				overlap = checkOverlap(surfacePoint,r2);
+				
+				
+				if (overlap) {
+					flag = true;
+					if (r2 > maxProbe) { // if S' overlaps with a structure atom, record r2 and move to next P'
+				//	console.log(surfacePoint + ' ' + r2);
+					maxProbe = r2;
+				}
+			}
+		  }
+	  }
+				
 		}
+		if ((tmp==maxProbe) && flag3) {
+			flag2 = true;
+		}
+		if (tmp == maxProbe) { // if incrementing r of S did not change maxProbe, move to next probe
+				//flag2 = true;
+				flag3 = true;
+		}
+		if (tmp!=maxProbe) {
+			flag2 = false;
+			flag3 = false;
+		}
+	}
+		
+	}
+console.log(maxProbe);
+}
+
+
+function randomOnSphere(center,r) {
+	// random point of sphere
+	thetha = 0.0;
+	phi = 0.0;
+	theta = 2*Math.PI*Math.random();
+	phi = Math.acos(2*Math.random()-1.0);
+	xu = r*Math.cos(theta)*Math.sin(phi);
+	yu = r*Math.sin(theta)*Math.sin(phi);
+	zu = r*Math.cos(phi);
+	
+	xu = xu+center[0];
+	yu = yu+center[1];
+	zu = zu+center[2];
+	
+	return [xu, yu, zu];
+	
+}
+
+
+function randomCoords() {
+		var pt = [];
+		
+		x1 = Math.random()*cellSize[0]/1;
+		y1 = Math.random()*cellSize[1]/1;
+		z1 = Math.random()*cellSize[2]/1;
+		
+		pt = [x1, y1, z1];
+		
+		if (checkOverlap(pt,0)) {
+			return randomCoords();
+		}
+		else {
+			return pt;
+		}
+		}
+
+
+	function binArray(max,arr) {
+		maxIndex = Math.round(max/stepSize); // floor and round interchangeable? 
+		for (u=0;u<maxIndex;u++) {
+			arr[u]++;	
+		}
+		return arr;
+	}
+
+function checkOverlap(pt, r) {
+		x = pt[0];
+		y = pt[1];
+		z = pt[2];
+		
+		var overlap = false;
+		var flag = false;
+		
+		for (b=0;b<atoms.length;b++) {
+			if (!flag) {
+		xa = atomX[b];
+		ya = atomY[b];
+		za = atomZ[b];
 			
+		
+		radius = atomDiameters[atoms[b]['sym']]/2;
+		
+		
+		dist = distance(x,y,z,xa,ya,za);	
+		dist = pbCond(dist);	
+		dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+		
+			if (dr < (radius+r)) {
+				overlap = true;
+				flag = true;
+			}
+				else {
+					overlap = false;
+				}					
 		}
-		
-	} // end if overlap
-}
-} // end if flag
-} // end increment for loop	
+		} 
+		return overlap;
+		} // end checkOverlap 
 
-
-
-} // end all probes for loop
-
-
-
-function generateProbeCoords() {
-	
-	pX = Math.random()*cellInfo[0];
-	pY = Math.random()*cellInfo[1];
-	pZ = Math.random()*cellInfo[2];
-	var oc = false;
-	oc = occupiedSpace(pX,pY,pZ); 
-	if (oc) {
-		return generateProbeCoords();
-	}
-	else {
-		return [pX,pY,pZ];
-	}
-}
-
-function occupiedSpace(x,y,z) {
-	var occupied = false;
-	for (k=0;k<numStructureAtoms;k++) {
-		if (!occupied) {
-		xs = atomInfo[k]['x'];
-		ys = atomInfo[k]['y'];
-		zs = atomInfo[k]['z'];
-		
-		atomRad = atomDiameters[atomInfo[k]['sym']]/2;
-		dist = [Math.abs(xs-x), Math.abs(ys-y), Math.abs(zs-z)];
-		dist = pbCond(dist);
-		occupied = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2)) < (atomRad); 		
-	}
-	}
-	return occupied;
-}
+function distance(x1,y1,z1,x2,y2,z2) {
+	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
+	return distanceVector;
+}	
 
 function pbCond(dist) {
 			
-			if (dist[0] > cellInfo[0]/2) {
-					dist[0] = dist[0] - cellInfo[0]; 
+			if (dist[0] > cellSize[0]/2) {
+					dist[0] = dist[0] - cellSize[0]; 
 			}
-			if (dist[1] > cellInfo[1]/2) {
-					dist[1] = dist[1] - cellInfo[1]; 
+			if (dist[1] > cellSize[1]/2) {
+					dist[1] = dist[1] - cellSize[1]; 
 			}
-			if (dist[2] > cellInfo[2]/2) {
-					dist[2] = dist[2] - cellInfo[2]; 
+			if (dist[2] > cellSize[2]/2) {
+					dist[2] = dist[2] - cellSize[2]; 
 			}
 			return dist;
 		}
-console.log(probeCount);				
 postMessage([probeCount]);
 };

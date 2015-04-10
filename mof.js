@@ -10,7 +10,14 @@
 	var demo = false;
 	var loaded = true;
 	var transf = [];
-
+	var angle = [];
+	var side = [];
+	var isTriclinic = false;
+	// non-orthorhombic lattice vectors
+	var vectA = [];
+	var vectB = [];
+	var vectC = [];
+	var cellVol = 0; 
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
@@ -62,12 +69,72 @@ $.getJSON("Blocks-database.json", function(data) {
       reader.onload = (function(theFile) {
         return function(e) {
           t = e.target.result;
-          Jmol.script(jmolApplet0, 'var t = "' + t + '"; print t; load "@t" {1 1 1}; spacefill only;');
-          var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // use to establish size
-		  //console.log(t);
-		  cellA = c['corner1'][0] - c['corner0'][0];
-		  cellB = c['corner1'][1] - c['corner0'][1];
-		  cellC = c['corner1'][2] - c['corner0'][2];
+          Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
+          var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // used for corner locations
+		  angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
+		  sideIndices = [t.indexOf('_cell_length_a'), t.indexOf('_cell_length_b'), t.indexOf('_cell_length_c')];
+		  angleSubstrings = [t.substring(angleIndices[0]), t.substring(angleIndices[1]), t.substring(angleIndices[2])];
+		  sideSubstrings = [t.substring(sideIndices[0]), t.substring(sideIndices[1]), t.substring(sideIndices[2])];
+		  
+		  // find angle (works for floats and ints)
+		  var floatExp = /\d+\.\d+/;
+		  var intExp = /\d+/;
+		 
+		  for (i=0;i<3;i++) {
+			  if (angleSubstrings[i].search(floatExp) <= angleSubstrings[0].search(intExp)) {
+				  angle[i] = +angleSubstrings[i].match(floatExp)[0];
+				}
+			  else {
+				  angle[i] = +angleSubstrings[i].match(intExp)[0];  
+			  }
+			  if (sideSubstrings[i].search(floatExp) <= sideSubstrings[0].search(intExp)) {
+				  side[i] = +sideSubstrings[i].match(floatExp)[0];
+				}
+			  else {
+				  side[i] = +sideSubstrings[i].match(intExp)[0];  
+			  }
+			  
+		  }
+		  // angle is now [alpha, beta, gamma]
+		  // side is [a, b, c]
+		  cellA = side[0];
+		  cellB = side[1];
+		  cellC = side[2];
+		  		  
+		  if (angle[0] == angle[1] && angle[1] == angle[2]) {
+			  isTriclinic = false;
+		  }
+		  else {
+			  isTriclinic = true;
+		 // an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
+		 // (b) is in the xz-plane and (c) has a positive y component.
+		 // further, alpha is the angle (bc), beta is (ac), gamma is (ab)
+		 // if this is the case, then the vectors (a), (b), (c) may be calculated
+		 
+		 // using polar coordinates, theta = angle with (a), psi = angle with (b)
+		 
+		  thetaA = 0;
+		  thetaB = angle[2]*Math.PI/180; // gamma
+		  thetaC = angle[1]*Math.PI/180; // beta
+		  
+		  
+		  psiA = angle[2]*Math.PI/180; // gamma
+		  psiB = 0;
+		  psiC = angle[0]*Math.PI/180; // alpha
+		  
+		  rA = side[0];
+		  rB = side[1];
+		  rC = side[2];
+		  
+		  vectA = polarVect(rA,thetaA,psiA);
+		  vectB = polarVect(rB,thetaB,psiB);
+		  vectC = polarVect(rC,thetaC,psiC);
+		  
+		  }
+		  function polarVect(r,t,p) {
+			  return [r*Math.sin(p)*Math.cos(t), r*Math.sin(p)*Math.sin(t), r*Math.cos(p)];
+		  }
+		  
 		  userLoaded = true; 
 		  loaded = true; 
 		  $("#boxText").hide();
@@ -166,7 +233,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
 			
 			
-			var isTriclinic = triclinicCheck();
+			//var isTriclinic = triclinicCheck();
 			
 			function triclinicCheck() {
 				var center = transf['center'];
@@ -210,7 +277,7 @@ $.getJSON("Blocks-database.json", function(data) {
 					var worker = new Worker("overlap_worker.js");
 				}
 				if (typeof(w) == "undefined" && mode == 'PSD') {
-					var worker = new Worker("poresize_worker.js");
+					var worker = new Worker("poresize_worker_3.js");
 				}
 				
 				var tricFunc = function() {	
@@ -234,7 +301,6 @@ $.getJSON("Blocks-database.json", function(data) {
 			loaded = false; 
 		};
 			
-			if (mode == 'VF') {
 			if (!isTriclinic || demo) {
 			var coordinates = '';
 			var coordArray = [];
@@ -246,7 +312,10 @@ $.getJSON("Blocks-database.json", function(data) {
 				}
 			}			
 			else { tricFunc(); 
-			}	
+			}
+			
+			if (mode == 'VF') {
+				
 			
 			
 			Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
@@ -284,11 +353,12 @@ $.getJSON("Blocks-database.json", function(data) {
 	
 			
 			if (mode == 'PSD') {
-				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC]]);
+				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, [vectA, vectB, vectC],coordinateArray.slice(start, end)]);
 				worker.onmessage = function(event) {
 					response = event.data;
 					histArray = response[0];
 					stepSize = response[1];
+					console.log(histArray);
 					
 					generateHistogram(histArray, probeSize, stepSize);
 				}
@@ -301,25 +371,27 @@ $.getJSON("Blocks-database.json", function(data) {
 				
 				var workerSA = new Worker("surface_worker.js");
 				
-				var cellVol = 0;
+				
 				
 				if (!isTriclinic) {
 					cellVol = cellA*cellB*cellC;
 				}
 				else {
-					cellVol = triclinicVol(cellA, cellB, cellC);
+					cellVol = triclinicVol(vectA, vectB, vectC, angle);
 				}
 				
 				var probeBound = Math.floor(probeNumber/currentNumber); // number of probes per atom
 				var surfaceArea = 0;
 				$("#addme").empty();
+				//console.log([vectA, vectB, vectC]);
 				for (j=0;j<currentNumber;j++) {
-					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC]]);
+					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, [vectA, vectB, vectC]]);
 					workerSA.onmessage = function(event) {
 						surfaceArea +=event.data[0];
-						done = event.data[1];
 						//console.log(surfaceArea);
+						done = event.data[1];
 						if (done) {
+							console.log(surfaceArea);
 							surfaceArea = surfaceArea * 10000 / cellVol;
 							$("#addme").append('<br /> The surface area is ' + surfaceArea.toFixed(2) + ' m^2 / cm^3.');
 						}
@@ -342,7 +414,7 @@ $.getJSON("Blocks-database.json", function(data) {
 			for (i=0;i<rawData.length;i++) {
 				xval = minSize + i*stepSize;
 				
-				
+				/*
 				if (i!=0 && i+1 < rawData.length) {
 					m1 = (rawData[i] - rawData[i-1])/stepSize;
 					m2 = (rawData[i+1] - rawData[i])/stepSize;
@@ -354,27 +426,188 @@ $.getJSON("Blocks-database.json", function(data) {
 				if (i+1 == rawData.length) {
 					yval = -1*(rawData[i] - rawData[i-1])/stepSize;
 				}
+				*/
+				
+				if (i!=0 && i+1 < rawData.length) {
+					yval = -1*(rawData[i+1] - rawData[i-1])/2*stepSize;
+				}
+				if (i==0) {
+					yval = -1*(rawData[i+1] - rawData[i])/2*stepSize;
+				}
+				if (i+1 == rawData.length) {
+					yval = -1*(rawData[i] - rawData[i-1])/2*stepSize;
+				}
 				
 				if (tmp < yval) {
 					tmp = yval;
 				}
+				
 				data[i] = [xval, yval];
 			}
 			
+		//	cleanPSD(data,tmp,rawData.length,stepSize);
+						
 			for (j=0;j<rawData.length;j++) {
-				data[j][1] = data[j][1]/tmp; 
-			}
-			
-			
+				data[j][1] = data[j][1]/tmp; // normalize
+				}			
+						
 			var maxVal = Math.max.apply(null,data);
 			
 			$.plot($('#histogram'), [data], histOptions);
 
 		}
 	
-		function triclinicVol(a,b,c) {
+		function cleanPSD(data,mag,ll,step) {
+				var temp = [];
+				var stepsPerA = Math.ceil(1/step);
+				console.log(stepsPerA);
+				
+				for (j=0;j<ll;j++) {
+				temp[j] = data[j][1];
+				data[j][1] = data[j][1]/mag; // normalize
+				}
+				
+				
+				temp = smoothLocalMaxima(temp);
+				temp = removeNoise(temp);
+				console.log(temp);
+				
+				function removeNoise(array) {
+					for (i=0;i<array.length;i++) {
+						if (array[i] < 0.2) {
+							array[i] = 0;
+						}
+					}
+					return array;
+				}
+				
+				
+				function smoothLocalMaxima(array) {
+					for (i=0;i<array.length;i++) {
+						currentVal = array[i];
+						prevArray = previousValues(array,i);
+						nextArray = nextValues(array,i);
+						gradient = grad2Points(array,i);
+						localVariation = averageLocalGradients(prevArray,nextArray,gradient);
+					}
+					return array;
+				}
+				
+				// reutrn the n previous values of an array, n is the number of values required for a 1A difference 
+				function previousValues(arr,index) {
+					if (index < stepsPerA) {
+						for (i=0;i<index;i++) {
+							prev[i] = arr[i];
+						}
+					}
+					else {
+						for (i=0;i<stepsPerA;i++) {
+							prev[i] = arr[index-stepsPerA+i];
+						}
+					}
+					return prev;
+				}
+				// return the n next values of an array
+				function nextValues(arr,index) {
+					if (index+stepsPerA > arr.length) {
+						for (i=0;i<(arr.length-index-1);i++) {
+							next[i] = arr[index+i+1];
+						}
+					}
+					else {
+						for (i=0;i<stepsPerA;i++) {
+							next[i] = arr[index+i+1];
+						}
+					}
+					return next;
+				}
+				function grad2Points(arr,index) {
+					if (index!=0 && index!=(arr.length-1)) {
+						grad = arr[index-1] - arr[index+1];
+					}
+					if (index == 0) {
+						grad = arr[index+1] - arr[index];
+					}
+					if (index+1 == arr.length) {
+						grad = arr[index] - arr[index-1];
+					}
+					return grad;
+				}
+				
+				function averageLocalGradients(arr1, arr2, grad) {  // does not handle pores under 1A
+					grad1 = 0;
+					grad2 = 0;
+					var localMax = true;
+					for (i=1;i<arr1.length-1;i++) {
+						if (localMax) {
+						tmpGrad = grad2Points(arr1,i);
+						if (tmpGrad > grad) {
+							localMax = false;
+						}
+						grad1 += tmpGrad;
+					}
+				}
+				for (i=1;i<arr2.length-1;i++) {
+						if (loacalMax) {
+						tmpGrad = grad2Points(arr2,i);
+						if (tmpGrad > grad) {
+							localMax = false;
+						}
+						grad2 += tmpGrad;
+					}
+				}
+				if (localMax) {
+					grad1 = grad1/arr1.length;
+					grad2 = grad2/arr2.length;
+					return (grad1+grad2)/2;
+				}
+				else {
+					return -1;
+				}
+				}
+				
+			} // end cleanPSD
+	
+	// fix this??
+		function triclinicVol(a,b,c,angles) {
+			// angles in radians
+			alpha = angles[0]*Math.PI/180;
+			beta = angles[1]*Math.PI/180;
+			gamma = angles[2]*Math.PI/180;
+			
+			v = vectMag(a)*vectMag(b)*vectMag(c)*Math.sqrt(1-Math.pow(Math.cos(alpha),2) - Math.pow(Math.cos(beta),2) - Math.pow(Math.cos(gamma),2) + 2*Math.cos(alpha)*Math.cos(beta)*Math.cos(gamma));
+			console.log(v);
+			 
+			 
+			crossAB = vectorCross(a,b);
+			//console.log(crossAB);
+			tripleProd = vectorDot(c,crossAB);
+			console.log(tripleProd);
+			return Math.abs(v);
 			
 		}
+		
+		// vector dot product
+function vectorDot(ve1,ve2) {
+	dot = 0;
+	for (i=0;i<ve1.length;i++) {
+		dot += ve1[i]*ve2[i];
+	}
+	return dot;
+}
+
+// vector cross product
+function vectorCross(v1,v2) {
+	result = [];
+	result[0] = v1[1]*v2[2]-v1[2]*v2[1];
+	result[1] = v1[2]*v2[0]-v1[0]*v2[2];
+	result[2] = v1[0]*v2[1]-v1[1]*v2[0];
+	return result;
+}
+		// magnitude of vector
+function vectMag(vector) {
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
+}
 		
 		}); // end of MC simulation
 		
