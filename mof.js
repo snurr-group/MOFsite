@@ -351,8 +351,8 @@ $.getJSON("Blocks-database.json", function(data) {
 		}	
 	} // worker call for VF
 	
-			
 			if (mode == 'PSD') {
+				console.log('aaa');
 				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, [vectA, vectB, vectC],coordinateArray.slice(start, end)]);
 				worker.onmessage = function(event) {
 					response = event.data;

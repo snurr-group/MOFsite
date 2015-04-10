@@ -187,7 +187,7 @@ for (q=0;q<numProbes;q++) {
 	else {
 	probePoint = randomCoords();
 	}
-	console.log(probePoint);
+	//console.log(probePoint);
 	r = largestRadius(probePoint,0);
 	//console.log(r);
 	testPointArray = incrementPoint(probePoint);
@@ -310,6 +310,7 @@ function randomCoords() {
 	}
 
 function checkOverlap(pt, r) {
+	
 		x = pt[0];
 		y = pt[1];
 		z = pt[2];
@@ -361,8 +362,7 @@ function distance(x1,y1,z1,x2,y2,z2) {
 
 // periodic boundary calculations, needs fixing for triclinic
 function pbCond(dist,probePt,rad) {
-	console.log(probePt);
-	
+	//console.log(probePt);
 	function minOverlap(probePt) {
 				probeX1 = probePt[0];
 				probeY1 = probePt[1];
@@ -395,7 +395,7 @@ function pbCond(dist,probePt,rad) {
 			
 			
 			
-			if (triclinic) {
+			if (triclinic && false) {
 			
 			pbcFlag = false;
 			
@@ -408,7 +408,7 @@ function pbCond(dist,probePt,rad) {
 						}
 					}
 					else {
-						//console.log('distance of: ' + pointToPlane(probePt,planes[p]) + ' at point ' + probePt);
+						console.log('distance of: ' + pointToPlane(probePt,planes[p]) + ' at point ' + probePt);
 					}
 				}
 				}
