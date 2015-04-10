@@ -193,7 +193,7 @@ for (q=0;q<numProbes;q++) {
 	testPointArray = incrementPoint(probePoint);
 	//console.log(testPointArray);
 	probeSize = findPore(testPointArray,r);
-	console.log('pore size is ' + probeSize);
+	//console.log('pore size is ' + probeSize);
 	probeSizeArray = binArray(probeSize,probeSizeArray);
 	//console.log(probeSizeArray);
 }
