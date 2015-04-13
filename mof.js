@@ -18,6 +18,8 @@
 	var vectB = [];
 	var vectC = [];
 	var cellVol = 0; 
+	var cellMatrix = [];
+	var inverseMatrix = [];
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
@@ -39,6 +41,11 @@
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 
+
+// magnitude of vector
+function vectMag(vector) {
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
+}
 
   $("#viewer")
   .append(myJmol)
@@ -130,6 +137,29 @@ $.getJSON("Blocks-database.json", function(data) {
 		  vectB = polarVect(rB,thetaB,psiB);
 		  vectC = polarVect(rC,thetaC,psiC);
 		  
+		  alpha = angle[0]*Math.PI/180;
+		  beta = angle[1]*Math.PI/180;
+		  gamma = angle[2]*Math.PI/180;
+		  
+		  A = cellA;
+		  B = cellB;
+		  C = cellC;
+		  
+		  
+		a_x = A;
+		a_y = 0.0;
+		a_z = 0.0;
+		b_x = B * Math.cos(gamma);
+		b_y = B * Math.sin(gamma);
+		b_z = 0.0;
+		c_x = C * Math.cos(beta);
+		c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y;
+		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
+
+		cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
+		inverseMatrix = inverse3x3(cellMatrix);
+		
+		  
 		  }
 		  function polarVect(r,t,p) {
 			  return [r*Math.sin(p)*Math.cos(t), r*Math.sin(p)*Math.sin(t), r*Math.cos(p)];
@@ -149,6 +179,16 @@ $.getJSON("Blocks-database.json", function(data) {
       reader.readAsText(f);
     }
   }
+  
+  function inverse3x3([a,b,c,d,e,f,g,h,i]) {
+	  det = a*e*i+b*f*g+c*d*h-(c*e*g+b*d*i+a*f*h);
+	  mat = [(e*i-f*h), -(b*i-c*h), (b*f-c*e), -(d*i-f*g), (a*i-c*g), -(a*f-c*d), (d*h-e*g), -(a*h-b*g), (a*e-b*d)];
+	  for (i=0;i<mat.length;i++) {
+		  mat[i] *= 1/det;
+	  }
+	  return mat;
+  }
+
 
   document.getElementById('files').addEventListener('change', handleFileSelect, false);
 		
@@ -352,8 +392,8 @@ $.getJSON("Blocks-database.json", function(data) {
 	} // worker call for VF
 	
 			if (mode == 'PSD') {
-				console.log('aaa');
-				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, [vectA, vectB, vectC],coordinateArray.slice(start, end)]);
+				console.log(cellMatrix);
+				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, inverseMatrix,coordinateArray.slice(start, end), cellMatrix]);
 				worker.onmessage = function(event) {
 					response = event.data;
 					histArray = response[0];
@@ -369,7 +409,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		////////////// FOR SURFACE AREA 
 				if (mode == 'SA') {
 				
-				var workerSA = new Worker("surface_worker.js");
+				var workerSA = new Worker("surface_worker_2.js");
 				
 				
 				
@@ -385,7 +425,7 @@ $.getJSON("Blocks-database.json", function(data) {
 				$("#addme").empty();
 				//console.log([vectA, vectB, vectC]);
 				for (j=0;j<currentNumber;j++) {
-					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, [vectA, vectB, vectC]]);
+					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, cellMatrix, inverseMatrix]);
 					workerSA.onmessage = function(event) {
 						surfaceArea +=event.data[0];
 						//console.log(surfaceArea);
@@ -604,10 +644,7 @@ function vectorCross(v1,v2) {
 	result[2] = v1[0]*v2[1]-v1[1]*v2[0];
 	return result;
 }
-		// magnitude of vector
-function vectMag(vector) {
-	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
-}
+		
 		
 		}); // end of MC simulation
 		

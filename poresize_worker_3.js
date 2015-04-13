@@ -1,4 +1,4 @@
- onmessage = function(e) {
+onmessage = function(e) {
 	 console.log('in');
 var atomDiameters = {
 Ac:	3.098545742,
@@ -112,10 +112,11 @@ var cellSize = e.data[2];
 var triclinic = e.data[3];
 var structureCount = atoms.length;
 if (triclinic) {
-	var vects = e.data[4];
+	var inverseMatrix = e.data[4];
 	var probeCoords = e.data[5];
-
-	 
+	var cellMatrix = e.data[6];
+	
+	 /*
 	vectA = vects[0];
 				vectB = vects[1];
 				vectC = vects[2];
@@ -152,7 +153,12 @@ if (triclinic) {
 				planeDistances[k] = pointToPlane(ppoint[k], planes[k+3]);
 				
 			}
-			//console.log(planes);
+			
+			*/
+			
+			
+			
+			
 }
 var step = 0.05; // resolution of point location
 var stepSize = 0.01; // resolution of radius 
@@ -329,17 +335,20 @@ function checkOverlap(pt, r) {
 		
 		
 		distR = distance(x,y,z,xa,ya,za);	
-		distR = pbCond(distR,pt,r);	
-		//dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+		distR = pbCond(distR,pt);	
+		dr = Math.sqrt(Math.pow(distR[0],2) + Math.pow(distR[1],2) + Math.pow(distR[2],2));
 		
-			/*if (dr < (radius+r)) {
+			
+			
+			if (dr < (radius+r)) {
 				overlap = true;
 				flag = true;
 			}
 				else {
 					overlap = false;
 				}
-				*/
+				
+				/*
 		if (distR == -1) {
 					overlap = true;
 				}
@@ -348,7 +357,8 @@ function checkOverlap(pt, r) {
 						if (dr < (radius+r)) { // check if overlap
 							overlap = true; // flag
 					} // end if
-				}		
+				}
+				*/		
 									
 		}
 		} 
@@ -360,6 +370,41 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	return distanceVector;
 }	
 
+function pbCond(dist,probePt) {
+	if (triclinic) {
+	fractional = matrixDotVector(inverseMatrix, dist);
+	x = [];
+	x[0] = fractional[0] - Math.round(fractional[0]);
+	x[1] = fractional[1] - Math.round(fractional[1]);
+	x[2] = fractional[2] - Math.round(fractional[2]);
+	console.log(x);
+	cartesian = matrixDotVector(cellMatrix,x);
+	//console.log(cartesian);
+	return cartesian;
+	}
+	
+	else {
+			if (dist[0] > cellSize[0]/2) {
+					dist[0] = dist[0] - cellSize[0]; 
+			}
+			if (dist[1] > cellSize[1]/2) {
+					dist[1] = dist[1] - cellSize[1]; 
+			}
+			if (dist[2] > cellSize[2]/2) {
+					dist[2] = dist[2] - cellSize[2]; 
+			}
+		return dist;
+		}
+}
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
+
+
+/*
 // periodic boundary calculations, needs fixing for triclinic
 function pbCond(dist,probePt,rad) {
 	//console.log(probePt);
@@ -437,6 +482,7 @@ function pbCond(dist,probePt,rad) {
 		}
 			
 		}
+		 */
 		
 // shift a point along a vector
 function shiftPoint(point,index,shift) {
