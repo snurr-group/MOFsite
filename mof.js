@@ -180,7 +180,17 @@ $.getJSON("Blocks-database.json", function(data) {
     }
   }
   
-  function inverse3x3([a,b,c,d,e,f,g,h,i]) {
+  function inverse3x3(matrix) {
+	  a = matrix[0];
+	  b = matrix[1];
+	  c = matrix[2];
+	  d = matrix[3];
+	  e = matrix[4];
+	  f = matrix[5];
+	  g = matrix[6];
+	  h = matrix[7];
+	  i = matrix[8];
+	  
 	  det = a*e*i+b*f*g+c*d*h-(c*e*g+b*d*i+a*f*h);
 	  mat = [(e*i-f*h), -(b*i-c*h), (b*f-c*e), -(d*i-f*g), (a*i-c*g), -(a*f-c*d), (d*h-e*g), -(a*h-b*g), (a*e-b*d)];
 	  for (i=0;i<mat.length;i++) {
