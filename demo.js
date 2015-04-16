@@ -38,7 +38,7 @@ var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 
 
 //var myJmol2 = "<div id='jmolApplet0_appletinfotablediv' style='width:100%;height:100%;position:relative;font-size:14px;text-align:left'><div id='jmolApplet0_appletdiv' style='z-index:-1;width:100%;height:100%;position:absolute;top:0px;left:0px;'><script type='text/javascript'>jmolApplet0._cover(false)</script></div><div id='jmolApplet0_2dappletdiv' style='position:absolute;width:100%;height:100%;overflow:hidden;display:none'></div><div id='jmolApplet0_infotablediv' style='width:100%;height:100%;position:absolute;top:0px;left:0px'><div id='jmolApplet0_infoheaderdiv' style='height:20px;width:100%;background:yellow;display:none'><span id='jmolApplet0_infoheaderspan'></span><span id='jmolApplet0_infocheckboxspan' style='position:absolute;text-align:right;right:1px;'><a href='javascript:Jmol.showInfo(jmolApplet0,false)'>[x]</a></span></div><div id='jmolApplet0_infodiv' style='position:absolute;top:20px;bottom:0px;width:100%;height:100%;overflow:auto'></div></div></div>";
-console.log(myJmol);  
+//console.log(myJmol);  
   $("#viewer2")
   .append(myJmol)
   .addClass("padded");

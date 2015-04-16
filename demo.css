@@ -1,7 +1,9 @@
 #viewercontainer2 {height:400px; width:100%; }
 #demoControls {width:200px; border: solid black;}
 
- #demoControlBox {width:300px; height:400px; position:absolute; top:60px; left:75%; z-index:1; 		 }	
+ #demoControlBox {width:300px; height:400px; position:absolute; top:60px; left:75%; z-index:3; 		 }	
  #viewer2 {position:relative; z-index:1;}
 #test {position:absolute; z-index:3;}
+/*
 #jmolApplet0_appletdiv {display:none;}
+*/
