@@ -3,3 +3,4 @@
 
  #demoControlBox {width:300px; height:400px; position:absolute; top:60px; left:75%; z-index:2; 		 }	
  #viewer2 {position:relative; z-index:1;}
+#test {z-index:100;}
