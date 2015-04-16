@@ -15,7 +15,8 @@ $(function() {
    script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; set appendNew false; zoom 60; spacefill only;",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
-   debug: false
+   debug: false,
+   zIndexBase: "0"
  };	 
 
 // JSmol Applet
