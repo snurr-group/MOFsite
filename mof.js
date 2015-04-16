@@ -1,31 +1,34 @@
 	$(function() {
-	function showMOF() {
-	$("#mainPage").hide();
-	$("#mofPage").show();
-	// VARIABLES 
-	var name = "DOTSOV"; // name of initial load, subsequently name of loaded file
-	var nameString = "./MOFs/" + name + ".cif"; // path to loaded file
+	// global variables	
+	var loaded = true;	
+	var demo = false;
+	var userLoaded = false; 
+	var isTriclinic = false;
+	var cellMatrix = [];
+	var inverseMatrix = [];
+	var t = '';
 	var cellA = 0;
 	var cellB = 0;
 	var cellC = 0;
 	var probeNumber = 0;
 	var currentNumber = 0;
-	var demo = false;
-	var loaded = true;
+	
 	var transf = [];
 	var angle = [];
 	var side = [];
-	var isTriclinic = false;
+	
 	// non-orthorhombic lattice vectors
 	var vectA = [];
 	var vectB = [];
 	var vectC = [];
 	var cellVol = 0; 
-	var cellMatrix = [];
-	var inverseMatrix = [];
-	var t = '';
-	var userLoaded = false; 
-
+	var mass = 0;
+		
+	function showMOF() {
+	$("#mainPage").hide();
+	$("#mofPage").show();
+	var name = "DOTSOV"; // name of initial load, subsequently name of loaded file
+	var nameString = "./MOFs/" + name + ".cif"; // path to loaded file
 	initializeJmol(nameString,demo);
 // get JSON files which act as hashtables for MOF generation
 $.getJSON("MOF-database.json", function(data) {
@@ -35,7 +38,9 @@ $.getJSON("MOF-database.json", function(data) {
 $.getJSON("Blocks-database.json", function(data) {
 			blockdata = data;
 		});
-		
+$.getJSON("atomMasses.json", function(data) {
+			masses = data;
+});		
 	 } // end showMOF()
 
 function showDemo() {
@@ -45,6 +50,7 @@ function showDemo() {
 
 
 	function initializeJmol(str,demo) {
+		console.log(demo);
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
@@ -454,7 +460,7 @@ function handleFileSelect(evt) {
 			if (!isTriclinic || demo) {
 			var coordinates = '';
 			var coordArray = [];
-			
+			demo.html
 			for (i=1;i<=probeNumber;i++) {
 				coordinates = getRandomCo(i); // updates coordinateArray as well
 				
@@ -537,19 +543,21 @@ function handleFileSelect(evt) {
 				$("#addme").empty();
 				//console.log([vectA, vectB, vectC]);
 				for (j=0;j<currentNumber;j++) {
-					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, cellMatrix, inverseMatrix]);
+					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, cellMatrix, inverseMatrix, masses]);
 					workerSA.onmessage = function(event) {
 						surfaceArea +=event.data[0];
 						//console.log(surfaceArea);
 						done = event.data[1];
 						if (done) {
-							console.log(surfaceArea);
-							surfaceArea = surfaceArea * 10000 / cellVol;
-							$("#addme").append('<br /> The surface area is ' + surfaceArea.toFixed(2) + ' m^2 / cm^3.');
+							mass = event.data[2];
+							surfaceAreaV = surfaceArea * 10000 / cellVol;
+							surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;
+							$("#addme").append('<br /> The surface area is ' + surfaceAreaV.toFixed(2) + ' m^2 / cm^3. <br/> or ' + surfaceAreaG.toFixed(2) + ' m2/g.');
+							workerSA.terminate();
 						}
 					}	
 				}
-				} // end for SA
+				} // end for SAs
 				
 
 		function generateHistogram(rawData, minSize, stepSize) {
@@ -561,7 +569,7 @@ function handleFileSelect(evt) {
 			
 			var data = [];
 			var xval = 0;
-			var yval = 0;
+			var yval = Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');0;
 			var tmp = 0;
 			for (i=0;i<rawData.length;i++) {
 				xval = minSize + i*stepSize;
@@ -848,13 +856,15 @@ $("#mofPageLink").click(function() {
 
 		clicked = false;
 		$("#mcDemo").click(function() {
+			window.location = "./demo.html";
 			name = "Kr5";
 			nameString = "./MOFs/" + name + ".cif"; 
 			
 			demo = true; 
+			
 			//$("#boxText").show();
 			//$("#boxRadio").show();
-			showDemo();
+			//showDemo();
 			initializeJmol(nameString,demo);
 			
 			
@@ -873,7 +883,13 @@ $("#mofPageLink").click(function() {
 			 */
 	
 			});
-		
+		$(".returnButton").click(function() {
+			$("#viewer2").empty();
+			$("#viewer").empty();
+			$("#mofPage").hide();
+			$("#demoPage").hide();
+			$("#mainPage").show();
+		});
 		
 		// fix ajax json call 
 		// allowing json object to be retrieved

@@ -111,6 +111,7 @@ var atomInfo = e.data[2]; // info for all atoms
 var probeRad = e.data[3]/2; // half of probe diameter
 var cellSize = e.data[4]; // unit cell dimensions (array) for PCB calculations
 var triclinic = e.data[5];
+var mass = 0;
 if (triclinic) {
 	var cellMatrix = e.data[6];
 	var inverseMatrix = e.data[7];
@@ -160,6 +161,8 @@ var overlapP = false;
 var surfaceArea = 0;
 var mag = 0;
 
+var mass = 0;
+
 for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
 	// random point of sphere
 	thetha = 0.0;
@@ -188,6 +191,22 @@ for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
 		surfaceArea = 4*Math.PI*Math.pow(totalRad,2)*notOverlap/probesPerAtom; // surface area of sphere S with radius (r(probe) + r(atom)) * non-overlapping probe fraction
 		}
 } // end for loop
+
+if (atomNumber == (atomInfo.length-1)) {
+masses = e.data[8];
+mass = computeMass();
+}
+
+function computeMass() {
+	nA = 6.022*Math.pow(10,23);
+	massGrams = 0;
+	for (i=0;i<structureCount;i++) {
+		sym = atomInfo[i]['sym'];
+		m = parseFloat(masses[sym]);
+		massGrams += m/nA;
+	}
+	return massGrams;
+}
 
 function matrixDotVector(m,v) {
 	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
@@ -359,5 +378,5 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	
-postMessage([surfaceArea, done]);
+postMessage([surfaceArea, done, mass]);
 }
