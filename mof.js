@@ -1,4 +1,7 @@
 	$(function() {
+	function showMOF() {
+	$("#mainPage").hide();
+	$("#mofPage").show();
 	// VARIABLES 
 	var name = "DOTSOV"; // name of initial load, subsequently name of loaded file
 	var nameString = "./MOFs/" + name + ".cif"; // path to loaded file
@@ -20,6 +23,28 @@
 	var cellVol = 0; 
 	var cellMatrix = [];
 	var inverseMatrix = [];
+	var t = '';
+	var userLoaded = false; 
+
+	initializeJmol(nameString,demo);
+// get JSON files which act as hashtables for MOF generation
+$.getJSON("MOF-database.json", function(data) {
+			MOFdata = data;
+			
+		});
+$.getJSON("Blocks-database.json", function(data) {
+			blockdata = data;
+		});
+		
+	 } // end showMOF()
+
+function showDemo() {
+	$("#mainPage").hide();
+	$("#demoPage").show();
+}
+
+
+	function initializeJmol(str,demo) {
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
@@ -32,7 +57,7 @@
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "set antialiasDisplay;background white; load ./MOFs/DOTSOV.cif {1 1 1}; set appendNew false; zoom 60; spacefill only;",       // script to run
+   script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; set appendNew false; zoom 60; spacefill only;",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -40,30 +65,104 @@
 
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
+if (demo) {
+  $("#viewer2")
+  .append(myJmol)
+  .addClass("padded");
+}
+else {
+	$("#viewer")
+  .append(myJmol)
+  .addClass("padded");
+}
+} // end initializeJmol
 
-
+		
 // magnitude of vector
 function vectMag(vector) {
 	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
+}		
+
+
+var obj = $("#mofPage");
+obj.on('dragenter', function (e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+    obj.addClass("border");
+    //$(this).css('border', '2px solid #0B85A1');
+});
+obj.on('dragover', function (e) 
+{
+     e.stopPropagation();
+     e.preventDefault();
+});
+obj.on('drop', function (e) 
+{
+ 
+ //    $(this).css('border', '2px dotted #0B85A1');
+     e.preventDefault();
+     var files = e.originalEvent.dataTransfer.files;
+     //We need to send dropped files to Server
+           
+            for (var i = 0, f; f = files[i]; i++) {
+           
+           var reader = new FileReader();
+
+     reader.onload = (function(theFile) {
+        return function(e) {
+          t = e.target.result;
+          Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
+		  
+        };
+      })(f);
+
+      // Read 
+      reader.readAsText(f);
+     }
+     
+     
+     
+       obj.removeClass("border");
+
+     
+     
+     //////////
+    handleFileUpload(files,obj);
+});
+$(document).on('dragenter', function (e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+});
+$(document).on('dragover', function (e) 
+{
+  e.stopPropagation();
+  e.preventDefault();
+});
+$(document).on('drop', function (e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+ });
+
+function handleFileUpload(files,obj)
+{
+   for (var i = 0; i < files.length; i++) 
+   {
+        var fd = new FormData();
+        fd.append('file', files[i]);
+ 
+       // var status = new createStatusbar(obj); //Using this we can set progress.
+        //status.setFileNameSize(files[i].name,files[i].size);
+        //sendFileToServer(fd,status);
+ 
+   }
 }
 
-  $("#viewer")
-  .append(myJmol)
-  .addClass("padded");
-
-// get JSON files which act as hashtables for MOF generation
-$.getJSON("MOF-database.json", function(data) {
-			MOFdata = data;
-			
-		});
-$.getJSON("Blocks-database.json", function(data) {
-			blockdata = data;
-		});
 		
-		 
-		var t = '';
-		var userLoaded = false; 
-		function handleFileSelect(evt) {
+function handleFileSelect(evt) {
+			
     var files = evt.target.files; // FileList object
 
     // files is a FileList of File objects. List some properties.
@@ -178,7 +277,7 @@ $.getJSON("Blocks-database.json", function(data) {
       // Read 
       reader.readAsText(f);
     }
-  }
+  } // end function file select
   
   function inverse3x3(matrix) {
 	  a = matrix[0];
@@ -321,8 +420,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		var mode = $(this).attr('id');
 		
 		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
-		if (mode == 'VF' || mode == 'PSD') {
-			
+		if (mode == 'VF' || mode == 'PSD' || mode == 'negativeStructure') {
 				if (typeof(w) == "undefined" && mode == 'VF') {
 					var worker = new Worker("overlap_worker.js");
 				}
@@ -330,7 +428,7 @@ $.getJSON("Blocks-database.json", function(data) {
 					var worker = new Worker("poresize_worker_3.js");
 				}
 				
-				var tricFunc = function() {	
+				 function tricFunc() {	
 			for (i=1;i<=probeNumber;i++) {
 				var xx = Math.random();
 				var yy = Math.random();
@@ -349,7 +447,9 @@ $.getJSON("Blocks-database.json", function(data) {
 					
 			}	
 			loaded = false; 
-		};
+		}
+			
+			
 			
 			if (!isTriclinic || demo) {
 			var coordinates = '';
@@ -363,6 +463,8 @@ $.getJSON("Blocks-database.json", function(data) {
 			}			
 			else { tricFunc(); 
 			}
+			
+			
 			
 			if (mode == 'VF') {
 				
@@ -378,7 +480,7 @@ $.getJSON("Blocks-database.json", function(data) {
 				for (i=0;i<upperBound;i++) {
 						var start = 500*i;
 						var end = 500*(i+1);
-						worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber]);
+						worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber, isTriclinic, cellMatrix, inverseMatrix]);
 						worker.onmessage = function(event) {
 						response = event.data;
 						overString = response[0];
@@ -419,7 +521,7 @@ $.getJSON("Blocks-database.json", function(data) {
 		////////////// FOR SURFACE AREA 
 				if (mode == 'SA') {
 				
-				var workerSA = new Worker("surface_worker_2.js");
+				var workerSA = new Worker("surface_worker_3.js");
 				
 				
 				
@@ -506,117 +608,6 @@ $.getJSON("Blocks-database.json", function(data) {
 			$.plot($('#histogram'), [data], histOptions);
 
 		}
-	
-		function cleanPSD(data,mag,ll,step) {
-				var temp = [];
-				var stepsPerA = Math.ceil(1/step);
-				console.log(stepsPerA);
-				
-				for (j=0;j<ll;j++) {
-				temp[j] = data[j][1];
-				data[j][1] = data[j][1]/mag; // normalize
-				}
-				
-				
-				temp = smoothLocalMaxima(temp);
-				temp = removeNoise(temp);
-				console.log(temp);
-				
-				function removeNoise(array) {
-					for (i=0;i<array.length;i++) {
-						if (array[i] < 0.2) {
-							array[i] = 0;
-						}
-					}
-					return array;
-				}
-				
-				
-				function smoothLocalMaxima(array) {
-					for (i=0;i<array.length;i++) {
-						currentVal = array[i];
-						prevArray = previousValues(array,i);
-						nextArray = nextValues(array,i);
-						gradient = grad2Points(array,i);
-						localVariation = averageLocalGradients(prevArray,nextArray,gradient);
-					}
-					return array;
-				}
-				
-				// reutrn the n previous values of an array, n is the number of values required for a 1A difference 
-				function previousValues(arr,index) {
-					if (index < stepsPerA) {
-						for (i=0;i<index;i++) {
-							prev[i] = arr[i];
-						}
-					}
-					else {
-						for (i=0;i<stepsPerA;i++) {
-							prev[i] = arr[index-stepsPerA+i];
-						}
-					}
-					return prev;
-				}
-				// return the n next values of an array
-				function nextValues(arr,index) {
-					if (index+stepsPerA > arr.length) {
-						for (i=0;i<(arr.length-index-1);i++) {
-							next[i] = arr[index+i+1];
-						}
-					}
-					else {
-						for (i=0;i<stepsPerA;i++) {
-							next[i] = arr[index+i+1];
-						}
-					}
-					return next;
-				}
-				function grad2Points(arr,index) {
-					if (index!=0 && index!=(arr.length-1)) {
-						grad = arr[index-1] - arr[index+1];
-					}
-					if (index == 0) {
-						grad = arr[index+1] - arr[index];
-					}
-					if (index+1 == arr.length) {
-						grad = arr[index] - arr[index-1];
-					}
-					return grad;
-				}
-				
-				function averageLocalGradients(arr1, arr2, grad) {  // does not handle pores under 1A
-					grad1 = 0;
-					grad2 = 0;
-					var localMax = true;
-					for (i=1;i<arr1.length-1;i++) {
-						if (localMax) {
-						tmpGrad = grad2Points(arr1,i);
-						if (tmpGrad > grad) {
-							localMax = false;
-						}
-						grad1 += tmpGrad;
-					}
-				}
-				for (i=1;i<arr2.length-1;i++) {
-						if (loacalMax) {
-						tmpGrad = grad2Points(arr2,i);
-						if (tmpGrad > grad) {
-							localMax = false;
-						}
-						grad2 += tmpGrad;
-					}
-				}
-				if (localMax) {
-					grad1 = grad1/arr1.length;
-					grad2 = grad2/arr2.length;
-					return (grad1+grad2)/2;
-				}
-				else {
-					return -1;
-				}
-				}
-				
-			} // end cleanPSD
 	
 	// fix this??
 		function triclinicVol(a,b,c,angles) {
@@ -708,26 +699,7 @@ function vectorCross(v1,v2) {
 		 
 		});
 		
-		clicked = false;
-		$("#mcDemo").click(function() {
-			demo = true; 
-			$("#boxText").show();
-			$("#boxRadio").show();
-			name = "Kr5";
-			
-			if (clicked) {
-			$("#mcDemo").html('"Sphere in a Box" Demonstration');
-			Jmol.script(jmolApplet0, 'zap; load ./MOFs/DOTSOV.cif {1 1 1}; spacefill only;');
-			clicked = false;
-			}
-			else {if (!clicked) {
-			$("#mcDemo").html('Return');
-			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1};');
-			clicked = true;
-			}
-			}
-	
-			});
+
 		
 		function loadViewer(name) {
 			name = name.toString();
@@ -856,6 +828,51 @@ function vectorCross(v1,v2) {
 			}
 			$(this).toggleClass("selected");
 		});
+		
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
+		
+		
+// navigation
+/*$("#aboutShow").click(function() { // link to about the show page
+	 $(location).attr('href','#about');										  
+	  });		
+	*/
+$("#mofPageLink").click(function() {
+	showMOF();	
+});
+
+		clicked = false;
+		$("#mcDemo").click(function() {
+			name = "Kr5";
+			nameString = "./MOFs/" + name + ".cif"; 
+			
+			demo = true; 
+			//$("#boxText").show();
+			//$("#boxRadio").show();
+			showDemo();
+			initializeJmol(nameString,demo);
+			
+			
+			/*
+			if (clicked) {
+			$("#mcDemo").html('"Sphere in a Box" Demonstration');
+			Jmol.script(jmolApplet0, 'zap; load ./MOFs/DOTSOV.cif {1 1 1}; spacefill only;');
+			clicked = false;
+			}
+			else {if (!clicked) {
+			$("#mcDemo").html('Return');
+			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1};');
+			clicked = true;
+			}
+			}
+			 */
+	
+			});
 		
 		
 		// fix ajax json call 

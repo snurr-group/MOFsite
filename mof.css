@@ -11,6 +11,7 @@
 		 
 		  */
 		 #clear {margin-left:10px; padding-left:10px;}
+
 		  
 		 #histogram {width:200px; height: 200px;} 
 		  
@@ -28,15 +29,19 @@
 		 
 		 ul {list-style-type:none}
 		 
-		 #pageTitle {position:relative; left:30%;}
+		 .pageTitle {text-align:center;}
 		 
 		 #probeCount, #probeSize {width:50px;}
 		
-		 #viewercontainer {height:400px;}
+		 #viewercontainer, #viewercontainer2 {height:400px;}
 		 
 		 #viewer {position:relative; z-index:1;}
 		
 		/*  Classes */
+		
+		.border {
+		border:2px solid #0B85A1;
+		}
 		
 		.btn {
   background: #aec8d9;
@@ -55,6 +60,12 @@
   text-decoration: none;
 }
 
+#mofPage {
+display:none;
+}
+#demoPage {
+display:none;
+}
 
 .btn:hover {
   background: #3cb0fd;

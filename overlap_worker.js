@@ -11,6 +11,18 @@ onmessage = function(e) {
 	var cellSize = e.data[4]; // given as x,y,z lengths. Vector implementation to follow
 	var adjustment = e.data[5]; // number of iterations
 	var numProbes = e.data[6]; // total number of probes (user given)
+	var triclinic = e.data[7];
+	if (triclinic) {
+	var cellMatrix = e.data[8];
+	var inverseMatrix = e.data[9];
+	for (i=0;i<cellMatrix.length;i++) {
+	cellMatrix[i] = parseFloat(cellMatrix[i]);
+}
+
+for (i=0;i<inverseMatrix.length;i++) {
+	inverseMatrix[i] = parseFloat(inverseMatrix[i]);
+}
+}
 	var lengthA = array.length; // number of probes in this iteration (set to 500 on main thread)
 	var lengthB = atoms.length; // number of structure atoms, useful for pinpointing probes
 	var index = 0;
@@ -172,12 +184,44 @@ MCcalculate();
 
 
 
+function vectMag(vector) {
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
+}
+
+// distance vector between points
 function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
-}	
-function pbCond(dist) {
+}			
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
+
+function pbCond(dist,probePt) {
+	
+			if (triclinic) {
+		
+	fractional = [0,0,0];	
+	fractional = matrixDotVector(inverseMatrix, dist);
+	//console.log(dist);
+	xVect = [0,0,0];
+	xVect[0] = fractional[0] - Math.round(fractional[0]);
+	xVect[1] = fractional[1] - Math.round(fractional[1]);
+	xVect[2] = fractional[2] - Math.round(fractional[2]);
+	//console.log(xVect);
+	//console.log(cellMatrix);
+	cartesian = matrixDotVector(cellMatrix,xVect);
+	//console.log(cartesian);
+	return cartesian;
 			
+				
+				
+			} // end if triclinic
+			
+			else {
 			if (dist[0] > cellSize[0]/2) {
 					dist[0] = dist[0] - cellSize[0]; 
 			}
@@ -187,7 +231,9 @@ function pbCond(dist) {
 			if (dist[2] > cellSize[2]/2) {
 					dist[2] = dist[2] - cellSize[2]; 
 			}
-			return dist;
+		return dist;
+		}
+			
 		}
 
 function isInArray(value, arr) {

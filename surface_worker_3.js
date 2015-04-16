@@ -1,5 +1,4 @@
 onmessage = function(e) {
-console.log('SA');	
 var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
@@ -122,10 +121,7 @@ if (triclinic) {
 for (i=0;i<inverseMatrix.length;i++) {
 	inverseMatrix[i] = parseFloat(inverseMatrix[i]);
 }
-//console.log(cellMatrix);
-//console.log(inverseMatrix);
 }
-
 
 
 var structureCount = atomInfo.length; // number of structure atoms (624 for DOTSOV)
@@ -134,7 +130,6 @@ var done = false;
 if (atomNumber == structureCount-1) { // if this is the last iteration
 	done = true; 
 }
-
 
 // coordinates for atom in question, each run considers a new atom
 var x = atomInfo[atomNumber]['x'];
@@ -165,11 +160,7 @@ var overlapP = false;
 var surfaceArea = 0;
 var mag = 0;
 
-
-
 for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
-	
-	
 	// random point of sphere
 	thetha = 0.0;
 	phi = 0.0;
@@ -184,7 +175,7 @@ for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
 	probeX = x + rad*xu;
 	probeY = y + rad*yu;
 	probeZ = z + rad*zu;
-	//console.log(probeX);
+	
 	
 	overlapP = probeOverlap([probeX,probeY,probeZ]);
 	
@@ -192,14 +183,18 @@ for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
 		notOverlap++; // increment number of non-overlapped	
 	}
 	
-	
-
 	if (i == probesPerAtom -1) { // on the last iteration of the for loop, compute the surface area
 		totalRad = atomRad + probeRad; // sum of radii
 		surfaceArea = 4*Math.PI*Math.pow(totalRad,2)*notOverlap/probesPerAtom; // surface area of sphere S with radius (r(probe) + r(atom)) * non-overlapping probe fraction
-		console.log(surfaceArea);
 		}
 } // end for loop
+
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
 
 // check overlap with structure 
 function probeOverlap(probePoint) {
@@ -207,7 +202,6 @@ function probeOverlap(probePoint) {
 	probeY = probePoint[1];
 	probeZ = probePoint[2];
 		overlap = false; 
-	var distR = [0,0,0];
 	for (j=0;j<structureCount;j++) { // compare to rest of structure
 		if (!overlap) { // if the probe has not overlapped with any structure atoms
 				
@@ -224,7 +218,7 @@ function probeOverlap(probePoint) {
 				
 				distR = distance(probeX, probeY, probeZ, xa, ya, za);
 			
-				//distR = pbCond(distR,probePoint); // periodic boundary considerations 
+				distR = pbCond(distR,probePoint); // periodic boundary considerations 
 				
 				if (distR == -1) {
 					overlap = true;
@@ -245,7 +239,7 @@ function probeOverlap(probePoint) {
 // periodic boundary calculations, needs fixing for triclinic
 function pbCond(dist,probePt) {
 	
-	if (triclinic) {
+			if (triclinic) {
 		
 	fractional = [0,0,0];	
 	fractional = matrixDotVector(inverseMatrix, dist);
@@ -258,7 +252,10 @@ function pbCond(dist,probePt) {
 	//console.log(cellMatrix);
 	cartesian = matrixDotVector(cellMatrix,xVect);
 	//console.log(cartesian);
-	return dist;
+	return cartesian;
+			
+				
+				
 			} // end if triclinic
 			
 			else {
@@ -273,18 +270,8 @@ function pbCond(dist,probePt) {
 			}
 		return dist;
 		}
-				
+			
 		}
-function matrixDotVector(m,v) {
-	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
-	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
-	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
-	if (sX > 1) {
-	//	console.log([sX, sY, sZ]);
-	}
-	return [sX, sY, sZ];
-}
-
 
 // shift a point along a vector
 function shiftPoint(point,index,shift) {
@@ -369,12 +356,6 @@ function vectMag(vector) {
 
 // distance vector between points
 function distance(x1,y1,z1,x2,y2,z2) {
-	var allVect = [x1,y1,z1,x2,y2,z2];
-	for (i=0;i<allVect.length;i++) {
-		if (isNaN(allVect[i])) {
-			console.log('not a number in dist vect: ' + allVect[i]);
-		}
-	}
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	

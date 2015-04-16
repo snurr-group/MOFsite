@@ -111,55 +111,21 @@ var numProbes = e.data[1]/1;
 var cellSize = e.data[2];
 var triclinic = e.data[3];
 var structureCount = atoms.length;
+
 if (triclinic) {
-	var inverseMatrix = e.data[4];
-	var probeCoords = e.data[5];
 	var cellMatrix = e.data[6];
-	
-	 /*
-	vectA = vects[0];
-				vectB = vects[1];
-				vectC = vects[2];
-				
-				// plane AB, BC, AC
-				nplanes = [vectorCross(vectA,vectB), vectorCross(vectB,vectC), vectorCross(vectA,vectC)]; 
-				//	console.log(nplanes);
-			
-				// points in planes AB1, BC1, AC1, AB2, BC2, AC2
-				// vectA-C are location vectors, the point they specify appears in planes 2.
-				ppoint = [[0,0,0], [0,0,0], [0,0,0], vectC, vectA, vectB];
-				nplaneAB = vectorCross(vectA,vectB);
-				nplaneBC = vectorCross(vectB,vectC);
-				nplaneAC = vectorCross(vectA,vectC);
-				shiftArray = [vectC, vectA, vectB];
-				//console.log(vects);
-	planes = [];
-				for (j=0;j<6;j++) {
-					planes[j] = [];
-				for (i=0;i<4;i++) {
-					if (i<3) {
-						planes[j][i] = nplanes[j%3][i];
-					}
-					else {
-						planes[j][i] = vectorDot(nplanes[j%3],ppoint[j]);
-					}
-				}
-				}
-				// now we have full plane equations 
-				
-			planeDistances = [];
-		
-			for (k=0;k<3;k++) {
-				planeDistances[k] = pointToPlane(ppoint[k], planes[k+3]);
-				
-			}
-			
-			*/
-			
-			
-			
-			
+	var probeCoords = e.data[5];
+	var inverseMatrix = e.data[4];
+	for (i=0;i<cellMatrix.length;i++) {
+	cellMatrix[i] = parseFloat(cellMatrix[i]);
 }
+
+for (i=0;i<inverseMatrix.length;i++) {
+	inverseMatrix[i] = parseFloat(inverseMatrix[i]);
+}
+}
+
+
 var step = 0.05; // resolution of point location
 var stepSize = 0.01; // resolution of radius 
 var probeSizeArray = [];
@@ -371,19 +337,27 @@ function distance(x1,y1,z1,x2,y2,z2) {
 }	
 
 function pbCond(dist,probePt) {
-	if (triclinic) {
+	
+			if (triclinic) {
+		
+	fractional = [0,0,0];	
 	fractional = matrixDotVector(inverseMatrix, dist);
-	x = [];
-	x[0] = fractional[0] - Math.round(fractional[0]);
-	x[1] = fractional[1] - Math.round(fractional[1]);
-	x[2] = fractional[2] - Math.round(fractional[2]);
-	console.log(x);
-	cartesian = matrixDotVector(cellMatrix,x);
+	//console.log(dist);
+	xVect = [0,0,0];
+	xVect[0] = fractional[0] - Math.round(fractional[0]);
+	xVect[1] = fractional[1] - Math.round(fractional[1]);
+	xVect[2] = fractional[2] - Math.round(fractional[2]);
+	//console.log(xVect);
+	//console.log(cellMatrix);
+	cartesian = matrixDotVector(cellMatrix,xVect);
 	//console.log(cartesian);
 	return cartesian;
-	}
-	
-	else {
+			
+				
+				
+			} // end if triclinic
+			
+			else {
 			if (dist[0] > cellSize[0]/2) {
 					dist[0] = dist[0] - cellSize[0]; 
 			}
@@ -395,7 +369,9 @@ function pbCond(dist,probePt) {
 			}
 		return dist;
 		}
-}
+			
+		}
+
 function matrixDotVector(m,v) {
 	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
 	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
