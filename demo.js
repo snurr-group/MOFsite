@@ -16,7 +16,7 @@ $(function() {
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false,
-   zIndexBase: "0"
+   zIndexBase: 0
  };	 
 
 // JSmol Applet
