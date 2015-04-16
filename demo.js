@@ -3,7 +3,7 @@ $(function() {
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
-   height: "100%",      // pixels (but it may be in percent, like "100%")
+   height: "200%",      // pixels (but it may be in percent, like "100%")
    width: "100%",
   use: "HTML5",     // "HTML5" or "Java" (case-insensitive)
    j2sPath: "./jsmol/j2s",          // only used in the HTML5 modality
@@ -18,18 +18,19 @@ $(function() {
    debug: false
  };	 
 
+// adjust z-index to behind all other elements (see css)
 Info.z = {
-  header: -1,
-  rear: -1,
-  main: -1,
-  image: -1,
-  front: -1,
-  fileOpener: -1,
-  coverImage: -1,
-  dialog: -1,
-  menu: -1,
-  console: -1,
-  monitorZIndex: -1
+  header: 2,
+  rear: 2,
+  main: 2,
+  image: 2,
+  front: 2,
+  fileOpener: 2,
+  coverImage: 2,
+  dialog: 2,
+  menu: 2,
+  console: 2,
+  monitorZIndex: 2
 };
 
 // JSmol Applet

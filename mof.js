@@ -68,7 +68,20 @@ function showDemo() {
    addSelectionOptions: false,  // to interface with databases
    debug: false
  };	 
-
+// adjust z-index to behind all other elements (see css)
+Info.z = {
+  header: -1,
+  rear: -1,
+  main: -1,
+  image: -1,
+  front: -1,
+  fileOpener: -1,
+  coverImage: -1,
+  dialog: -1,
+  menu: -1,
+  console: -1,
+  monitorZIndex: -1
+};
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 if (demo) {
