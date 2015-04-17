@@ -1,9 +1,10 @@
 $(function() {
+	windowHeight = $(window).height();
 	function initializeJmol(str) {
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
-   height: "200%",      // pixels (but it may be in percent, like "100%")
+   height: windowHeight,      // pixels (but it may be in percent, like "100%")
    width: "100%",
   use: "HTML5",     // "HTML5" or "Java" (case-insensitive)
    j2sPath: "./jsmol/j2s",          // only used in the HTML5 modality

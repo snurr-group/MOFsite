@@ -1,4 +1,6 @@
 	$(function() {
+windowHeight = $(window).height();
+
 // layout
 // VARIABLES
 // SCRIPT/FUNCTIONS
@@ -39,7 +41,7 @@ showMOF();
 function showMOF() {
 	name = "DOTSOV"; // name of initial load, subsequently name of loaded file
 	var nameString = "./MOFs/" + name + ".cif"; // path to loaded file
-	initializeJmol(nameString,demo);
+	initializeJmol(nameString);
 // get JSON files which act as hashtables for MOF generation
 $.getJSON("MOF-database.json", function(data) {
 			MOFdata = data;
@@ -57,7 +59,7 @@ $.getJSON("atomMasses.json", function(data) {
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
-   height: "200%",      // pixels (but it may be in percent, like "100%")
+   height: windowHeight,      // pixels (but it may be in percent, like "100%")
    width: "100%",
   use: "HTML5",     // "HTML5" or "Java" (case-insensitive)
    j2sPath: "./jsmol/j2s",          // only used in the HTML5 modality
@@ -87,16 +89,10 @@ Info.z = {
 };
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
-if (demo) {
-  $("#viewer2")
-  .append(myJmol)
-  .addClass("padded");
-}
-else {
 	$("#viewer")
   .append(myJmol)
   .addClass("padded");
-}
+
 } // end initializeJmol
 
 ////////////////////////////////////////////////
@@ -133,6 +129,8 @@ obj.on('drop', function (e)
 		reader.onload = (function(theFile) {
         return function(e) {
           t = e.target.result;
+          name = t;
+          userLoaded = true;
           Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
 		  
         };
@@ -183,6 +181,7 @@ function handleFileSelect(evt) {
         return function(e) {
           t = e.target.result;
           Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
+          name = t;
           var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // used for corner locations
 		  angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
 		  sideIndices = [t.indexOf('_cell_length_a'), t.indexOf('_cell_length_b'), t.indexOf('_cell_length_c')];
@@ -274,7 +273,7 @@ function handleFileSelect(evt) {
 		  $("#boxText").hide();
 		  $("#boxRadio").hide();
 		  demo = false; 
-		  name = 'userloaded';
+		  //name = 'userloaded';
 		  
         };
       })(f);
@@ -325,8 +324,8 @@ function handleFileSelect(evt) {
 		var firstRun = true;
 		
 //////////////////////////////////////////
-		
 		$(".run").click(function() {	
+			$("#loaderGIF").show();
 			if (hidden) {
 				console.log('hidden');
 				Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
@@ -355,9 +354,25 @@ function handleFileSelect(evt) {
 				cellC = +boxSize;
 
 			}
-			
-			probeNumber = $("#probeCount").val();
-			probeSize = $("#probeSize").val();
+			var mode = $(this).attr('id');
+			switch (mode) {
+				case 'VF':
+				probeNumber = $("#probeCountVF").val();
+				probeSize = $("#probeSizeVF").val();
+				break;
+				case 'SA' : 
+				probeNumber = $("#probeCountSA").val();
+				probeSize = $("#probeSizeSA").val();
+				break;
+				case 'PSD' : 
+				probeNumber = $("#probeCountPSD").val();
+				probeSize = $("#probeSizePSD").val();
+				console.log(probeSize);
+				break;
+			}
+			//probeNumber = $("#probeCount").val();
+			//probeSize = $("#probeSize").val();
+			console.log(probeNumber);
 
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 
@@ -402,7 +417,7 @@ function handleFileSelect(evt) {
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		var adjustment = 0;
 		var done = false; 
-		var mode = $(this).attr('id');
+		
 		
 		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
 		if (mode == 'VF' || mode == 'PSD' || mode == 'negativeStructure') {
@@ -467,6 +482,7 @@ function handleFileSelect(evt) {
 							if (done) {
 								//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
 								vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);	
+								$("#loaderGIF").hide();
 								$("#addme").append('<br /><br /> The void fraction is ' + vFraction);		
 								worker.terminate();
 							if (name.indexOf('Kr') > -1) {
@@ -487,8 +503,8 @@ function handleFileSelect(evt) {
 					response = event.data;
 					histArray = response[0];
 					stepSize = response[1];
-					console.log(histArray);
-					
+					//console.log(histArray);
+					$("#loaderGIF").hide();
 					generateHistogram(histArray, probeSize, stepSize);
 				}
 	}// end if PSD, worker call 
@@ -521,6 +537,7 @@ function handleFileSelect(evt) {
 							mass = event.data[2];
 							surfaceAreaV = surfaceArea * 10000 / cellVol;
 							surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;
+							$("#loaderGIF").hide();
 							$("#addme").append('<br /> The surface area is ' + surfaceAreaV.toFixed(2) + ' m^2 / cm^3 <br/> or ' + surfaceAreaG.toFixed(2) + ' m^2/g.');
 							workerSA.terminate();
 						}
@@ -539,8 +556,7 @@ function handleFileSelect(evt) {
 			var data = [];
 			var xval = 0;
 			var yval = 0;
-			console.log(overString);
-			//Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
+
 			var tmp = 0;
 			for (i=0;i<rawData.length;i++) {
 				xval = minSize + i*stepSize;
@@ -701,7 +717,12 @@ var coordinateArray = [];
 		}
 		
 		function loadSupercell(x,y,z) {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill only;	');
+			if (userLoaded) {
+				Jmol.script(jmolApplet0, 'var t = "' + name + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill only;');
+			}
+			else {
+				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill only;	');
+			}
 		}
 		
 		function clearAll() {

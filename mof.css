@@ -1,18 +1,18 @@
 		 /*  IDs */ 
 		 
-		 #rightPanel {width:300px; height:400px; position:absolute; top:60px; left:75%; z-index:2; border: solid black;}	
-		 #leftPanel {width:300px; height:400px; position: absolute; top:60px; left:1%; z-index:2; border: solid black;}
+		 #rightPanel {display: inline-block; position:absolute; top:60px; right:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}	
+		 #leftPanel {display: inline-block; position: absolute; top:60px; left:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}
 		 
 		 
-		 
-		  */
 		 #clear {margin-left:10px; padding-left:10px;}
 
 		  
 		 #histogram {width:200px; height: 200px;} 
 		  
 		 #infoBox {width:170px; height:300px; border-style:solid; border-width:5px; margin-right:20px; position:fixed; left:280px;}
-		  
+		 
+		 #loaderGIF {display:none;}
+		 
 		 #maker, #MCContainer, #supercellContainer {margin-left:20px;} 
 		  
 		 #makeIconDown, #MCIconDown, #spIconDown {display:none;}
@@ -27,11 +27,11 @@
 		 
 		 ul {list-style-type:none}
 		 
-		 .pageTitle {text-align:center; position:absolute; left:50%; font-size:2em;}
-		 
-		 #probeCount, #probeSize {width:50px;}
+		 .pageTitle { text-align:center; position:absolute; width:100%; top:10px; font-size:2em; z-index:2;}
+		 .pageTile b {text-align:center;  z-index:2;}
+
+		 .probeCount, .probeSize {width:50px;}
 		
-		 #superCellDiv {height:100px;}
 		
 		 #viewercontainer {height:400px;}
 		 

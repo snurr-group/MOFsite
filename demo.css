@@ -7,3 +7,9 @@
 /*
 #jmolApplet0_appletdiv {display:none;}
 */
+
+.pageTitle { text-align:center; position:absolute; width:100%; top:10px; font-size:2em; z-index:2;}
+		 .pageTile b {text-align:center;  z-index:2;}
+ #rightPanel {display: inline-block; position:absolute; top:60px; right:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}	
+		 #leftPanel {display: inline-block; position: absolute; top:60px; left:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}
+		  .probeCount, .probeSize {width:50px;}

@@ -29,14 +29,14 @@
 		
 <div id="mofPage">
 
-
-	 	<b class="pageTitle">Metal Organic Framework (MOF) Generator </b>
-	 	<br />
-	 	<br />
-	 	<div id="viewercontainer"> 
+<div id="viewercontainer"> 
+	
+	<span id="viewer" style="z-index:1;"> </span>
+	 	<div class="pageTitle"><b>MOF Explorer</b></div>
 	 	
 	 	
-	 	<span id="viewer" style="z-index:1;"> </span>
+	 	
+	 	
 	 	
 	 	
 	 	<!-- LEFT PANEL -->
@@ -98,10 +98,10 @@
 		<a> <img hash="n2" class="buildBlock" src="./Images/Linkers/amide.png" /> </a>
 		</div>
 		
-		<span id="mofFail">No MOF could be made from these building blocks, please try again. <br /></span>
+		<span id="mofFail">No MOF could be made from these building blocks, please try again. </span>
 		<span class="controlButton btn" id="generate"> Generate! </span> 
-	 	<span class="controlButton btn" id="clear"> Clear </span> <br />
-	 	<br />
+	 	<span class="controlButton btn" id="clear"> Clear </span> 
+	 	
 	 	
 		</div> <!-- end MCContainer -->
   
@@ -112,37 +112,36 @@
 </div> <!-- end accordion -->
 	 	
 	 	
-		<br />
-		<br />
-		<br />
+
 		<!-- show channnels (negative space) -->
 		<div id="channels">
 		
-		<span class="btn" id="channelButton">Show channels</span>
+		<!-- <span class="btn" id="channelButton">Show channels</span> -->
 		
 		</div> <!-- end channels -->
 		<br />
 		<br />
 		<input type="file" id="files" name="files[]" multiple />
-	 	 <div id="dragDrop">Or drag and drop a CIF file anywhere on the page</div>
-	 	 
+	 	 <div id="dragDrop">Or drag and drop a CIF file <br />anywhere on the page</div>
+	 	 <br /> 
+	 	 <br />
 		
 	 	</span> <!-- end left panel span -->
 	 	
 	 	<!-- RIGHT PANEL -->
 	 	<span id="rightPanel">
 			
-			<h1>Physical Properties</h1>
+			<h1 id="physicalPropertiesTitle">Physical Properties</h1>
 			
 			<!-- Accordion start -->
 			<div id="accordion2">
 				
 				<h3>Void Fraction</h3>
 			<div>
-			<div><span id="enterProbeCount">Enter number of probes to use and probe diameter:</span><br /><br /> 
+			<div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
 			
-	 	 <input type="text" id="probeCount"> Probes
-	 	 <input type="text" id="probeSize"> Angstroms 
+	 	 <input type="text" class="probeCount" id="probeCountVF"> Probes
+	 	 <input type="text" class="probeSize" id="probeSizeVF"> Angstroms 
 	 	 </div>
 	 	 <br />
 	 	 <span class="btn run" id="VF">Sumbit</span>
@@ -150,10 +149,10 @@
 	 	 
 	 	 <h3>Surface Area</h3>
 	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use and probe diameter:</span><br /><br /> 
+	 	 <div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
 			
-	 	 <input type="text" id="probeCount"> Probes
-	 	 <input type="text" id="probeSize"> Angstroms 
+	 	 <input type="text" class="probeCount" id="probeCountSA"> Probes
+	 	 <input type="text" class="probeSize" id="probeSizeSA"> Angstroms 
 	 	 
 	 	 </div>
 	 	 <br />
@@ -165,8 +164,8 @@
 	 	 <div>
 	 	 <div><span id="enterProbeCount">Enter number of probes to use:</span><br /><br /> 
 			
-	 	 <input type="text" id="probeCount"> Probes
-	 	<!-- <input type="text" id="probeSize"> Angstroms -->
+	 	 <input type="text" class="probeCount" id="probeCountPSD"> Probes
+	 	 <input type="text" class="probeSize" id="probeSizePSD"> Angstroms 
 	 	 
 	 	 </div>
 	 	 <br />
@@ -174,8 +173,10 @@
 	 	 
 	 	 </div> <!-- close enterProbeCount div -->
 	 	 </div> <!-- end accordion -->
-	 	  
+	 	  <br />
+	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
 	 	  <div id="addme"></div>
+	 	  <br />
 	 	 <div id="histogram"></div>
 	 	 
 	 	 </span> <!-- end right panel span -->				 
