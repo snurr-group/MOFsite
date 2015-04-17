@@ -1,0 +1,184 @@
+	<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		 <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+		 <script src="./jsmol/JSmol.min.nojq.js"></script>
+		<script src="./mof.js"></script> 
+		 <script src="./flot/jquery.flot.min.js"></script>
+		 
+		<title>MOF</title>
+		<meta name="description" content="">
+		<meta name="author" content="Maxime Usdin">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- Replace favicon.ico & apple-titleouch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<link rel="stylesheet" href="./mof.css">
+	<!--	 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css"> -->
+	</head>
+	<body>
+		
+		
+<div id="mofPage">
+
+
+	 	<b class="pageTitle">Metal Organic Framework (MOF) Generator </b>
+	 	<br />
+	 	<br />
+	 	<div id="viewercontainer"> 
+	 	
+	 	
+	 	<span id="viewer" style="z-index:1;"> </span>
+	 	
+	 	
+	 	<!-- LEFT PANEL -->
+	 	<span id="leftPanel">
+	 	<h1>Display</h1>
+	 	
+	 	<div id="accordion1">
+  <h3>Supercell</h3>
+  <div id="superCellDiv">
+			
+	 	<input type="radio" name="x" value="1">x1
+	 	<input type="radio" name="x" value="2">x2
+	 	<input type="radio" name="x" value="3">x3
+	 	
+	 	
+	 	
+	 	<div>
+	 	
+	 	
+	 	<input type="radio" name="y" value="1">y1
+	 	<input type="radio" name="y" value="2">y2
+	 	<input type="radio" name="y" value="3">y3
+	 	
+	 	
+	 	</div>
+	 	 <div>
+	 		 	
+	 	<input type="radio" name="z" value="1">z1
+	 	<input type="radio" name="z" value="2">z2
+	 	<input type="radio" name="z" value="3">z3
+	 	
+	 	</div>
+	 	<br />
+	 	<span class="btn" id="submitSupercell">Apply supercell</span>
+	 	</div> <!-- end superCellDiv -->
+  
+  
+  <h3>Make a MOF</h3>
+  
+	  <div id="MCContainer">	
+			
+			
+			
+		
+		<h3>Metals</h3>
+		<div> 
+		<a> <img hash="cu2" class="buildBlock" src="./Images/Metal/cu_paddlewheel.png" />   </a>   
+		<a> <img hash="zn4o" class="buildBlock" src="./Images/Metal/cn1_zno.png" /> </a> 
+		<a> <img hash="zn2" class="buildBlock" src="./Images/Metal/cn2_zn_paddlewheel.png" />  </a>
+		</div>
+		<h3>Organics</h3>
+		<div>
+		<a> <img hash="phenyl" class="buildBlock" src="./Images/Ditopic/bb1_phenyl-di-.png" /> </a>
+		<a> <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/Tritopic/tri-phenyl-tri-.png" /> </a>
+		<a> <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/Hexatopic/tetra-phenyl-hexa-.png" /></a>
+		</div>
+		<h3>Linkers</h3>
+		<div>
+		<a> <img hash="n2" class="buildBlock" src="./Images/Linkers/amide.png" /> </a>
+		</div>
+		
+		<span id="mofFail">No MOF could be made from these building blocks, please try again. <br /></span>
+		<span class="controlButton btn" id="generate"> Generate! </span> 
+	 	<span class="controlButton btn" id="clear"> Clear </span> <br />
+	 	<br />
+	 	
+		</div> <!-- end MCContainer -->
+  
+  	
+ 
+ 
+  
+</div> <!-- end accordion -->
+	 	
+	 	
+		<br />
+		<br />
+		<br />
+		<!-- show channnels (negative space) -->
+		<div id="channels">
+		
+		<span class="btn" id="channelButton">Show channels</span>
+		
+		</div> <!-- end channels -->
+		<br />
+		<br />
+		<input type="file" id="files" name="files[]" multiple />
+	 	 <div id="dragDrop">Or drag and drop a CIF file anywhere on the page</div>
+	 	 
+		
+	 	</span> <!-- end left panel span -->
+	 	
+	 	<!-- RIGHT PANEL -->
+	 	<span id="rightPanel">
+			
+			<h1>Physical Properties</h1>
+			
+			<!-- Accordion start -->
+			<div id="accordion2">
+				
+				<h3>Void Fraction</h3>
+			<div>
+			<div><span id="enterProbeCount">Enter number of probes to use and probe diameter:</span><br /><br /> 
+			
+	 	 <input type="text" id="probeCount"> Probes
+	 	 <input type="text" id="probeSize"> Angstroms 
+	 	 </div>
+	 	 <br />
+	 	 <span class="btn run" id="VF">Sumbit</span>
+	 	 </div>
+	 	 
+	 	 <h3>Surface Area</h3>
+	 	 <div>
+	 	 <div><span id="enterProbeCount">Enter number of probes to use and probe diameter:</span><br /><br /> 
+			
+	 	 <input type="text" id="probeCount"> Probes
+	 	 <input type="text" id="probeSize"> Angstroms 
+	 	 
+	 	 </div>
+	 	 <br />
+	 	 <span class="btn run" id="SA">Submit</span>
+	 	 
+	 	 </div>
+	 	 
+	 	 <h3>Pore Size Distribution</h3>
+	 	 <div>
+	 	 <div><span id="enterProbeCount">Enter number of probes to use:</span><br /><br /> 
+			
+	 	 <input type="text" id="probeCount"> Probes
+	 	<!-- <input type="text" id="probeSize"> Angstroms -->
+	 	 
+	 	 </div>
+	 	 <br />
+	 	 <span class="btn run" id="PSD">Submit</span>  
+	 	 
+	 	 </div> <!-- close enterProbeCount div -->
+	 	 </div> <!-- end accordion -->
+	 	  
+	 	  <div id="addme"></div>
+	 	 <div id="histogram"></div>
+	 	 
+	 	 </span> <!-- end right panel span -->				 
+</div>
+</body>
+</html>

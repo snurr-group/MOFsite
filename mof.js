@@ -1,4 +1,9 @@
 	$(function() {
+// layout
+// VARIABLES
+// SCRIPT/FUNCTIONS
+// NAVIGATION		
+		
 	// global variables	
 	var loaded = true;	
 	var demo = false;
@@ -7,6 +12,7 @@
 	var cellMatrix = [];
 	var inverseMatrix = [];
 	var t = '';
+	var name = '';
 	var cellA = 0;
 	var cellB = 0;
 	var cellC = 0;
@@ -24,10 +30,14 @@
 	var cellVol = 0; 
 	var mass = 0;
 		
-	function showMOF() {
-	$("#mainPage").hide();
-	$("#mofPage").show();
-	var name = "DOTSOV"; // name of initial load, subsequently name of loaded file
+	
+showMOF();
+//////////////////////////////////////
+// LOAD MOF structure
+/////////////////////////////////////
+
+function showMOF() {
+	name = "DOTSOV"; // name of initial load, subsequently name of loaded file
 	var nameString = "./MOFs/" + name + ".cif"; // path to loaded file
 	initializeJmol(nameString,demo);
 // get JSON files which act as hashtables for MOF generation
@@ -43,19 +53,12 @@ $.getJSON("atomMasses.json", function(data) {
 });		
 	 } // end showMOF()
 
-function showDemo() {
-	$("#mainPage").hide();
-	$("#demoPage").show();
-}
-
-
 	function initializeJmol(str,demo) {
-		console.log(demo);
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
-   height: "120%",      // pixels (but it may be in percent, like "100%")
-   width: "70%",
+   height: "200%",      // pixels (but it may be in percent, like "100%")
+   width: "100%",
   use: "HTML5",     // "HTML5" or "Java" (case-insensitive)
    j2sPath: "./jsmol/j2s",          // only used in the HTML5 modality
    jarPath: "java",               // only used in the Java modality
@@ -63,24 +66,24 @@ function showDemo() {
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; set appendNew false; zoom 60; spacefill only;",       // script to run
+   script: "set antialiasDisplay;background white; load " + str + "; set appendNew false; zoom 60; spacefill only;",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
  };	 
 // adjust z-index to behind all other elements (see css)
 Info.z = {
-  header: -1,
-  rear: -1,
-  main: -1,
-  image: -1,
-  front: -1,
-  fileOpener: -1,
-  coverImage: -1,
-  dialog: -1,
-  menu: -1,
-  console: -1,
-  monitorZIndex: -1
+  header: 2,
+  rear: 2,
+  main: 2,
+  image: 2,
+  front: 2,
+  fileOpener: 2,
+  coverImage: 2,
+  dialog: 2,
+  menu: 2,
+  console: 2,
+  monitorZIndex: 2
 };
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
@@ -96,20 +99,22 @@ else {
 }
 } // end initializeJmol
 
-		
-// magnitude of vector
-function vectMag(vector) {
-	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
-}		
+////////////////////////////////////////////////
 
+/////////////////////////////////////////
+/////// UPLOAD FILE FROM DIALOGUE OR DARG & DROP
+/////////////////////////////////////////
 
+// drag and drop controls
 var obj = $("#mofPage");
 obj.on('dragenter', function (e) 
 {
     e.stopPropagation();
     e.preventDefault();
     obj.addClass("border");
-    //$(this).css('border', '2px solid #0B85A1');
+});
+obj.on('dragleave', function(e) {
+	obj.removeClass('border');
 });
 obj.on('dragover', function (e) 
 {
@@ -118,35 +123,23 @@ obj.on('dragover', function (e)
 });
 obj.on('drop', function (e) 
 {
- 
- //    $(this).css('border', '2px dotted #0B85A1');
-     e.preventDefault();
+      e.preventDefault();
      var files = e.originalEvent.dataTransfer.files;
-     //We need to send dropped files to Server
            
-            for (var i = 0, f; f = files[i]; i++) {
+      for (var i = 0, f; f = files[i]; i++) {
            
-           var reader = new FileReader();
+     var reader = new FileReader();
 
-     reader.onload = (function(theFile) {
+		reader.onload = (function(theFile) {
         return function(e) {
           t = e.target.result;
           Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
 		  
         };
       })(f);
-
-      // Read 
       reader.readAsText(f);
-     }
-     
-     
-     
-       obj.removeClass("border");
-
-     
-     
-     //////////
+     } 
+    obj.removeClass("border");
     handleFileUpload(files,obj);
 });
 $(document).on('dragenter', function (e) 
@@ -171,15 +164,10 @@ function handleFileUpload(files,obj)
    {
         var fd = new FormData();
         fd.append('file', files[i]);
- 
-       // var status = new createStatusbar(obj); //Using this we can set progress.
-        //status.setFileNameSize(files[i].name,files[i].size);
-        //sendFileToServer(fd,status);
- 
-   }
+    }
 }
 
-		
+// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
 function handleFileSelect(evt) {
 			
     var files = evt.target.files; // FileList object
@@ -279,9 +267,7 @@ function handleFileSelect(evt) {
 		
 		  
 		  }
-		  function polarVect(r,t,p) {
-			  return [r*Math.sin(p)*Math.cos(t), r*Math.sin(p)*Math.sin(t), r*Math.cos(p)];
-		  }
+		 
 		  
 		  userLoaded = true; 
 		  loaded = true; 
@@ -298,27 +284,11 @@ function handleFileSelect(evt) {
     }
   } // end function file select
   
-  function inverse3x3(matrix) {
-	  a = matrix[0];
-	  b = matrix[1];
-	  c = matrix[2];
-	  d = matrix[3];
-	  e = matrix[4];
-	  f = matrix[5];
-	  g = matrix[6];
-	  h = matrix[7];
-	  i = matrix[8];
-	  
-	  det = a*e*i+b*f*g+c*d*h-(c*e*g+b*d*i+a*f*h);
-	  mat = [(e*i-f*h), -(b*i-c*h), (b*f-c*e), -(d*i-f*g), (a*i-c*g), -(a*f-c*d), (d*h-e*g), -(a*h-b*g), (a*e-b*d)];
-	  for (i=0;i<mat.length;i++) {
-		  mat[i] *= 1/det;
-	  }
-	  return mat;
-  }
-
-
   document.getElementById('files').addEventListener('change', handleFileSelect, false);
+	
+////////////////////////////////////////
+//// DISPLAY PARAMETERS
+////////////////////////////////////////	
 		
 		
 		 // x1, y1, z1 checked by default
@@ -351,11 +321,10 @@ function handleFileSelect(evt) {
 			loadSupercell(x, y, z); 
 		});
 		
-	//	$("#boxSelector").hide();
 		var flaggedProbeCount = 0;
 		var firstRun = true;
 		
-		/////////////
+//////////////////////////////////////////
 		
 		$(".run").click(function() {	
 			if (hidden) {
@@ -428,10 +397,7 @@ function handleFileSelect(evt) {
 			if (probeDisplaySize == 1.0) { // error with precisely 1 as input for "spacefill" Jmol function 
 				probeDisplaySize = 1.001;
 			} 
-		
-		
-		// see JMOL documentation for x = contact{ ...
-		
+				
 
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		var adjustment = 0;
@@ -457,13 +423,7 @@ function handleFileSelect(evt) {
 				tricCoords[1] = Math.abs(tricCoords[1]).toString();
 				tricCoords[2] = Math.abs(tricCoords[2]).toString();
 				coordinateArray[i-1] = tricCoords;
-				inlineString += ' B ' + tricCoords[0] + ' ' + tricCoords[1] + ' ' + tricCoords[2] + '\n';
-				
-		/*	if (i+2 < probeNumber && i%500 ==0) {
-					setTimeout(function() {console.log('pause ' + i); }, 100);
-					
-				} */ 	
-					
+				inlineString += ' B ' + tricCoords[0] + ' ' + tricCoords[1] + ' ' + tricCoords[2] + '\n';					
 			}	
 			loaded = false; 
 		}
@@ -476,13 +436,11 @@ function handleFileSelect(evt) {
 			demo.html
 			for (i=1;i<=probeNumber;i++) {
 				coordinates = getRandomCo(i); // updates coordinateArray as well
-				
 				inlineString+= ' B ' + coordinates + '\n';
 				}
 			}			
 			else { tricFunc(); 
 			}
-			
 			
 			
 			if (mode == 'VF') {
@@ -554,25 +512,23 @@ function handleFileSelect(evt) {
 				var probeBound = Math.floor(probeNumber/currentNumber); // number of probes per atom
 				var surfaceArea = 0;
 				$("#addme").empty();
-				//console.log([vectA, vectB, vectC]);
 				for (j=0;j<currentNumber;j++) {
 					workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, cellMatrix, inverseMatrix, masses]);
 					workerSA.onmessage = function(event) {
 						surfaceArea +=event.data[0];
-						//console.log(surfaceArea);
 						done = event.data[1];
 						if (done) {
 							mass = event.data[2];
 							surfaceAreaV = surfaceArea * 10000 / cellVol;
 							surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;
-							$("#addme").append('<br /> The surface area is ' + surfaceAreaV.toFixed(2) + ' m^2 / cm^3. <br/> or ' + surfaceAreaG.toFixed(2) + ' m2/g.');
+							$("#addme").append('<br /> The surface area is ' + surfaceAreaV.toFixed(2) + ' m^2 / cm^3 <br/> or ' + surfaceAreaG.toFixed(2) + ' m^2/g.');
 							workerSA.terminate();
 						}
 					}	
 				}
 				} // end for SAs
 				
-
+}); // end of MC simulation
 		function generateHistogram(rawData, minSize, stepSize) {
 			
 			
@@ -582,24 +538,12 @@ function handleFileSelect(evt) {
 			
 			var data = [];
 			var xval = 0;
-			var yval = Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');0;
+			var yval = 0;
+			console.log(overString);
+			//Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
 			var tmp = 0;
 			for (i=0;i<rawData.length;i++) {
 				xval = minSize + i*stepSize;
-				
-				/*
-				if (i!=0 && i+1 < rawData.length) {
-					m1 = (rawData[i] - rawData[i-1])/stepSize;
-					m2 = (rawData[i+1] - rawData[i])/stepSize;
-					yval = -1*(m1+m2)/2;
-				}
-				if (i==0) {
-					yval = -1*(rawData[i+1] - rawData[i])/stepSize;
-				}
-				if (i+1 == rawData.length) {
-					yval = -1*(rawData[i] - rawData[i-1])/stepSize;
-				}
-				*/
 				
 				if (i!=0 && i+1 < rawData.length) {
 					yval = -1*(rawData[i+1] - rawData[i-1])/2*stepSize;
@@ -617,9 +561,7 @@ function handleFileSelect(evt) {
 				
 				data[i] = [xval, yval];
 			}
-			
-		//	cleanPSD(data,tmp,rawData.length,stepSize);
-						
+									
 			for (j=0;j<rawData.length;j++) {
 				data[j][1] = data[j][1]/tmp; // normalize
 				}			
@@ -648,7 +590,37 @@ function handleFileSelect(evt) {
 			return Math.abs(v);
 			
 		}
+
 		
+ function polarVect(r,t,p) {
+	return [r*Math.sin(p)*Math.cos(t), r*Math.sin(p)*Math.sin(t), r*Math.cos(p)];
+}
+		
+// matrix inverse
+ function inverse3x3(matrix) {
+	  a = matrix[0];
+	  b = matrix[1];
+	  c = matrix[2];
+	  d = matrix[3];
+	  e = matrix[4];
+	  f = matrix[5];
+	  g = matrix[6];
+	  h = matrix[7];
+	  i = matrix[8];
+	  
+	  det = a*e*i+b*f*g+c*d*h-(c*e*g+b*d*i+a*f*h);
+	  mat = [(e*i-f*h), -(b*i-c*h), (b*f-c*e), -(d*i-f*g), (a*i-c*g), -(a*f-c*d), (d*h-e*g), -(a*h-b*g), (a*e-b*d)];
+	  for (i=0;i<mat.length;i++) {
+		  mat[i] *= 1/det;
+	  }
+	  return mat;
+  }
+  		
+// magnitude of vector
+function vectMag(vector) {
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
+}		
+
 		// vector dot product
 function vectorDot(ve1,ve2) {
 	dot = 0;
@@ -666,14 +638,15 @@ function vectorCross(v1,v2) {
 	result[2] = v1[0]*v2[1]-v1[1]*v2[0];
 	return result;
 }
-		
-		
-		}); // end of MC simulation
-		
-	
-		
-		
-		var coordinateArray = [];
+
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
+
+var coordinateArray = [];
 		function getRandomCo(p) {
 			var rX = (Math.random() * cellA).toFixed(5);
 			var rY = (Math.random() * cellB).toFixed(5);
@@ -773,6 +746,17 @@ function vectorCross(v1,v2) {
 		});
 		
 		
+		
+		$( "#accordion1" ).accordion({
+      collapsible: true,
+      heightStyle: "content"
+    });
+		$( "#accordion2" ).accordion({
+      collapsible: true,
+      heightStyle: "content"
+    });
+		
+		/*
 		// Collapsible menu controls - needs streamlining
 		function hideMC() {
 			$("#makeIconDown").hide();
@@ -843,6 +827,9 @@ function vectorCross(v1,v2) {
 				}
 		});
 		
+		
+		*/
+		
 		$(".buildBlock").click(function () {
 			if ($("#mofFail").is(":visible")) {
 				$("#mofFail").hide();
@@ -850,59 +837,8 @@ function vectorCross(v1,v2) {
 			$(this).toggleClass("selected");
 		});
 		
-function matrixDotVector(m,v) {
-	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
-	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
-	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
-	return [sX, sY, sZ];
-}
-		
-		
-// navigation
-/*$("#aboutShow").click(function() { // link to about the show page
-	 $(location).attr('href','#about');										  
-	  });		
-	*/
-$("#mofPageLink").click(function() {
-	showMOF();	
-});
 
-		clicked = false;
-		$("#mcDemo").click(function() {
-			window.location = "./demo.html";
-			name = "Kr5";
-			nameString = "./MOFs/" + name + ".cif"; 
-			
-			demo = true; 
-			
-			//$("#boxText").show();
-			//$("#boxRadio").show();
-			//showDemo();
-			initializeJmol(nameString,demo);
-			
-			
-			/*
-			if (clicked) {
-			$("#mcDemo").html('"Sphere in a Box" Demonstration');
-			Jmol.script(jmolApplet0, 'zap; load ./MOFs/DOTSOV.cif {1 1 1}; spacefill only;');
-			clicked = false;
-			}
-			else {if (!clicked) {
-			$("#mcDemo").html('Return');
-			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1};');
-			clicked = true;
-			}
-			}
-			 */
-	
-			});
-		$(".returnButton").click(function() {
-			$("#viewer2").empty();
-			$("#viewer").empty();
-			$("#mofPage").hide();
-			$("#demoPage").hide();
-			$("#mainPage").show();
-		});
+		
 		
 		// fix ajax json call 
 		// allowing json object to be retrieved
