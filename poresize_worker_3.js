@@ -1,5 +1,4 @@
 onmessage = function(e) {
-	 console.log('in');
 var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,

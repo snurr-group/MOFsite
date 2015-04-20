@@ -31,7 +31,6 @@ windowHeight = $(window).height();
 	var vectC = [];
 	var cellVol = 0; 
 	var mass = 0;
-		
 	
 showMOF();
 //////////////////////////////////////
@@ -42,6 +41,7 @@ function showMOF() {
 	name = "DOTSOV"; // name of initial load, subsequently name of loaded file
 	var nameString = "./MOFs/" + name + ".cif"; // path to loaded file
 	initializeJmol(nameString);
+		
 // get JSON files which act as hashtables for MOF generation
 $.getJSON("MOF-database.json", function(data) {
 			MOFdata = data;
@@ -87,6 +87,9 @@ Info.z = {
   console: 2,
   monitorZIndex: 2
 };
+// hardcoded DOTSOV cell matrix
+cellMatrix = [ 26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833 ];
+inverseMatrix = inverse3x3(cellMatrix);
 // JSmol Applet
 var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 	$("#viewer")
@@ -156,8 +159,7 @@ $(document).on('drop', function (e)
     e.preventDefault();
  });
 
-function handleFileUpload(files,obj)
-{
+function handleFileUpload(files,obj) {
    for (var i = 0; i < files.length; i++) 
    {
         var fd = new FormData();
@@ -165,25 +167,8 @@ function handleFileUpload(files,obj)
     }
 }
 
-// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
-function handleFileSelect(evt) {
-			
-    var files = evt.target.files; // FileList object
-
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-
-      var reader = new FileReader();
-
-      // Closure to capture the file information.
-      reader.onload = (function(theFile) {
-        return function(e) {
-          t = e.target.result;
-          Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
-          name = t;
-          var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // used for corner locations
-		  angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
+function computeCellMatrix(t) {
+		angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
 		  sideIndices = [t.indexOf('_cell_length_a'), t.indexOf('_cell_length_b'), t.indexOf('_cell_length_c')];
 		  angleSubstrings = [t.substring(angleIndices[0]), t.substring(angleIndices[1]), t.substring(angleIndices[2])];
 		  sideSubstrings = [t.substring(sideIndices[0]), t.substring(sideIndices[1]), t.substring(sideIndices[2])];
@@ -207,25 +192,29 @@ function handleFileSelect(evt) {
 			  }
 			  
 		  }
-		  // angle is now [alpha, beta, gamma]
-		  // side is [a, b, c]
-		  cellA = side[0];
-		  cellB = side[1];
-		  cellC = side[2];
-		  		  
+		  
 		  if (angle[0] == angle[1] && angle[1] == angle[2]) {
 			  isTriclinic = false;
 		  }
 		  else {
 			  isTriclinic = true;
-		 // an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
+		 }
+		  
+		  // an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
 		 // (b) is in the xz-plane and (c) has a positive y component.
 		 // further, alpha is the angle (bc), beta is (ac), gamma is (ab)
 		 // if this is the case, then the vectors (a), (b), (c) may be calculated
 		 
 		 // using polar coordinates, theta = angle with (a), psi = angle with (b)
 		 
-		  thetaA = 0;
+		  // angle is now [alpha, beta, gamma]
+		  // side is [a, b, c]
+		  cellA = side[0];
+		  cellB = side[1];
+		  cellC = side[2];
+		  		  
+		  
+			  thetaA = 0;
 		  thetaB = angle[2]*Math.PI/180; // gamma
 		  thetaC = angle[1]*Math.PI/180; // beta
 		  
@@ -262,10 +251,74 @@ function handleFileSelect(evt) {
 		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
 
 		cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
+		return cellMatrix;
+}
+
+// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
+function handleFileSelect(evt) {
+			
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          t = e.target.result;
+          Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
+          name = t;
+          var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo"); // used for corner locations
+		  
+		  
+		 /*
+		 
+		 
+		  thetaA = 0;
+		  thetaB = angle[2]*Math.PI/180; // gamma
+		  thetaC = angle[1]*Math.PI/180; // beta
+		  
+		  
+		  psiA = angle[2]*Math.PI/180; // gamma
+		  psiB = 0;
+		  psiC = angle[0]*Math.PI/180; // alpha
+		  
+		  rA = side[0];
+		  rB = side[1];
+		  rC = side[2];
+		  
+		  vectA = polarVect(rA,thetaA,psiA);
+		  vectB = polarVect(rB,thetaB,psiB);
+		  vectC = polarVect(rC,thetaC,psiC);
+		  
+		  alpha = angle[0]*Math.PI/180;
+		  beta = angle[1]*Math.PI/180;
+		  gamma = angle[2]*Math.PI/180;
+		  
+		  A = cellA;
+		  B = cellB;
+		  C = cellC;
+		  
+		  
+		a_x = A;
+		a_y = 0.0;
+		a_z = 0.0;
+		b_x = B * Math.cos(gamma);
+		b_y = B * Math.sin(gamma);
+		b_z = 0.0;
+		c_x = C * Math.cos(beta);
+		c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y;
+		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
+*/
+		cellMatrix = computeCellMatrix(t);
+		console.log(cellMatrix);
 		inverseMatrix = inverse3x3(cellMatrix);
 		
 		  
-		  }
+		  
 		 
 		  
 		  userLoaded = true; 
@@ -323,6 +376,37 @@ function handleFileSelect(evt) {
 		var flaggedProbeCount = 0;
 		var firstRun = true;
 		
+$("#channelButton").click(function() {
+	if (typeof(w) == "undefined") {
+		var worker = new Worker("channel_worker.js");
+	}
+	var fileInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
+	
+	if (!userLoaded) {			
+			cellA = fileInfo['models'][0]['_cell_length_a'];
+			cellB = fileInfo['models'][0]['_cell_length_b'];
+			cellC = fileInfo['models'][0]['_cell_length_c'];	
+			}
+			//	console.log(cellMatrix);
+	var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+	worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC]]);
+						worker.onmessage = function(event) {
+						response = event.data;
+						coords = response[0];
+						num = coords.length;
+						num = num.toString();
+						var str = num + "\n" + "Probes\n";
+						for (i=0;i<coords.length;i++) {
+							cur = coords[i];
+							str+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
+						}
+				//		console.log(str);
+						Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + str + '"; load APPEND "@q"; zoom 60; select boron; spacefill 1.86;');
+					}
+	
+	//worker.terminate();
+});
+		
 //////////////////////////////////////////
 		$(".run").click(function() {	
 			$("#loaderGIF").show();
@@ -345,7 +429,7 @@ function handleFileSelect(evt) {
 			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
 		}
 			var overString = '';
-			if (demo) {
+			/* if (demo) {
 				var boxSize = $('input[name=box]:checked').val();
 				name = "Kr" + boxSize;
 				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
@@ -353,7 +437,7 @@ function handleFileSelect(evt) {
 				cellB = +boxSize;
 				cellC = +boxSize;
 
-			}
+			} */
 			var mode = $(this).attr('id');
 			switch (mode) {
 				case 'VF':
@@ -376,7 +460,7 @@ function handleFileSelect(evt) {
 
 			var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 
-			if (!userLoaded && !demo) {			
+			if (!userLoaded) {			
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];	
@@ -459,7 +543,7 @@ function handleFileSelect(evt) {
 			
 			
 			if (mode == 'VF') {
-				
+				console.log(inlineString);
 			
 			
 			Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
