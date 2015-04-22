@@ -206,15 +206,11 @@ function pbCond(dist,probePt) {
 		
 	fractional = [0,0,0];	
 	fractional = matrixDotVector(inverseMatrix, dist);
-	//console.log(dist);
 	xVect = [0,0,0];
 	xVect[0] = fractional[0] - Math.round(fractional[0]);
 	xVect[1] = fractional[1] - Math.round(fractional[1]);
 	xVect[2] = fractional[2] - Math.round(fractional[2]);
-	//console.log(xVect);
-	//console.log(cellMatrix);
 	cartesian = matrixDotVector(cellMatrix,xVect);
-	//console.log(cartesian);
 	return cartesian;
 			
 				

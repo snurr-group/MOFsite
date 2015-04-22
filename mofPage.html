@@ -72,48 +72,13 @@
 	 	<br />
 	 	<span class="btn" id="submitSupercell">Apply supercell</span>
 	 	</div> <!-- end superCellDiv -->
-  
-  
-  <h3>Make a MOF</h3>
-  
-	  <div id="MCContainer">	
-			
-			
-			
-		
-		<h3>Metals</h3>
-		<div> 
-		<a> <img hash="cu2" class="buildBlock" src="./Images/Metal/cu_paddlewheel.png" />   </a>   
-		<a> <img hash="zn4o" class="buildBlock" src="./Images/Metal/cn1_zno.png" /> </a> 
-		<a> <img hash="zn2" class="buildBlock" src="./Images/Metal/cn2_zn_paddlewheel.png" />  </a>
-		</div>
-		<h3>Organics</h3>
-		<div>
-		<a> <img hash="phenyl" class="buildBlock" src="./Images/Ditopic/bb1_phenyl-di-.png" /> </a>
-		<a> <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/Tritopic/tri-phenyl-tri-.png" /> </a>
-		<a> <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/Hexatopic/tetra-phenyl-hexa-.png" /></a>
-		</div>
-		<h3>Linkers</h3>
-		<div>
-		<a> <img hash="n2" class="buildBlock" src="./Images/Linkers/amide.png" /> </a>
-		</div>
-		
-		<span id="mofFail">No MOF could be made from these building blocks, please try again. </span>
-		<span class="controlButton btn" id="generate"> Generate! </span> 
-	 	<span class="controlButton btn" id="clear"> Clear </span> 
-	 	
-	 	
-		</div> <!-- end MCContainer -->
-  
-  	
- 
- 
-  
+    
 </div> <!-- end accordion -->
 	 	
 	 	
 
 		<!-- show channnels (negative space) -->
+		<br />
 		<br />
 		<div id="channels">
 		
@@ -123,7 +88,7 @@
 		<br />
 		<br />
 		<input type="file" id="files" name="files[]" multiple />
-	 	 <div id="dragDrop">Or drag and drop a CIF file <br />anywhere on the page</div>
+	 	 <div id="dragDrop">Or drag and drop a CIF file here</div>
 	 	 <br /> 
 	 	 <br />
 		
@@ -141,8 +106,8 @@
 			<div>
 			<div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
 			
-	 	 <input type="text" class="probeCount" id="probeCountVF"> Probes
-	 	 <input type="text" class="probeSize" id="probeSizeVF"> Angstroms 
+	 	 <input type="text" name="count" class="probeCount" id="probeCountVF"> Probes
+	 	 <input type="text" name="size" class="probeSize" id="probeSizeVF"> Angstroms 
 	 	 </div>
 	 	 <br />
 	 	 <span class="btn run" id="VF">Sumbit</span>
@@ -150,30 +115,34 @@
 	 	 
 	 	 <h3>Surface Area</h3>
 	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
+	 	 <div><span id="enterProbeCount">Enter number of probes to use (per atom) and <br /> probe diameter:</span><br /><br /> 
 			
-	 	 <input type="text" class="probeCount" id="probeCountSA"> Probes
-	 	 <input type="text" class="probeSize" id="probeSizeSA"> Angstroms 
+	 	 <input type="text" name="count" class="probeCount" id="probeCountSA"> Probes
+	 	 <input type="text" name="size" class="probeSize" id="probeSizeSA"> Angstroms 
 	 	 
 	 	 </div>
 	 	 <br />
-	 	 <span class="btn run" id="SA">Submit</span>
 	 	 
+	 	  <span class="btn run" id="SA">Submit</span>  
 	 	 </div>
 	 	 
 	 	 <h3>Pore Size Distribution</h3>
 	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use:</span><br /><br /> 
+	 	 <div><span id="enterProbeCount">Enter number of probes to use and <br /> maximum pore size:</span><br /><br /> 
 			
-	 	 <input type="text" class="probeCount" id="probeCountPSD"> Probes
-	 	 <input type="text" class="probeSize" id="probeSizePSD"> Angstroms 
+	 	 <input type="text" name="count" class="probeCount" id="probeCountPSD"> Probes
+	 	 <input type="text" name="size" class="probeSize" id="probeSizePSD"> Angstroms 
 	 	 
 	 	 </div>
 	 	 <br />
 	 	 <span class="btn run" id="PSD">Submit</span>  
-	 	 
+	 	 <br />
+	 	 <br />
+	 	 <br />
 	 	 </div> <!-- close enterProbeCount div -->
 	 	 </div> <!-- end accordion -->
+	 	 <span class="btn" id="clear">Clear</span>
+	 	  <br />
 	 	  <br />
 	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
 	 	  <div id="addme"></div>

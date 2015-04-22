@@ -1,13 +1,22 @@
 		 /*  IDs */ 
 		 
+		 #acknowledgements {position:absolute; bottom:1%;}
+		 
+		 #appLinks {padding-bottom:100px; padding-top:15px;}
+		 
 		 #rightPanel {display: inline-block; position:absolute; top:60px; right:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}	
 		 #leftPanel {display: inline-block; position: absolute; top:60px; left:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}
 		 
 		 
-		 #clear {margin-left:10px; padding-left:10px;}
 
 		  
 		 #histogram {width:200px; height: 200px;} 
+		  
+		 #howTitle {text-decoration:underline;} 
+		 #howDoesItWork {position:absolute; } 
+		 
+		 #mainPage p {margin-right:20px; margin-left:20px;} 
+		 
 		  
 		 #infoBox {width:170px; height:300px; border-style:solid; border-width:5px; margin-right:20px; position:fixed; left:280px;}
 		 
@@ -22,8 +31,9 @@
 	/*	 #makeButton, #learnMore, #showMCButton {margin-left:100px;} */
 		 #mofFail {display:none;}
 		 
-		 #mofPageLink {position: absolute; left:10%; top: 40%;}
-		 #mcDemo {position:absolute; left:75%; top: 40%;}
+		 #makeMOF {position:absolute; left:75%;} 
+		 #mofPageLink {position: absolute; left:10%;}
+		 #mcDemo {position:absolute; left:45%;}
 		 
 		 ul {list-style-type:none}
 		 
@@ -33,9 +43,10 @@
 		 .probeCount, .probeSize {width:50px;}
 		
 		
-		 #viewercontainer {height:400px;}
+		 #viewercontainer {height:400px; z-index:3;}
 		 
 		 #viewer {position:relative; z-index:1;}
+		
 		
 		/*  Classes */
 		
@@ -79,6 +90,10 @@ position:relative;
   background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
   text-decoration: none;
 }
+
+		.code {
+		margin-top:100px;
+		}
 		
 		 .controlButton {position:relative; z-index:2;}
 		

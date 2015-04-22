@@ -123,7 +123,7 @@ Zr:	2.783167595,
 	}
 
 var coords = [];
-var unitResolution = 0.04;
+var unitResolution = 0.02;
 var gridSize = Math.round(1/unitResolution);
 
 for (i=0;i<gridSize;i++) {

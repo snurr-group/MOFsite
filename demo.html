@@ -22,7 +22,9 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./demo.css">
+<!--
 		 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css">
+-->
 	</head>
 	<body>
 		<div id="demoPage">
@@ -67,19 +69,19 @@
 	 	 
 	 	 </div>
 	 	 
-	 	 <h3>Pore Size Distribution</h3>
-	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use:</span><br /><br /> 
-			
-	 	 <input type="text" class="probeCount" id="probeCountPSD"> Probes
-	 	 <input type="text" class="probeSize" id="probeSizePSD"> Angstroms 
-	 	 
-	 	 </div>
-	 	 <br />
-	 	 <span class="btn run" id="PSD">Submit</span>  
-	 	 
-	 	 </div> <!-- close enterProbeCount div -->
+
+
 	 	 </div> <!-- end accordion -->
+		<div>
+	 	<br />
+	 	Select Box Size
+	 	 	
+	 	<br />	 	
+	 	<input id="radio5" type="radio" name="boxSize" value="5">5A
+	 	<input id="radio10" type="radio" name="boxSize" value="10">10A
+	 	<input id="radio15" type="radio" name="boxSize" value="15">15A
+	 	
+	 	</div>
 	 	  <br />
 	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
 	 	  <div id="addme"></div>
@@ -88,7 +90,6 @@
 	 	 
 	 	 </span> <!-- end right panel span -->
 </div>
-	 	 <input type="file" id="files" name="files[]" multiple />
 
 </div>		
 </body>

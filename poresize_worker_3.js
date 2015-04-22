@@ -1,4 +1,5 @@
 onmessage = function(e) {
+	 console.log('in');
 var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
@@ -124,7 +125,7 @@ for (i=0;i<inverseMatrix.length;i++) {
 }
 }
 
-
+var maxProbeSize = e.data[7];
 var step = 0.05; // resolution of point location
 var stepSize = 0.01; // resolution of radius 
 var probeSizeArray = [];
@@ -141,8 +142,10 @@ var down = [];
 var extraChance = false;
 var flag2 = false;
 var tempR = 0;
+var bound = maxProbeSize/(stepSize*2);
 
-for (p=0;p<1000;p++) {
+
+for (p=0;p<bound;p++) {
 	probeSizeArray[p] = 0;
 }
 
@@ -158,15 +161,10 @@ for (q=0;q<numProbes;q++) {
 	else {
 	probePoint = randomCoords();
 	}
-	//console.log(probePoint);
 	r = largestRadius(probePoint,0);
-	//console.log(r);
 	testPointArray = incrementPoint(probePoint);
-	//console.log(testPointArray);
 	probeSize = findPore(testPointArray,r);
-	//console.log('pore size is ' + probeSize);
 	probeSizeArray = binArray(probeSize,probeSizeArray);
-	//console.log(probeSizeArray);
 }
 
 

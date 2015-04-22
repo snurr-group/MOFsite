@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		 <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+		 <script src="./jsmol/JSmol.min.nojq.js"></script>
+		 <script src="./maker.js"></script>
+		 <script src="./flot/jquery.flot.min.js"></script>
+		 
+		<title>MOF</title>
+		<meta name="description" content="">
+		<meta name="author" content="Maxime Usdin">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- Replace favicon.ico & apple-titleouch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<link rel="stylesheet" href="./maker.css">
+
+	</head>
+	<body>
+		<div id="demoPage">
+<!--
+<b class="pageTitle">Demo</b>
+-->
+
+<div id="viewercontainer2">
+<span id="viewer2" style="z-index:1;"> </span>
+<div class="pageTitle"><b>Make a MOF</b></div>
+
+
+	 	<!-- RIGHT PANEL -->
+	 	<span id="rightPanel">
+			
+			
+  
+	  <div id="MCContainer">	
+			
+			
+			
+		
+		<h3>Metals</h3>
+		<div> 
+		<a> <img hash="cu2" class="buildBlock" src="./Images/Metal/cu_paddlewheel.png" />   </a>   
+		<a> <img hash="zn4o" class="buildBlock" src="./Images/Metal/cn1_zno.png" /> </a> 
+		<a> <img hash="zn2" class="buildBlock" src="./Images/Metal/cn2_zn_paddlewheel.png" />  </a>
+		</div>
+		<h3>Organics</h3>
+		<div>
+		<a> <img hash="phenyl" class="buildBlock" src="./Images/Ditopic/bb1_phenyl-di-.png" /> </a>
+		<a> <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/Tritopic/tri-phenyl-tri-.png" /> </a>
+		<a> <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/Hexatopic/tetra-phenyl-hexa-.png" /></a>
+		<a> <img hash="n2" class="buildBlock" src="./Images/Linkers/amide.png" /> </a>
+		</div>
+		
+		<span id="mofFail">No MOF could be made from <br /> these building blocks, <br /> please try again. </span>
+		<br />
+		<br />
+		<span class="controlButton btn" id="generate"> Generate! </span> 
+	 	<span class="controlButton btn" id="clear"> Clear </span> 
+		<br />
+	 	 
+	 	 </span> <!-- end right panel span -->
+</div>
+
+</div>		
+</body>
+ </html>
