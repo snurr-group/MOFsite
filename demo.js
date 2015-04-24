@@ -13,7 +13,7 @@ $(function() {
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "zap; set antialiasDisplay;background white; load " + str + " {1 1 1}; set appendNew false; zoom 60; spacefill only;",       // script to run
+   script: "zap; set antialiasDisplay;background white; load " + str + " {1 1 1}; set appendNew false; zoom 30; spacefill only;",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
