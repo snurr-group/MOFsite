@@ -1,41 +1,47 @@
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+code {background:#F0F0E8;} /* code blocks given class of prettify to work with google script */
+		 
+ul {list-style-type:none}
+		
 		 /*  IDs */ 
 		 
-		 #acknowledgements {position:absolute; bottom:1%;}
+		 #acknowledgements {position:relative; bottom:1%;}
 		 
 		 #appLinks {padding-bottom:100px; padding-top:15px;}
 		 
-		 #rightPanel {display: inline-block; position:absolute; top:60px; right:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}	
-		 #leftPanel {display: inline-block; position: absolute; top:60px; left:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}
-		 
-		 
-
-		  
 		 #histogram {width:200px; height: 200px;} 
 		  
 		 #howTitle {text-decoration:underline;} 
 		 #howDoesItWork {position:absolute; } 
 		 
-		 #mainPage p {margin-right:20px; margin-left:20px;} 
-		 
-		  
 		 #infoBox {width:170px; height:300px; border-style:solid; border-width:5px; margin-right:20px; position:fixed; left:280px;}
 		 
-		 #loaderGIF {display:none;}
+		 #loaderGIF {display:none; padding-left:10px;}
 		 
 		 #maker, #MCContainer, #supercellContainer {margin-left:20px;} 
 		  
 		 #makeIconDown, #MCIconDown, #spIconDown {display:none;}
-		  
-		  
-		  
-	/*	 #makeButton, #learnMore, #showMCButton {margin-left:100px;} */
-		 #mofFail {display:none;}
 		 
 		 #makeMOF {position:absolute; left:75%;} 
-		 #mofPageLink {position: absolute; left:10%;}
+		 
+		 #mainPage p {margin-right:20px; margin-left:20px;} 
+		 
 		 #mcDemo {position:absolute; left:45%;}
 		 
-		 ul {list-style-type:none}
+		 #mofFail {display:none;}
+		 
+		 #mofPageLink {position: absolute; left:10%;}
+		 
+		 #rightPanel {display: inline-block; position:absolute; top:60px; right:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}	
+		 #leftPanel {display: inline-block; position: absolute; top:60px; left:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}
+		 
+		 
+		 #viewer {position:relative; z-index:1;}
+		 
 		 
 		 .pageTitle { text-align:center; position:absolute; width:100%; top:10px; font-size:2em; z-index:2;}
 		 .pageTile b {text-align:center;  z-index:2;}
@@ -43,18 +49,9 @@
 		 .probeCount, .probeSize {width:50px;}
 		
 		
-		 #viewercontainer {height:400px; z-index:3;}
-		 
-		 #viewer {position:relative; z-index:1;}
-		
-		
 		/*  Classes */
 		
-		.border {
-		border:2px solid #0B85A1;
-		}
-		
-		.btn {
+.btn {
   background: #aec8d9;
   background-image: -webkit-linear-gradient(top, #aec8d9, #d2d8db);
   background-image: -moz-linear-gradient(top, #aec8d9, #d2d8db);
@@ -71,16 +68,6 @@
   text-decoration: none;
 }
 
-#mofPage {
-
-}
-#demoPage {
-
-}
-#returnButton {
-position:relative;
-}
-
 .btn:hover {
   background: #3cb0fd;
   background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
@@ -91,33 +78,22 @@ position:relative;
   text-decoration: none;
 }
 
-		.code {
-		margin-top:100px;
-		}
+	.buildBlock {width:50px; height:auto;}
 		
-		 .controlButton {position:relative; z-index:2;}
-		
-		/* #maker {margin-top:20px; width:300px; height:300px; border-style:solid; border-width:2px; position:fixed; background-color:blue; background: rgba(73,155,234,1);
-background: -moz-radial-gradient(center, ellipse cover, rgba(73,155,234,1) 0%, rgba(32,124,229,0.61) 50%, rgba(32,124,229,0.21) 100%);
-background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(73,155,234,1)), color-stop(50%, rgba(32,124,229,0.61)), color-stop(100%, rgba(32,124,229,0.21)));
-background: -webkit-radial-gradient(center, ellipse cover, rgba(73,155,234,1) 0%, rgba(32,124,229,0.61) 50%, rgba(32,124,229,0.21) 100%);
-background: -o-radial-gradient(center, ellipse cover, rgba(73,155,234,1) 0%, rgba(32,124,229,0.61) 50%, rgba(32,124,229,0.21) 100%);
-background: -ms-radial-gradient(center, ellipse cover, rgba(73,155,234,1) 0%, rgba(32,124,229,0.61) 50%, rgba(32,124,229,0.21) 100%);
-background: radial-gradient(ellipse at center, rgba(73,155,234,1) 0%, rgba(32,124,229,0.61) 50%, rgba(32,124,229,0.21) 100%);
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#499bea', endColorstr='#207ce5', GradientType=1 ); right:1%; z-index:2;} */
+	.controlButton {position:relative; z-index:2;}
+
+	.controlDiv {padding-left:10px;}
 		 
-		 .controlDiv {padding-left:10px;}
+	.makeIcon, .MCIcon, .spIcon {height:12px; width:auto; margin-left:3px; }
 		 
-		 .makeIcon, .MCIcon, .spIcon {height:12px; width:auto; margin-left:3px; }
+	.navImage {width:200px; height:auto}
 		 
-		 .navImage {width:200px; height:auto}
-		 
-		 .selected {border-style:solid; border-width:2px; border-color:blue;}
+	.selected {border-style:solid; border-width:2px; border-color:blue;}
 
 
-		 .buildBlock {width:50px; height:auto;}
+
 
 		
-		 /*  http://css3buttongenerator.com/  */
+
 
 

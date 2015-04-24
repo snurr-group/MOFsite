@@ -197,16 +197,13 @@ $(function() {
 					// used for corner locations
 					cellMatrix = computeCellMatrix(t);
 					// also updates isTriclinc
-					//console.log(cellMatrix);
 					inverseMatrix = inverse3x3(cellMatrix);
 					userLoaded = true;
 					loaded = true;
-					$("#boxText").hide();
-					$("#boxRadio").hide();
+					$("#boxText").hide(); // needed?
+					$("#boxRadio").hide(); // needed?
 					demo = false;
-					//name = 'userloaded';
-				}
-				;
+				};
 			}
 			)(f);
 			// Read 
@@ -334,84 +331,85 @@ $(function() {
 			response = event.data;
 			coords = response[0];
 			num = coords.length;
-			num = num.toString();
+			num = num.toString(); // combine with above line?
 			var str = num + "\n" + "Probes\n";
 			for (i=0;i<coords.length;i++) {
 				cur = coords[i];
 				str+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
 			}
-			//		console.log(str);
 			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + str + '"; load APPEND "@q"; zoom 60; select boron; spacefill 1.8;');
 		}
-		//worker.terminate();
-	}
-	);
+		// worker.terminate(); // implement this?
+	});
+	
 	//////////////////////////////////////////
+	///// Submission of Physical Property Simulation, VF, SA, PSD
+	//////////////////////////////////////////
+	
 	$(".run").click(function() {
 		$("#loaderGIF").show();
 		if (hidden) {
 			console.log('hidden');
 			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
 			$("#hideMOF").html('Hide Structure');
-		}
-		if (loaded) {
+		} // is this if statement needed?
+		if (loaded) { // what does this do?
 			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 		}
-		Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
-		$("#addme").empty();
-		// clear previous output
+		
+		Jmol.script(jmolApplet0, 'select boron; spacefill 0;'); // hide all boron, try delete instead?
+		$("#addme").empty(); // clear previous output
 		if (flaggedProbeCount != 0) {
 			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
-		}
+		} // again, is this needed? is it different from three lines up?
 		var overString = '';
-		/* if (demo) {
-				var boxSize = $('input[name=box]:checked').val();
-				name = "Kr" + boxSize;
-				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
-				cellA = +boxSize;
-				cellB = +boxSize;
-				cellC = +boxSize;
-			} */
-		var mode = $(this).attr('id');
+		var mode = $(this).attr('id'); // read what kind of data is being requested based on which submit button is clicked
+		
 		switch (mode) {
 			case 'VF':
-							probeNumber = $("#probeCountVF").val();
-			probeSize = $("#probeSizeVF").val();
+				probeNumber = $("#probeCountVF").val();
+				probeSize = $("#probeSizeVF").val();
 			break;
 			case 'SA' : 
-							probeNumber = $("#probeCountSA").val();
-			probeSize = $("#probeSizeSA").val();
+				probeNumber = $("#probeCountSA").val();
+				probeSize = $("#probeSizeSA").val();
 			break;
 			case 'PSD' : 
-							probeNumber = $("#probeCountPSD").val();
-			probeSize = $("#probeSizePSD").val();
-			console.log(probeSize);
+				probeNumber = $("#probeCountPSD").val();
+				probeSize = $("#probeSizePSD").val();
 			break;
-		}
-		//probeNumber = $("#probeCount").val();
-		//probeSize = $("#probeSize").val();
-		console.log(probeNumber);
+		};
+		
+		
 		var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		if (!userLoaded) {
 			cellA = modelInfo['models'][0]['_cell_length_a'];
 			cellB = modelInfo['models'][0]['_cell_length_b'];
 			cellC = modelInfo['models'][0]['_cell_length_c'];
 		}
+		
 		currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
-		//var isTriclinic = triclinicCheck();
+		//var isTriclinic = triclinicCheck(); // this check is done when file is loaded 
+		
+		
 		function triclinicCheck() {
 			var center = transf['center'];
 			var vect = transf['vector'];
 			return Math.abs(center[0] - center[1]) > 0.01 || Math.abs(center[0] - center[2]) > 0.01 || Math.abs(center[1] - center[2]) > 0.01;
-		}
-		var inlineString = probeNumber.toString() + "\n" + "Probes\n";
+		} // probably not needed
+		
+		// error testing needed
 		if (isNaN(probeSize) || isNaN(probeNumber)) {
 			$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
 			return;
 		} else {
-			probeSize = +probeSize;
-			// convert string to number
+			probeSize = +probeSize; // convert string to number
+			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
+			
 		}
+		
+		
+		
 		var probeDisplaySize = probeSize;
 		if (probeDisplaySize < 0.1) {
 			probeDisplaySize = 0.1;
@@ -420,17 +418,15 @@ $(function() {
 			// error with precisely 1 as input for "spacefill" Jmol function 
 			probeDisplaySize = 1.001;
 		}
+		
+		
 		var molInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		var adjustment = 0;
 		var done = false;
+		
 		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
 		if (mode == 'VF' || mode == 'PSD' || mode == 'negativeStructure') {
-			if (typeof(w) == "undefined" && mode == 'VF') {
-				var worker = new Worker("overlap_worker.js");
-			}
-			if (typeof(w) == "undefined" && mode == 'PSD') {
-				var worker = new Worker("poresize_worker_3.js");
-			}
+			
 			function tricFunc() {
 				for (i=1;i<=probeNumber;i++) {
 					var xx = Math.random();
@@ -445,10 +441,9 @@ $(function() {
 				}
 				loaded = false;
 			}
-			if (!isTriclinic || demo) {
+			if (!isTriclinic) {
 				var coordinates = '';
 				var coordArray = [];
-				demo.html
 							for (i=1;i<=probeNumber;i++) {
 					coordinates = getRandomCo(i);
 					// updates coordinateArray as well
@@ -457,8 +452,14 @@ $(function() {
 			} else {
 				tricFunc();
 			}
+		} // end if VF, PSD, Channel view
+		
+		
+			
 			if (mode == 'VF') {
-				console.log(inlineString);
+				if (typeof(w) == "undefined") {
+				var worker = new Worker("overlap_worker.js");
+				}
 				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var upperBound = probeNumber/500;
@@ -485,25 +486,27 @@ $(function() {
 								krVol = krVol.toFixed(2);
 								$("#addme").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
 							}
+							// worker.termniate(); // implement this? 
 						}
 					}
 				}
 			}
 			// worker call for VF
 			if (mode == 'PSD') {
-				console.log(cellMatrix);
+				if (typeof(w) == "undefined") {
+				var worker = new Worker("poresize_worker_3.js");
+			}
 				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, inverseMatrix,coordinateArray.slice(start, end), cellMatrix, probeSize]);
 				worker.onmessage = function(event) {
 					response = event.data;
 					histArray = response[0];
 					stepSize = response[1];
-					//console.log(histArray);
 					$("#loaderGIF").hide();
 					generateHistogram(histArray, probeSize, stepSize);
 				}
 			}
 			// end if PSD, worker call
-		}
+		
 		// end if void fraction calculations are requested (as opposed to surface area)
 		////////////// FOR SURFACE AREA 
 		if (mode == 'SA') {
