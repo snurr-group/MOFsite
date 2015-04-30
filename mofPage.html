@@ -12,7 +12,7 @@
 		<script src="./mof.js"></script> 
 		 <script src="./flot/jquery.flot.min.js"></script>
 		 
-		<title>MOF</title>
+		<title>MOF Explorer</title>
 		<meta name="description" content="">
 		<meta name="author" content="Maxime Usdin">
 		
@@ -22,6 +22,12 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
+		
+<!--
+		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
+-->
+		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
+		
 	<!--	 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css"> -->
 	</head>
 	<body>
@@ -43,7 +49,7 @@
 	 	
 	 	<!-- LEFT PANEL -->
 	 	<span id="leftPanel">
-	 	<h1>Display</h1>
+	 	<h1 id="displayTitle">Display</h1>
 	 	
 	 	<div id="accordion1">
   <h3>Supercell</h3>
@@ -75,25 +81,37 @@
 	 	<span class="btn" id="submitSupercell">Apply supercell</span>
 	 	</div> <!-- end superCellDiv -->
     
-</div> <!-- end accordion -->
-	 	
-	 	
 
-		<!-- show channnels (negative space) -->
-		<br />
-		<br />
-		<div id="channels">
+	 	<h3>Display Options</h3>
+		<div>
 		
-		<span class="btn" id="channelButton">Show channels</span>
-		
-		</div> <!-- end channels -->
+		<span class="displayParameter">Display </span> <br />
+		<input type="radio" name="structureDisplay" value="Structure">Structure
+		<input type="radio" name="structureDisplay" value="Channels">Channels
 		<br />
 		<br />
+		<span class="displayParameter">Atom display type</span> <br />
+		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill
+		<input type="radio" name="atomsDisplay" value="BallStick">Ball and Stick <br />
+		<input type="radio" name="atomsDisplay" value="Wireframe">Wireframe
+		<br />
+		<br />
+		<span class="displayParameter">Unit Cell Display</span> 
+		<br />
+		<input type="radio" name="unitCell" value="On">On
+		<input type="radio" name="unitCell" value="Off">Off
+		<br />
+		<br />
+		</div> 
+		<h3>File Upload</h3>
+		<div>
 		<input type="file" id="files" name="files[]" multiple />
 	 	 <div id="dragDrop">Or drag and drop a CIF file here</div>
-	 	 <br /> 
-	 	 <br />
-		
+	 	 <div id="uploadBox"></div>
+	 	 
+	 	 
+	 	 </div>
+		</div> <!-- end accordion -->
 	 	</span> <!-- end left panel span -->
 	 	
 	 	<!-- RIGHT PANEL -->
@@ -106,52 +124,74 @@
 				
 				<h3>Void Fraction</h3>
 			<div>
-			<div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
+			<div> Calculate the void fraction with 
+				
+				
+				<br />
 			
 	 	 <input type="text" name="count" class="probeCount" id="probeCountVF"> Probes
+	 	  <br> of diameter <br />
 	 	 <input type="text" name="size" class="probeSize" id="probeSizeVF"> Angstroms 
 	 	 </div>
 	 	 <br />
+	 	 <span id="addmeVF"></span>
 	 	 <span class="btn run" id="VF">Sumbit</span>
+	 	 <span class="btn" id="clearVF">Clear</span>  
+	 	 <br />
+	 	 <br />
 	 	 </div>
 	 	 
 	 	 <h3>Surface Area</h3>
 	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use (per atom) and <br /> probe diameter:</span><br /><br /> 
+	 	 <div>Calculate the solvent-accessible <br> surface area with 
+	 	 <br />
 			
-	 	 <input type="text" name="count" class="probeCount" id="probeCountSA"> Probes
+	 	 <input type="text" name="count" class="probeCount" id="probeCountSA"> Probes per atom
+	 	 <br> of diameter <br>
 	 	 <input type="text" name="size" class="probeSize" id="probeSizeSA"> Angstroms 
 	 	 
 	 	 </div>
 	 	 <br />
-	 	 
+	 	 <span id="addmeSA"></span>
 	 	  <span class="btn run" id="SA">Submit</span>  
+	 	  <span class="btn" id="clearSA">Clear</span>  
+	 	  <br />
+	 	  <br />
 	 	 </div>
 	 	 
 	 	 <h3>Pore Size Distribution</h3>
 	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use and <br /> maximum pore size:</span><br /><br /> 
+	 	 <div>Calculate the pore size distribution with 
+	 	 <br />
 			
 	 	 <input type="text" name="count" class="probeCount" id="probeCountPSD"> Probes
+	 	 <br> and a maximum pore size of <br>
 	 	 <input type="text" name="size" class="probeSize" id="probeSizePSD"> Angstroms 
 	 	 
 	 	 </div>
 	 	 <br />
+
+	 	 <span id="addmePSD"><div id="histogram"></div></span>
+
+	 	 
 	 	 <span class="btn run" id="PSD">Submit</span>  
-	 	 <br />
+	 	 <span class="btn" id="clearPSD">Clear</span>  
 	 	 <br />
 	 	 <br />
 	 	 </div> <!-- close enterProbeCount div -->
 	 	 </div> <!-- end accordion -->
-	 	 <span class="btn" id="clear">Clear</span>
-	 	  <br />
+	 	 <br />
+<!--
+	 	 <span id="clearButton"><span class="btn" id="clear">Clear</span></span>
+-->
 	 	  <br />
 	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
-	 	  <div id="addme"></div>
 	 	  <br />
-	 	 <div id="histogram"></div>
+	 	 
 	 	 
 	 	 </span> <!-- end right panel span -->				 
-</span>
+
+		<div id="unitcellInfo"></div>
+</span> <!-- end page span -->
 </body>
 </html>

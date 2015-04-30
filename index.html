@@ -13,7 +13,7 @@
 		<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
 		 <script src="./flot/jquery.flot.min.js"></script>
 		 
-		<title>MOF Explorer - Main</title>
+		<title>All About MOFs</title>
 		<meta name="description" content="">
 		<meta name="author" content="Maxime Usdin">
 		
@@ -23,6 +23,10 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
+		<link rel="stylesheet" href="./CSS/jquery-ui.theme-main.css">
+		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
+		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+		
 <!--
 		 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css">
 -->
@@ -31,10 +35,10 @@
 	<body>
 		
 <div data-role="page" id="mainPage">
-<b class="pageTitle">MOF Explorer</b>
+<b class="pageTitle">All About MOFs</b>
 <br />
 <br />
-<div>
+<div id="siteDescription">
 <p>
 Metal Organic Frameworks or MOFs are compounds consisting of metal nodes and organic linkers. MOFs have applicaions in many areas such as
 gas adsorption for storage or separations by size. This site is intended as a learning and research tool for MOFs. 
@@ -134,7 +138,7 @@ function pbCond(dist) { <br />
 <div>
 <p>The void fraction of a structure is a measure of the volume it occupies within a unit cell. A hollower or emptier cell corresponds to a greater void fraction. Calculating the void
 fraction is akin to throwing a large number of darts at the structure and seeing how many hit. Instead of darts the simulation uses spherical probes of a given size (point probes have size 0).
-These probes are inserted randomly into the unit cell and those that overlap with the structure are removed. This is done comparing the distance from the probe to each of the structure atoms
+These probes are inserted randomly into the unit cell and those that overlap with the structure are removed. This is done by comparing the distance from the probe to each of the structure atoms
 with the sum of their radii. If the sum of the radii is larger than the distance then the two overlap and the probe is flagged for deletion.
 The ratio of those that remain to the total used is the void fraction.
 
@@ -201,7 +205,7 @@ one point (the distance is the sum of the radii of the atom and the probe). <br 
 	</code>
 
 A check is perfomed to see if the probe overlaps with any other structure atoms (with PBC considered). If it does not, a counter is incremented to indicate a successfully placed probe. 
-Once the atom is done being probed, its accessible surface area is computed.
+Once the atom is done being probed, its accessible surface area is computed. <br />
 <code class="prettyprint">
 	for (i=0;i&lt;probesPerAtom;i++) { // for each of the probes given per atom <br />
 if (!overlapP) { // if probe has no overlaps <br />
@@ -245,7 +249,7 @@ and plotted. <br />
 	probeSizeArray = binArray(probeSize,probeSizeArray); // for graphing purposes bin the array of pore sizes to the probe size found - the negative derrivative of this array is plotted <br /> 
 }
 
-
+<br />
 function largestRadius(point,startingRadius) { <br />
 	i=startingRadius; <br />
 	while (!checkOverlap(point,i)) { <br />
@@ -255,7 +259,7 @@ function largestRadius(point,startingRadius) { <br />
 } <br />
  
  </code>
-Plotting occurs with a javascript library called flot. 
+Plotting is performed with a javascript library called flot. 
 
 
 

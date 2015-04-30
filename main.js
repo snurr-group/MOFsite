@@ -11,6 +11,6 @@ $("#makeMOF").click(function() {
 
 $( ".accordion" ).accordion( {
 		collapsible: true,
-		      heightStyle: "content"
+		heightStyle: "content"
 	});
 });

@@ -22,6 +22,8 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./maker.css">
+		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
+		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
 
 	</head>
 	<body>
@@ -35,40 +37,104 @@
 <div class="pageTitle"><b>Make a MOF</b></div>
 
 
-	 	<!-- RIGHT PANEL -->
-	 	<span id="rightPanel">
+<span id="leftPanel">
+	 	<h1 id="displayTitle">Display</h1>
+	 	
+	 	<div id="accordion1">
+  <h3>Supercell</h3>
+  <div id="superCellDiv">
 			
-			
-  
-	  <div id="MCContainer">	
-			
-			
-			
-		
-		<h3>Metals</h3>
-		<div> 
-		<a> <img hash="cu2" class="buildBlock" src="./Images/Metal/cu_paddlewheel.png" />   </a>   
-		<a> <img hash="zn4o" class="buildBlock" src="./Images/Metal/cn1_zno.png" /> </a> 
-		<a> <img hash="zn2" class="buildBlock" src="./Images/Metal/cn2_zn_paddlewheel.png" />  </a>
-		</div>
-		<h3>Organics</h3>
+	 	<input type="radio" name="x" value="1">x1
+	 	<input type="radio" name="x" value="2">x2
+	 	<input type="radio" name="x" value="3">x3
+	 	
+	 	
+	 	
+	 	<div>
+	 	
+	 	
+	 	<input type="radio" name="y" value="1">y1
+	 	<input type="radio" name="y" value="2">y2
+	 	<input type="radio" name="y" value="3">y3
+	 	
+	 	
+	 	</div>
+	 	 <div>
+	 		 	
+	 	<input type="radio" name="z" value="1">z1
+	 	<input type="radio" name="z" value="2">z2
+	 	<input type="radio" name="z" value="3">z3
+	 	
+	 	</div>
+	 	<br />
+	 	<span class="btn" id="submitSupercell">Apply supercell</span>
+	 	</div> <!-- end superCellDiv -->
+    
+
+	 	<h3>Display Options</h3>
 		<div>
+		
+		<span class="displayParameter">Display </span> <br />
+		<input type="radio" name="structureDisplay" value="Structure">Structure
+		<input type="radio" name="structureDisplay" value="Channels">Channels
+		<br />
+		<br />
+		<span class="displayParameter">Atom display type</span> <br />
+		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill
+		<input type="radio" name="atomsDisplay" value="BallStick">Ball and Stick <br />
+		<input type="radio" name="atomsDisplay" value="Wireframe">Wireframe
+		<br />
+		<br />
+		<span class="displayParameter">Unit Cell Display</span> 
+		<br />
+		<input type="radio" name="unitCell" value="On">On
+		<input type="radio" name="unitCell" value="Off">Off
+		<br />
+		<br />
+		</div> 
+		
+		</div> <!-- end accordion -->
+	 	</span> <!-- end left panel span -->
+	 	
+	 	
+	 	
+<!-- RIGHT PANEL  -->	 	
+	 	
+<span id="rightPanel">
+	 	<h1 id="displayTitle">Build</h1>
+	 	
+	 	<div id="accordion2">
+ <h3>Select Building Blocks</h3>
+			
+		<div>
+
+		
+		<p class="makerTitle">Metals</p>
+		 <img hash="cu2" class="buildBlock" src="./Images/Metal/cu_paddlewheel.png" >     
+		 <img hash="zn4o" class="buildBlock" src="./Images/Metal/cn1_zno.png" >  
+		<a> <img hash="zn2" class="buildBlock" src="./Images/Metal/cn2_zn_paddlewheel.png" />  </a>
+		
+
+		<p class="makerTitle">Organics</p>
 		<a> <img hash="phenyl" class="buildBlock" src="./Images/Ditopic/bb1_phenyl-di-.png" /> </a>
 		<a> <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/Tritopic/tri-phenyl-tri-.png" /> </a>
 		<a> <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/Hexatopic/tetra-phenyl-hexa-.png" /></a>
 		<a> <img hash="n2" class="buildBlock" src="./Images/Linkers/amide.png" /> </a>
-		</div>
-		
-		<span id="mofFail">No MOF could be made from <br /> these building blocks, <br /> please try again. </span>
 		<br />
 		<br />
 		<span class="controlButton btn" id="generate"> Generate! </span> 
 	 	<span class="controlButton btn" id="clear"> Clear </span> 
-		<br />
-	 	 
-	 	 </span> <!-- end right panel span -->
-</div>
+	 	<br />
+	 	<br />
+		<span id="mofFail">No MOF could be made from these building blocks, please try again. </span>
+		</div>
+		
+		
+		</div> <!-- end accordion -->
+	 	</span> <!-- end right panel span -->
 
+<div id="unitcellInfo"></div>
 </div>		
+
 </body>
  </html>

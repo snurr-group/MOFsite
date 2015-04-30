@@ -3,9 +3,14 @@ var atomInfo = e.data[0];
 var triclinic = e.data[1];
 var	cellMatrix = e.data[2];
 var	inverseMatrix = e.data[3];
-if (!triclinic) {
 var cellSize = e.data[4];
+
+
+
+for (i=0;i<cellSize.length;i++) {
+	cellSize[i] = parseFloat(cellSize[i]);
 }
+
 
 var atomDiameters = {
 Ac:	3.098545742,
@@ -123,28 +128,39 @@ Zr:	2.783167595,
 	}
 
 var coords = [];
-var unitResolution = 0.02;
-var gridSize = Math.round(1/unitResolution);
 
-for (i=0;i<gridSize;i++) {
-	for (j=0;j<gridSize;j++) {
-		for (k=0;k<gridSize;k++) {
-			index = i + gridSize*j + Math.pow(gridSize,2)*k;
-			coords[index] = [unitResolution*i, unitResolution*j, unitResolution*k]; 
+// a resolution of 0.5 A is made
+
+var unitResolution = 0.5;
+var gridSize = [];
+for (i=0;i<cellSize.length;i++) {
+	gridSize[i] = Math.round(cellSize[i]/unitResolution);
+}
+var index = 0;
+var counter = 0;
+for (i=0;i<gridSize[0];i++) {
+	for (j=0;j<gridSize[1];j++) {
+		for (k=0;k<gridSize[2];k++) {
+			//index = i + gridSize[1]*j + Math.pow(gridSize[2],2)*k; // index for an array describing a cube, a + bx + cx^2 			
+			coords[counter] = [unitResolution*i/cellSize[0], unitResolution*j/cellSize[1], unitResolution*k/cellSize[2]]; // coordinates are fractional
+			counter++;
 		}
 	}
 }
 
+//console.log(counter);
+//console.log(index);
 	for (i=0;i<coords.length;i++) {
 		coords[i] = matrixDotVector(cellMatrix,coords[i]);
 	}
 
-//console.log(coords);
+
+
 var noOverlapCoords = [];
-var index = 0;
+index = 0;
 
 for (i=0;i<coords.length;i++) {
-	if (!checkOverlap(coords[i],1.86)) {
+	if (!checkOverlap(coords[i],0.5)) {
 		noOverlapCoords[index] = coords[i];
 		index++;
 	}
