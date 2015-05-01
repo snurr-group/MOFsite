@@ -1,6 +1,7 @@
 html, body {
     margin: 0;
     height: 100%;
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 p {font-family: 'Source Sans Pro', sans-serif; font-size:1.1em;}
@@ -65,7 +66,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 
 		 #siteDescription {padding-right:40px; padding-left:40px; padding-top:10px;}
 		 
-		 #unitcellInfo {position:absolute; z-index:2; bottom:10px; width:100px; left:10px;}
+		 #unitcellInfo {position:absolute; z-index:2; bottom:10px; width:150px; left:10px;}
 		 
 		 #uploadBox {height:180px; width:180px; border: 3px dotted #B2E0FF;}
 		 
@@ -117,7 +118,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 
 	.makeIcon, .MCIcon, .spIcon {height:12px; width:auto; margin-left:3px; }
 		 
-	.navImage {width:200px; height:auto}
+	.navImage {height:100px; width:auto}
 	
 	.pageTitle { text-align:center; position:absolute; width:100%; top:10px; font-size:2em; z-index:2;}
 	.pageTile b {text-align:center;  z-index:2;}

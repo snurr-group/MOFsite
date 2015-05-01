@@ -55,7 +55,7 @@ Info.z = {
 		cellMatrix = [ 26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833 ];
 		inverseMatrix = inverse3x3(cellMatrix);
 
-$("#unitcellInfo").html('a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
+		$("#unitcellInfo").html('mass = 9677.7 Da <br /> density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 
 
 // JSmol Applet
@@ -218,7 +218,35 @@ $(".buildBlock").click(function () {
 			sides[i] = sides[i].toFixed(3);
 			angles[i] = angles[i].toFixed(3);
 		}
-		$("#unitcellInfo").html('a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
+		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+		
+		$.getJSON("atomMasses.json", function(data) {
+			masses = data;
+			mass = 0;
+			for (i=0;i<atomInfo.length;i++) {
+				sym = atomInfo[i]['sym'];
+				mass += +masses[sym];
+			}
+			mass = mass.toFixed(3);
+			////
+			//// This code is in the SA worker call, see if can make variable global and remove from there. 
+			if (!isTriclinic) {
+				cellVol = cellA*cellB*cellC;
+			} else {
+				cellVol = triclinicVol(vectA, vectB, vectC, angle);
+			}
+			////
+			nA = 6.02*Math.pow(10,23);
+			massGrams = mass/nA; // total mass in grams
+			
+			//mass = +mass.toFixed(3);
+			mass = parseFloat(mass);
+			mass = mass.toFixed(1);
+			
+			density = massGrams / (cellVol * Math.pow(10,-24)); // density in g/cm3
+			density = density.toFixed(3);
+			$("#unitcellInfo").html('mass = ' + mass + ' Da <br /> density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
+		});
 	}
 	
 	

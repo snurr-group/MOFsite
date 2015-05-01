@@ -41,7 +41,7 @@
 <div id="siteDescription">
 <p>
 Metal Organic Frameworks or MOFs are compounds consisting of metal nodes and organic linkers. MOFs have applicaions in many areas such as
-gas adsorption for storage or separations by size. This site is intended as a learning and research tool for MOFs. 
+gas adsorption for storage or separations. This site is intended to serve as a learning and research tool for MOFs. 
 Here you may explore the physical properties of MOFs in MOF Explorer, learn about Monte Carlo 
 simulations in the Demo module, or combine building blocks to make your own MOF in MOF Maker.
 
@@ -73,11 +73,11 @@ Or open MOF Explorer and set the supercell parameters.</p>
 <div>
 
 <p> When performing calculations it is often important to know the distance between two structure atoms. Due to periodic boundary 
-conditions (PBC), the nearest atom to a point might not be in the same unit cell. To account for this all distances are computed twice, as a straight line between points and then taking
-PBC into consideration. The former yields a distance vector between two points, the latter applies PBC to the vector by considering the image of a point, its analog in the neighboring cell.
+conditions (PBC), the nearest atom to a point might not be in the same unit cell. To account for this, all distances are computed twice, as a straight line between points and then taking
+PBC into consideration. The former yields a distance vector between two points, the latter applies PBC to the vector by considering the image of a point - its analog in the neighboring cell.
 An important distinction can be made between unit cells that are orthorhombic (all angles are right angles) or not. 
 For those that are, PBC calculations take two steps. First, each component of the distance vector is compared to the unit cell length.
-If point A is less than half a unit cell from point B, then the image of A in the neighboring cell (A') must be further away. No calculations are made, the original value is the smallest distance. 
+If point A is less than half a unit cell from point B, then the image of A in the neighboring cell (A') must be further away. No calculations are made because the original value is the smallest distance. 
 Conversely, if A is more than half the unit cell from B, then A' is closer than A. The distance of A to B becomes the distance from A' to B by shifting the position of A to A'. 
 If the cell is not orthorhombic, some of the implicit simplifications above no longer hold. Instead, matrix transformations are used to compute the distance to the image. There is a matrix
 that defines any unit cell and can be found with: 
@@ -85,7 +85,7 @@ that defines any unit cell and can be found with:
 <code class="prettyprint">
 	// A, B, C are vector lengths <br />
 	// (b) is in the xz-plane and (c) has a positive y component. <br />
-	// further, alpha is the angle (bc), beta is (ac), gamma is (ab) <br />
+	// alpha is the angle (bc), beta is (ac), gamma is (ab) <br />
 	a_x = A; <br />
 	a_y = 0.0; <br />
 	a_z = 0.0; <br />
@@ -139,7 +139,7 @@ function pbCond(dist) { <br />
 <p>The void fraction of a structure is a measure of the volume it occupies within a unit cell. A hollower or emptier cell corresponds to a greater void fraction. Calculating the void
 fraction is akin to throwing a large number of darts at the structure and seeing how many hit. Instead of darts the simulation uses spherical probes of a given size (point probes have size 0).
 These probes are inserted randomly into the unit cell and those that overlap with the structure are removed. This is done by comparing the distance from the probe to each of the structure atoms
-with the sum of their radii. If the sum of the radii is larger than the distance then the two overlap and the probe is flagged for deletion.
+with the sum of their radii. If the sum of the radii is larger than the distance, then the two overlap and the probe is flagged for deletion.
 The ratio of those that remain to the total used is the void fraction.
 
 <br />
@@ -188,9 +188,6 @@ a ball over the entire surface and measuring the area covered. Larger spheres wi
 for measuring the surface area begins with the generation of random points uniformly distributed around a structure atom at a distance that allows probes to overlap with the atom at only 
 one point (the distance is the sum of the radii of the atom and the probe). <br />
 <code class="prettyprint">
-	// x, y, z are the location of the structure atom in question <br />
-	thetha = 0.0; <br />
-	phi = 0.0; <br />
 	theta = 2*Math.PI*Math.random(); <br />
 	phi = Math.acos(2*Math.random()-1.0); <br />
 	xu = Math.cos(theta)*Math.sin(phi); <br />
@@ -198,6 +195,8 @@ one point (the distance is the sum of the radii of the atom and the probe). <br 
 	zu = Math.cos(phi); <br />
 	
 	rad = atomRad + probeRad; <br />
+	
+// x, y, z are the location of the structure atom in question <br />
 
 	probeX = x + rad*xu; <br />
 	probeY = y + rad*yu; <br />
@@ -208,6 +207,7 @@ A check is perfomed to see if the probe overlaps with any other structure atoms 
 Once the atom is done being probed, its accessible surface area is computed. <br />
 <code class="prettyprint">
 	for (i=0;i&lt;probesPerAtom;i++) { // for each of the probes given per atom <br />
+		overlapP = probeOverlap([probeX,probeY,probeZ]); <br />
 if (!overlapP) { // if probe has no overlaps <br />
 		notOverlap++; // increment number of non-overlapped	 <br />
 	} <br />
@@ -226,14 +226,14 @@ This is repeated for all of the structure atoms and the resultant volumetric and
 <h3>Pore Size Distribution</h3>
 <div>
 <p>
-Some MOFs are finding many applications for gas adsorption due to their highly porous nature. The pores of a MOF can be quantified using a pore size distribution (PSD). The PSD is a measure
+Some MOFs are finding applications for gas adsorption due to their highly porous nature. The pores of a MOF can be quantified using a pore size distribution (PSD). The PSD is a measure
 of the size and relative availability of pores in a structure and is presented as a plot of pore size and relative abundance. Finding the size of a pore using random sampling requires 
 locating the largest sphere that encompasses a given point but does not overlap with any of the structure atoms. 
-The PSD is the only physical property here that is not measured using a Monte Carlo simulation, instead a more optimal algorithm is employed. <br />
-For each of the probes specified a random point is generated outside of any structure atoms. A small sphere is made centered at this point and incremented until it overlaps with a structure 
+The PSD is the only physical property here that is not measured using a Monte Carlo simulation. Instead a more optimal algorithm is employed. <br />
+For each of the probes specified a random point is generated outside of any structure atoms. A small sphere is made centered at this point and its radius incremented until it overlaps with a structure 
 atom. The point is then moved slighlty in each of the six directions and the procedure is repeated. If a larger sphere can be made centered at a shifted point and this sphere encompasses the
 original point, then it is accepted as the new standard against which spheres are compared when this procedure is repeated. When shifting the point slightly no longer yields a larger sphere,
-the largest probe size is recorded as the pore size for that point. Performed with points uniformly distributed throghout the unit cell gives the pore size distribution which is normalized 
+the largest probe size is recorded as the pore size for that point. This is performed with points uniformly distributed throghout the unit cell gives the pore size distribution which is normalized 
 and plotted. <br />
 <code class="prettyprint">
  for (q=0;q&lt;numProbes;q++) { <br />
@@ -248,7 +248,7 @@ and plotted. <br />
 	
 	probeSizeArray = binArray(probeSize,probeSizeArray); // for graphing purposes bin the array of pore sizes to the probe size found - the negative derrivative of this array is plotted <br /> 
 }
-
+<br />
 <br />
 function largestRadius(point,startingRadius) { <br />
 	i=startingRadius; <br />
@@ -257,6 +257,22 @@ function largestRadius(point,startingRadius) { <br />
 	} <br />
 	return i; <br />
 } <br />
+<br />
+function incrementPoint(point) { // six directions, + x,y,z; - x,y,z <br />
+	pointArray = []; <br />
+	for (j=0;j&lt;3;j++) { <br />
+		up[j] = point[j] + step; // step is a fixed stepsize of 0.05 <br />
+		down[j] = point[j] - step; <br />
+	} <br />
+	pointArray[0] = [up[0], point[1], point[2]]; <br />
+	pointArray[1] = [point[0], up[1], point[2]]; <br />
+	pointArray[2] = [point[0], point[1], up[2]]; <br />
+	pointArray[3] = [down[0], point[1], point[2]]; <br />
+	pointArray[4] = [point[0], down[1], point[2]]; <br />
+	pointArray[5] = [point[0], point[1], down[2]]; <br />
+	
+	return pointArray;	<br />
+}<br />
  
  </code>
 Plotting is performed with a javascript library called flot. 
@@ -273,7 +289,7 @@ Plotting is performed with a javascript library called flot.
 
 
 <div id="acknowledgements">
-This site was made by an undergraduate student at Northwestern Univeristy, Maxime Usdin, with the help and supervision of Greg Chung and Dr Randall Snurr. 
+This site was made by an undergraduate student at Northwestern University, Maxime Usdin, with the help and supervision of Greg Chung and Dr Randall Snurr. 
 
 </div> <!-- acknowledgements -->
 </div> <!-- how does it work div -->

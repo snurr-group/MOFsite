@@ -23,19 +23,19 @@
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./demo.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
+		
+		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+
 <!--
 		 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css">
 -->
 	</head>
 	<body>
 		<div id="demoPage">
-<!--
-<b class="pageTitle">Demo</b>
--->
 
 <div id="viewercontainer2">
 <span id="viewer2" style="z-index:1;"> </span>
-<div class="pageTitle"><b>Demo</b></div>
+<div class="pageTitle"><b>Sphere in a Box Demo</b></div>
 
 
 	 	<!-- RIGHT PANEL -->
@@ -48,25 +48,34 @@
 				
 				<h3>Void Fraction</h3>
 			<div>
-			<div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
+			<div>Calculate the void fraction with 
+				
+				
+				<br />
 			
-	 	 <input type="text" class="probeCount" id="probeCountVF"> Probes
-	 	 <input type="text" class="probeSize" id="probeSizeVF"> Angstroms 
+	 	 <input type="text" name="count" class="probeCount" id="probeCountVF"> Probes
+	 	  <br> of diameter <br />
+	 	 <input type="text" name="size" class="probeSize" id="probeSizeVF"> Angstroms 
 	 	 </div>
 	 	 <br />
+	 	 <span id="addmeVF"></span>
 	 	 <span class="btn run" id="VF">Sumbit</span>
 	 	 </div>
 	 	 
-	 	 <h3>Surface Area</h3>
+	 	 <h3>Volume</h3>
 	 	 <div>
-	 	 <div><span id="enterProbeCount">Enter number of probes to use and <br /> probe diameter:</span><br /><br /> 
+	 	 <div>Calculate the volume with 
+				
+				
+				<br />
 			
-	 	 <input type="text" class="probeCount" id="probeCountSA"> Probes
-	 	 <input type="text" class="probeSize" id="probeSizeSA"> Angstroms 
-	 	 
+	 	 <input type="text" name="count" class="probeCount" id="probeCountVOL"> Probes
+	 	  <br> of diameter <br />
+	 	 <input type="text" name="size" class="probeSize" id="probeSizeVOL"> Angstroms 
 	 	 </div>
 	 	 <br />
-	 	 <span class="btn run" id="SA">Submit</span>
+	 	 <span id="addmeVOL"></span>
+	 	 <span class="btn run" id="VOL">Submit</span>
 	 	 
 	 	 </div>
 	 	 
@@ -76,7 +85,6 @@
 		
 	 	  <br />
 	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
-	 	  <div id="addme"></div>
 	 	  <br />
 	 	 <div id="histogram"></div>
 	 	 

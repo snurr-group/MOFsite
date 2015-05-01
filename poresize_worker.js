@@ -1,14 +1,5 @@
-
-
-onmessage = function(e) {	
-	var atoms = e.data[0];
-	var numProbes = e.data[1];
-	var cellSize = e.data[2];	
-	var stepSize = 0;
-
-	
-	
-	var atomDiameters = {
+onmessage = function(e) {
+var atomDiameters = {
 Ac:	3.098545742,
 Ag:	2.804549165,
 Al:	4.008153333,
@@ -113,31 +104,30 @@ Yb:	2.988965199,
 Zn:	2.461553158,
 Zr:	2.783167595,
 }	
-	
-	
-	
-	
-	// global variables
-	var cellVol = cellSize[0]*cellSize[1]*cellSize[2];
-	//var gridSize = Math.floor(Math.pow(numProbes, 1/3)); // a single dimension of the grid
-	var gridSize = 40;
-	var unitResolution = cellSize[0] / gridSize;
-	//stepSize = unitResolution; // the increment for possible probe radii is the distance between two points on the grid
-	stepSize = 0.1;
-	var points = [];
-		
-// generate grid of evenly spaced points
-	for (i=0;i<=gridSize;i++) { 
-		for (j=0;j<=gridSize;j++) {
-			for (k=0;k<=gridSize;k++) {
-				index = i + gridSize*j + Math.pow(gridSize,2)*k; // counter based on a + bx + cx^2 
-				points[index] = [unitResolution*i, unitResolution*j, unitResolution*k];
-	}
-	}
-	}
 
+var atoms = e.data[0];
+var numProbes = e.data[1]/1;
+var cellSize = e.data[2];
+var triclinic = e.data[3];
+var structureCount = atoms.length;
 
-	// arrays of x,y,z coordinates
+if (triclinic) {
+	var cellMatrix = e.data[6];
+	var probeCoords = e.data[5];
+	var inverseMatrix = e.data[4];
+	for (i=0;i<cellMatrix.length;i++) {
+	cellMatrix[i] = parseFloat(cellMatrix[i]);
+}
+
+for (i=0;i<inverseMatrix.length;i++) {
+	inverseMatrix[i] = parseFloat(inverseMatrix[i]);
+}
+}
+
+var maxProbeSize = e.data[7];
+var step = 0.05; // resolution of point location
+var stepSize = 0.01; // resolution of radius 
+var probeSizeArray = [];
 	var atomX = [];
 	var atomY = [];
 	var atomZ = [];
@@ -146,51 +136,121 @@ Zr:	2.783167595,
 		atomY[l] = atoms[l]['y'];
 		atomZ[l] = atoms[l]['z'];
 	}
+var up = [];
+var down = [];
+var extraChance = false;
+var flag2 = false;
+var tempR = 0;
+var bound = maxProbeSize/(stepSize*2);
 
 
-	var pointsa = []; // grid of points outside of structure atoms
-	var p = 0; // counter
-	// pointsa is populated with grid points that do not overlap the structure 
-	for (m=0;m<points.length;m++) {
-		x1 = points[m][0];
-		z1 = points[m][1];
-		y1 = points[m][2];
-			
-		if (!checkOverlap([x1,y1,z1], 0)) {
-			pointsa[p] = points[m];
-			p++;
-		}			
+for (p=0;p<bound;p++) {
+	probeSizeArray[p] = 0;
+}
+
+for (q=0;q<numProbes;q++) {
+	extraChance = false;
+	if (triclinic) {
+		
+	probePoint = probeCoords[q];
+	probePoint[0] = +probePoint[0]; 
+	probePoint[1] = +probePoint[1]; 
+	probePoint[2] = +probePoint[2];	
 	}
-	
+	else {
+	probePoint = randomCoords();
+	}
+	r = largestRadius(probePoint,0);
+	testPointArray = incrementPoint(probePoint);
+	probeSize = findPore(testPointArray,r);
+	probeSizeArray = binArray(probeSize,probeSizeArray);
+}
 
-	// now we have a grid of points outside of any structure atoms, next we find the largest possible probe at each point
-	
-	var rada = [];
-	var flagged = false; 
-	var increments = 0;
-	increments = cellSize[0]/stepSize; // increments of stepSize each will lead to probe sizes up to that of the unit cell
-	
-	for (n=0;n<pointsa.length;n++) {		
-		flagged = false;
-		for (o=0;o<increments;o++) { // increments of stepSize each
-			if (!flagged) {
-			testRad = o*0.1; // radius of probe to test at the point 
-			if (checkOverlap(pointsa[n],testRad)) {
-				rada[n] = testRad;
-				flagged = true;
-			}
-			
+
+
+function findPore(pointArray,r) {
+	var direction = -1;
+	flag2 = false;
+	for (j=0;j<pointArray.length;j++) {
+		largestTest = largestRadius(pointArray[j],r); 
+		if ((largestTest > r)) {
+			r = largestTest;
+			direction = j;
 		}
 	}
+		if (direction != -1) {
+			//console.log(direction);
+			newPoint = incrementPoint(pointArray[direction]);
+			//console.log(newPoint);
+			if (extraChance) {
+		//		console.log(r);
+				return r;
+			}
+			else {
+				return findPore(newPoint,r);
+			}
+		}
+	
+		else {
+			if (extraChance) {
+				return r;
+			}
+			else { // failed to find a larger probe, given another chance
+				extraChance = true;
+			
+				for (k=0;k<pointArray.length;k++) {
+					if (!flag2) { 
+					newPoint = incrementPoint(pointArray[k]);
+					if (findPore(newPoint,r) > (r+0.011)) { // 0.01 is resolution
+						flag2 = true; // exit for loop
+						
+						var rr = findPore(newPoint,r);
+						extraChance = false;
+						//console.log('excess recursion with radius ' + rr);
+						return rr;
+					}
+				}
+				}
+				
+			if (!flag2) {
+			return r;
+			}
+		} // end else (if not extraChance)
+	} // end else (if not -1)
+} // end findPore()
+
+function distanceBetweenPoints(pt1,pt2) {
+	d = distance(pt1[0],pt1[1],pt1[2],pt2[0],pt2[1],pt2[2]);
+	d = pbCond(d);
+	dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+	return dr;
+}
+
+function incrementPoint(point) { // six directions, + x,y,z; - x,y,z
+	pointArray = [];
+	for (j=0;j<3;j++) {
+		up[j] = point[j] + step;
+		down[j] = point[j] - step;
 	}
-	console.log(pointsa);
-	console.log(rada);
+	pointArray[0] = [up[0], point[1], point[2]];
+	pointArray[1] = [point[0], up[1], point[2]];
+	pointArray[2] = [point[0], point[1], up[2]];
+	pointArray[3] = [down[0], point[1], point[2]];
+	pointArray[4] = [point[0], down[1], point[2]];
+	pointArray[5] = [point[0], point[1], down[2]];
 	
-	// now have two arrays, pointsa with the locations of grid points and rada with the radii of the largest sphere at each point
-	
-	// next, we generate random points outside of the structure, compare to pointsa and find largest containing sphere
-	
-	function randomCoords() {
+	return pointArray;	
+}
+
+function largestRadius(point,startingRadius) {
+	i=startingRadius;
+	while (!checkOverlap(point,i)) {
+		i+=stepSize;
+	}
+	return i;
+}
+
+function randomCoords() {
 		var pt = [];
 		
 		x1 = Math.random()*cellSize[0]/1;
@@ -205,53 +265,20 @@ Zr:	2.783167595,
 		else {
 			return pt;
 		}
-		}
-	
-	var maxDist = 0;
-	var probeSizeArray = []; // bin this array up to max probe size at point
-	var probePoint = [0, 0, 0];
-		for (w=0;w<increments;w++) {
-		probeSizeArray[w]=0;
-	}
+}
 
 
-	for (s=0;s<numProbes;s++) {
-		maxDist = 0;
-		probePoint = randomCoords(); // generates a point outside of structure
-		
-
-		for (t=0;t<pointsa.length;t++) {
-			dist = distance(probePoint[0], probePoint[1], probePoint[2], pointsa[t][0], pointsa[t][1], pointsa[t][2]);
-			dist = pbCond(dist);
-			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
-			if (dr < rada[t] && dr > maxDist) { // if probe is within sphere AND this is the largest sphere
-				maxDist = rada[t];				
-			}
-			
-		}
-		binArray(maxDist);
-	}
-	
-	
-	function binArray(max) {
+	function binArray(max,arr) {
 		maxIndex = Math.round(max/stepSize); // floor and round interchangeable? 
-		// Probe size is the DIAMETER of the pores found with probes. The data collected is the radii of probes filling these pores. 
-		// To account for this, the following array has a bin width of double the step size so for d=2r. The step size value is 
-		// passed to the main thread. 
 		for (u=0;u<maxIndex;u++) {
-			probeSizeArray[u]++;	
+			arr[u]++;	
 		}
+		
+		return arr;
 	}
+
+function checkOverlap(pt, r) {
 	
-	/*
-	function binArray(max) {
-	//	console.log(max);
-		index = Math.floor(max/0.1);
-		probeSizeArray[index]++;
-	}
-	*/
-	
-	function checkOverlap(pt, r) {
 		x = pt[0];
 		y = pt[1];
 		z = pt[2];
@@ -269,29 +296,64 @@ Zr:	2.783167595,
 		radius = atomDiameters[atoms[b]['sym']]/2;
 		
 		
-		dist = distance(x,y,z,xa,ya,za);	
-		dist = pbCond(dist);	
-		dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2));
+		distR = distance(x,y,z,xa,ya,za);	
+		distR = pbCond(distR,pt);	
+		dr = Math.sqrt(Math.pow(distR[0],2) + Math.pow(distR[1],2) + Math.pow(distR[2],2));
 		
+			
+			
 			if (dr < (radius+r)) {
 				overlap = true;
 				flag = true;
 			}
 				else {
 					overlap = false;
-				}					
+				}
+				
+				/*
+		if (distR == -1) {
+					overlap = true;
+				}
+		else {
+					dr = vectMag(distR);
+						if (dr < (radius+r)) { // check if overlap
+							overlap = true; // flag
+					} // end if
+				}
+				*/		
+									
 		}
 		} 
 		return overlap;
 		} // end checkOverlap 
 
-
 function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	
-function pbCond(dist) {
+
+function pbCond(dist,probePt) {
+	
+			if (triclinic) {
+		
+	fractional = [0,0,0];	
+	fractional = matrixDotVector(inverseMatrix, dist);
+	//console.log(dist);
+	xVect = [0,0,0];
+	xVect[0] = fractional[0] - Math.round(fractional[0]);
+	xVect[1] = fractional[1] - Math.round(fractional[1]);
+	xVect[2] = fractional[2] - Math.round(fractional[2]);
+	//console.log(xVect);
+	//console.log(cellMatrix);
+	cartesian = matrixDotVector(cellMatrix,xVect);
+	//console.log(cartesian);
+	return cartesian;
 			
+				
+				
+			} // end if triclinic
+			
+			else {
 			if (dist[0] > cellSize[0]/2) {
 					dist[0] = dist[0] - cellSize[0]; 
 			}
@@ -301,16 +363,71 @@ function pbCond(dist) {
 			if (dist[2] > cellSize[2]/2) {
 					dist[2] = dist[2] - cellSize[2]; 
 			}
-			return dist;
+		return dist;
+		}
+			
 		}
 
-function isInArray(value, arr) {
-  return arr.indexOf(value) > -1;
-}	
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
 
-console.log(probeSizeArray);
-postMessage([probeSizeArray, stepSize*2]);
+
+		
+// shift a point along a vector
+function shiftPoint(point,index,shift) {
+					if (index<3) {
+						for (g=0;g<point.length;g++) {
+							point[g] += shift[index][g];
+						}
+					}
+					else {
+						for (g=0;g<point.length;g++) {
+							point[g] -= shift[index%3][g];
+						}
+					}
+					return point;
+}
+
+// distance from a point to a plane
+function pointToPlane(pt,pl) {
+	D = Math.abs((pl[0]*pt[0] + pl[1]*pt[1] + pl[2]*pt[2] + pl[3])/Math.sqrt(Math.pow(pl[0],2) + Math.pow(pl[1],2) + Math.pow(pl[2],2)));
+	return D;
+}
 
 
-};
+// vector dot product
+function vectorDot(ve1,ve2) {
+	dot = 0;
+	for (i=0;i<ve1.length;i++) {
+		dot += ve1[i]*ve2[i];
+	}
+	return dot;
+}
 
+// vector cross product
+function vectorCross(v1,v2) {
+	result = [];
+	result[0] = v1[1]*v2[2]-v1[2]*v2[1];
+	result[1] = v1[2]*v2[0]-v1[0]*v2[2];
+	result[2] = v1[0]*v2[1]-v1[1]*v2[0];
+	return result;
+}
+
+// magnitude of vector
+function vectMag(vector) {
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) + Math.pow(vector[2],2));
+}
+
+// distance vector between points
+function distance(x1,y1,z1,x2,y2,z2) {
+	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
+	return distanceVector;
+}			
+		
+postMessage([probeSizeArray,stepSize*2]);
+
+} 

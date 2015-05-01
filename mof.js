@@ -31,8 +31,10 @@ $(function() {
 	var loadedName = '';
 	var channelStrings = {};
 	var sProps = {}; // objects stored as {name -  {cellMatrix, inverseMatrix, mass, density, ..}} 
+	//var masses = {};
+	var displayType = 'spacefill only'; // used to preserve display type when a file is uploaded
 	
-	clearAll();
+	clearAll(); // needed?
 	showMOF();
 	
 	//////////////////////////////////////
@@ -55,6 +57,7 @@ $(function() {
 			masses = data;
 		});
 	}
+	
 	// end showMOF()
 	function initializeJmol(str,demo) {
 		var f = '"%FILE"';
@@ -99,7 +102,7 @@ $(function() {
 		  .append(myJmol)
 		  .addClass("padded");
 		  
-		$("#unitcellInfo").html('a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
+		$("#unitcellInfo").html('mass = 9677.7 Da <br /> density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 	}
 	// end initializeJmol
 	////////////////////////////////////////////////
@@ -108,6 +111,7 @@ $(function() {
 	/////////////////////////////////////////
 	/////// UPLOAD FILE FROM DIALOGUE OR DARG & DROP
 	/////////////////////////////////////////
+
 
 	
 	// drag and drop controls
@@ -131,7 +135,6 @@ $(function() {
 	}
 	);
 	obj.on('drop', function (e) {
-		console.log('drop');
 		//obj.removeClass("border");
 		e.preventDefault();
 		var files = e.originalEvent.dataTransfer.files;
@@ -142,7 +145,7 @@ $(function() {
 					t = e.target.result;
 					name = t;
 					userLoaded = true;
-					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t"; spacefill;');
+					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + ';');
 					var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 					// used for corner locations
 					cellMatrix = computeCellMatrix(t); // also updates isTriclinc
@@ -197,7 +200,7 @@ $(function() {
 			reader.onload = (function(theFile) {
 				return function(e) {
 					t = e.target.result;
-					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t"; spacefill only;');
+					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + ';');
 					
 					//~ name = t;
 					// replaced with name = first line of CIF file uploaded 
@@ -206,7 +209,7 @@ $(function() {
 					
 					if (sProps[nameString] == null) {
 						
-						console.log('brilliant');
+				//		console.log('brilliant');
 					}
 					 				
 					//~ sProps[nameString]['cellMatrix'] = [];
@@ -320,7 +323,37 @@ $(function() {
 			sides[i] = sides[i].toFixed(3);
 			angles[i] = angles[i].toFixed(3);
 		}
-		$("#unitcellInfo").html('a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
+		
+		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+		
+		$.getJSON("atomMasses.json", function(data) {
+			masses = data;
+			mass = 0;
+			for (i=0;i<atomInfo.length;i++) {
+				sym = atomInfo[i]['sym'];
+				mass += +masses[sym];
+			}
+			mass = mass.toFixed(3);
+			////
+			//// This code is in the SA worker call, see if can make variable global and remove from there. 
+			if (!isTriclinic) {
+				cellVol = cellA*cellB*cellC;
+			} else {
+				cellVol = triclinicVol(vectA, vectB, vectC, angle);
+			}
+			////
+			nA = 6.02*Math.pow(10,23);
+			massGrams = mass/nA; // total mass in grams
+			
+			//mass = +mass.toFixed(3);
+			mass = parseFloat(mass);
+			mass = mass.toFixed(1);
+			
+			density = massGrams / (cellVol * Math.pow(10,-24)); // density in g/cm3
+			density = density.toFixed(3);
+			$("#unitcellInfo").html('mass = ' + mass + ' Da <br /> density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
+		});
+		
 	}
 	
 	
@@ -346,12 +379,15 @@ $(function() {
 	$('input:radio[name="atomsDisplay"]').filter('[value="Spacefill"]').prop('checked', true);
 	$('input:radio[name="atomsDisplay"]').change(function() {
 			if ($(this).val() == "Spacefill") {
+				displayType = 'spacefill only';
 				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill only;');
 			}
 			if ($(this).val() == "BallStick") {
+				displayType = 'spacefill 23%; wireframe 0.15';
 				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill 23%; wireframe 0.15;');
 			}
 			if ($(this).val() == "Wireframe") {
+				displayType = 'wireframe -0.1';
 				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; wireframe -0.1;');
 			}
 	});
@@ -362,12 +398,12 @@ $(function() {
 		if ($(this).val() == "On") {
 			$("#unitcellInfo").show();
 			unitCellDisplay = true;
-			Jmol.script(jmolApplet0, 'unitcell on; axes on;');
+			Jmol.script(jmolApplet0, 'unitcell on; axes on; boundbox on;');
 		}
 		else {
 			$("#unitcellInfo").hide();
 			unitCellDisplay = false;
-			Jmol.script(jmolApplet0, 'unitcell off; axes off;');
+			Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
 		}
 	});	
 	
@@ -456,22 +492,14 @@ $(function() {
 	//////////////////////////////////////////
 	
 	$(".run").click(function() {
-		$("#loaderGIF").show();
-		if (hidden) {
-			console.log('hidden');
-			Jmol.script(jmolApplet0, 'zap; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
-			$("#hideMOF").html('Hide Structure');
-		} // is this if statement needed?
-		if (loaded) { // what does this do?
-			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
-		}
 		
-		Jmol.script(jmolApplet0, 'select boron; spacefill 0;'); // hide all boron, try delete instead?
-		$("#addme").empty(); // clear previous output
-		if (flaggedProbeCount != 0) {
-			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
-		} // again, is this needed? is it different from three lines up?
-		var overString = '';
+		// clear previous output
+		$("#addmeSA").empty(); 
+		$("#addmeVF").empty(); 
+		$("#addmePSD").empty();
+		$("#histogram").html(''); // can not empty because can not plot into a null space
+		$("#histogram").hide(); 
+		
 		var mode = $(this).attr('id'); // read what kind of data is being requested based on which submit button is clicked
 		
 		switch (mode) {
@@ -488,6 +516,31 @@ $(function() {
 				probeSize = $("#probeSizePSD").val();
 			break;
 		};
+
+		// error testing needed
+		if (isNaN(probeSize) || isNaN(probeNumber)) {
+			$("#histogram").hide(); // hide the blank space
+			idString = '#addme' + mode;
+			$(idString).append('Please enter a valid number for the probe quantity and size. <br /><br />');
+			return;
+		} else {
+			probeSize = +probeSize; // convert string to number
+			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
+			$("#loaderGIF").show();
+		}
+
+
+		if (loaded) { // what does this do?
+			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
+		}
+		
+		Jmol.script(jmolApplet0, 'select boron; spacefill 0;'); // hide all boron, try delete instead?
+		
+		if (flaggedProbeCount != 0) {
+			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
+		} // again, is this needed? is it different from three lines up?
+		var overString = '';
+		
 		
 		
 		var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
@@ -507,15 +560,7 @@ $(function() {
 			return Math.abs(center[0] - center[1]) > 0.01 || Math.abs(center[0] - center[2]) > 0.01 || Math.abs(center[1] - center[2]) > 0.01;
 		} // probably not needed
 		
-		// error testing needed
-		if (isNaN(probeSize) || isNaN(probeNumber)) {
-			$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
-			return;
-		} else {
-			probeSize = +probeSize; // convert string to number
-			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
-			
-		}
+		
 		
 		
 		
@@ -579,7 +624,7 @@ $(function() {
 				}
 				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
-				var upperBound = probeNumber/500;
+				var upperBound = Math.ceil(probeNumber/500); 
 				for (i=0;i<upperBound;i++) {
 					var start = 500*i;
 					var end = 500*(i+1);
@@ -602,7 +647,7 @@ $(function() {
 								//	var remainingProbes = probeNumber - flaggedProbeCount; 
 								var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
 								krVol = krVol.toFixed(2);
-								$("#addmeVF").append('<br /> The volume of Krypton is 27.3 A^3. The volume obtained through simulation is: ' + krVol + 'A^3.');
+								$("#addmeVF").append('<br /> The volume of Krypton is 27.3 A<sup>3</sup>. The volume obtained through simulation is: ' + krVol + '&#197;<sup>3</sup>.');
 							}
 							// worker.termniate(); // implement this? 
 						}
@@ -612,7 +657,7 @@ $(function() {
 			// worker call for VF
 			if (mode == 'PSD') {
 				if (typeof(w) == "undefined") {
-				var worker = new Worker("poresize_worker_3.js");
+				var worker = new Worker("poresize_worker.js");
 			}
 				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, inverseMatrix,coordinateArray.slice(start, end), cellMatrix, probeSize]);
 				worker.onmessage = function(event) {
@@ -629,7 +674,7 @@ $(function() {
 		// end if void fraction calculations are requested (as opposed to surface area)
 		////////////// FOR SURFACE AREA 
 		if (mode == 'SA') {
-			var workerSA = new Worker("surface_worker_3.js");
+			var workerSA = new Worker("surface_worker.js");
 			if (!isTriclinic) {
 				cellVol = cellA*cellB*cellC;
 			} else {
@@ -649,7 +694,7 @@ $(function() {
 						surfaceAreaV = surfaceArea * 10000 / cellVol;
 						surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;
 						$("#loaderGIF").hide();
-						$("#addmeSA").append('The surface area is ' + surfaceAreaV.toFixed(2) + ' m^2 / cm^3 or ' + surfaceAreaG.toFixed(2) + ' m^2/g. <br /><br />');
+						$("#addmeSA").append('The surface area is ' + surfaceAreaV.toFixed(2) + ' m<sup>2</sup>/cm<sup>3</sup> or ' + surfaceAreaG.toFixed(2) + ' m<sup>2</sup>/g. <br /><br />');
 						workerSA.terminate();
 					}
 				}
@@ -695,7 +740,9 @@ $(function() {
 			// normalize
 		}
 		var maxVal = Math.max.apply(null,data);
+		$("#histogram").show();
 		$.plot($('#histogram'), [data], histOptions);
+		
 	
 	}
 	// fix this??
@@ -818,20 +865,9 @@ $(function() {
 		$("#probeSizePSD").val('');
 		$("#histogram").empty();
 		$("#histogram").css({height: "0px"});
+		$("#addmePSD").empty();
 	});
 	
-	var hidden = false;
-	$("#hideMOF").click(function() {
-		Jmol.script(jmolApplet0, 'hide not B*;');
-		if (!hidden) {
-			$(this).html('Show Structure');
-			hidden = true;
-		} else {
-			hidden = false;
-			Jmol.script(jmolApplet0, 'load APPEND ./MOFs/' + name + '.cif; select {not B*}; spacefill;');
-			$(this).html('Hide Structure');
-		}
-	});
 	$( "#accordion1" ).accordion( {
 		collapsible: true,
 		active: false,
@@ -846,13 +882,6 @@ $(function() {
 	);
 	
 	
-	
-	$(".buildBlock").click(function () {
-		if ($("#mofFail").is(":visible")) {
-			$("#mofFail").hide();
-		}
-		$(this).toggleClass("selected");
-	});
 	// fix ajax json call 
 	// allowing json object to be retrieved
 	$.ajaxSetup( {

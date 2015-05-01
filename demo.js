@@ -78,6 +78,12 @@ var boxSize = 5;
 	$('input:radio[name="boxSize"]').filter('[value="10"]').prop('checked', false);
 	$('input:radio[name="boxSize"]').filter('[value="15"]').prop('checked', false);
 	
+	
+	$("#probeCountVF").val('');
+	$("#probeSizeVF").val('');
+	$("#probeCountVOL").val('');
+	$("#probeSizeVOL").val('');
+	
 	$("#radio5").click(function() {
 		initializeJmol('./MOFs/Kr5.cif');
 		boxSize = 5;
@@ -100,31 +106,23 @@ var boxSize = 5;
 		transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 		
 		Jmol.script(jmolApplet0, 'select boron; spacefill 0;');
-		$("#addme").empty();
+		$("#addmeVF").empty();
+		$("#addmeVOL").empty();
 		// clear previous output
 		
 		var overString = '';
-		/* if (demo) {
-				var boxSize = $('input[name=box]:checked').val();
-				name = "Kr" + boxSize;
-				Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {1 1 1};');
-				cellA = +boxSize;
-				cellB = +boxSize;
-				cellC = +boxSize;
-			} */
+	
 		var mode = $(this).attr('id');
 		switch (mode) {
 			case 'VF':
-							probeNumber = $("#probeCountVF").val();
+			probeNumber = $("#probeCountVF").val();
 			probeSize = $("#probeSizeVF").val();
 			break;
-			case 'SA' : 
-							probeNumber = $("#probeCountSA").val();
-			probeSize = $("#probeSizeSA").val();
+			case 'VOL' : 
+			probeNumber = $("#probeCountVOL").val();
+			probeSize = $("#probeSizeVOL").val();
 			break;
 		}
-		//probeNumber = $("#probeCount").val();
-		//probeSize = $("#probeSize").val();
 		
 		var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		
@@ -136,7 +134,8 @@ var boxSize = 5;
 		
 		var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 		if (isNaN(probeSize) || isNaN(probeNumber)) {
-			$("#addme").append('<br /> Please enter a valid number for the probe quantity and size.');
+			idString = "#addme" +mode;
+			$(idString).append('<br /> Please enter a valid number for the probe quantity and size.');
 			return;
 		} else {
 			probeSize = +probeSize;
@@ -154,12 +153,10 @@ var boxSize = 5;
 		var adjustment = 0;
 		var done = false;
 		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
-			if (typeof(w) == "undefined" && mode == 'VF') {
+			if (typeof(w) == "undefined") {
 				var worker = new Worker("overlap_worker.js");
 			}
-			
-			
-				
+							
 			
 			if (mode == 'VF') {
 				var coordinates = '';
@@ -171,7 +168,7 @@ var boxSize = 5;
 				}
 				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
-				var upperBound = probeNumber/500;
+				var upperBound = Math.ceil(probeNumber/500);
 				var calcVF = (1-4/3*Math.PI*Math.pow(radius,3)/Math.pow(boxSize,3)).toFixed(3);
 				for (i=0;i<upperBound;i++) {
 					var start = 500*i;
@@ -185,11 +182,12 @@ var boxSize = 5;
 						done = response[1];
 						flaggedProbeCount += (overString.match(/B/g) || []).length;
 						if (done) {
-							//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
 							vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);
 							$("#loaderGIF").hide();
-							$("#addme").append('<br />The void fraction is ' + vFraction + '. <br/> The void fraction obtained through <br /> calculation is ' + calcVF + '.');
+							$("#addmeVF").append('The void fraction is ' + calcVF + '. <br/> The void fraction obtained through <br /> simulation is ' + vFraction + '.<br /><br />');
 							worker.terminate();
+							coordinates = '';
+							coordArray = [];
 						}
 					}
 				}
@@ -197,35 +195,41 @@ var boxSize = 5;
 			
 		
 		// end if void fraction calculations are requested (as opposed to surface area)
-		////////////// FOR SURFACE AREA 
-		if (mode == 'SA') {
-			var workerSA = new Worker("surface_worker_3.js");
-			if (!isTriclinic) {
-				cellVol = cellA*cellB*cellC;
-			} else {
-				cellVol = triclinicVol(vectA, vectB, vectC, angle);
-			}
-			var probeBound = Math.floor(probeNumber/currentNumber);
-			// number of probes per atom
-			var surfaceArea = 0;
-			var calcSA = (4*Math.PI*Math.pow(radius,2)).toFixed(2);
-			$("#addme").empty();
-			for (j=0;j<currentNumber;j++) {
-				workerSA.postMessage([probeBound, j, molInfo, probeSize, [cellA, cellB, cellC], isTriclinic, cellMatrix, inverseMatrix, masses]);
-				workerSA.onmessage = function(event) {
-					surfaceArea +=event.data[0];
-					done = event.data[1];
-					if (done) {
-						mass = event.data[2];
-					//	surfaceAreaV = surfaceArea * 10000 / cellVol;
-					//	surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;
-						$("#loaderGIF").hide();
-						$("#addme").append('<br /> The surface area is ' + surfaceArea.toFixed(2) + ' A^2 <br/> while the area obtained through <br /> calculation is ' + calcSA + ' A^2.');
-						workerSA.terminate();
+		////////////// FOR VOLUME
+		if (mode == 'VOL') {
+				var coordinates = '';
+				var coordArray = [];
+				for (i=1;i<=probeNumber;i++) {
+					coordinates = getRandomCo(i);
+					// updates coordinateArray as well
+					inlineString+= ' B ' + coordinates + '\n';
+				}
+				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
+				flaggedProbeCount = 0;
+				var upperBound = Math.ceil(probeNumber/500);
+				for (i=0;i<upperBound;i++) {
+					var start = 500*i;
+					var end = 500*(i+1);
+					worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber, isTriclinic]);
+					worker.onmessage = function(event) {
+						response = event.data;
+						overString = response[0];
+						Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
+						// hide overlapping probes
+						done = response[1];
+						flaggedProbeCount += (overString.match(/B/g) || []).length;
+						if (done) {
+							volumeCalc = flaggedProbeCount/probeNumber*Math.pow(boxSize,3);
+							volumeCalc = volumeCalc.toFixed(3);
+							$("#loaderGIF").hide();
+							$("#addmeVOL").append('The volume 26.290 &#197;<sup>3</sup>. <br/> The volume obtained through <br /> simulation is ' + volumeCalc + ' &#197;<sup>3</sup>. <br /><br />');
+							worker.terminate();
+							coordinates = '';
+							coordArray = [];
+						}
 					}
 				}
 			}
-		}
 		// end for SAs
 	}); // end for click on .run (submit) button
 

@@ -111,45 +111,17 @@ var atomInfo = e.data[2]; // info for all atoms
 var probeRad = e.data[3]/2; // half of probe diameter
 var cellSize = e.data[4]; // unit cell dimensions (array) for PCB calculations
 var triclinic = e.data[5];
+var mass = 0;
 if (triclinic) {
-	var vects = e.data[6];
-	vectA = vects[0];
-				vectB = vects[1];
-				vectC = vects[2];
-				
-				// plane AB, BC, AC
-				nplanes = [vectorCross(vectA,vectB), vectorCross(vectB,vectC), vectorCross(vectA,vectC)]; 
-				//	console.log(nplanes);
-			
-				// points in planes AB1, BC1, AC1, AB2, BC2, AC2
-				// vectA-C are location vectors, the point they specify appears in planes 2.
-				ppoint = [[0,0,0], [0,0,0], [0,0,0], vectC, vectA, vectB];
-				nplaneAB = vectorCross(vectA,vectB);
-				nplaneBC = vectorCross(vectB,vectC);
-				nplaneAC = vectorCross(vectA,vectC);
-				shiftArray = [vectC, vectA, vectB];
-				//console.log(vects);
-	planes = [];
-				for (j=0;j<6;j++) {
-					planes[j] = [];
-				for (i=0;i<4;i++) {
-					if (i<3) {
-						planes[j][i] = nplanes[j%3][i];
-					}
-					else {
-						planes[j][i] = vectorDot(nplanes[j%3],ppoint[j]);
-					}
-				}
-				}
-				// now we have full plane equations 
-				
-			planeDistances = [];
-		
-			for (k=0;k<3;k++) {
-				planeDistances[k] = pointToPlane(ppoint[k], planes[k+3]);
-				
-			}
-			//console.log(planes);
+	var cellMatrix = e.data[6];
+	var inverseMatrix = e.data[7];
+	for (i=0;i<cellMatrix.length;i++) {
+	cellMatrix[i] = parseFloat(cellMatrix[i]);
+}
+
+for (i=0;i<inverseMatrix.length;i++) {
+	inverseMatrix[i] = parseFloat(inverseMatrix[i]);
+}
 }
 
 
@@ -159,7 +131,6 @@ var done = false;
 if (atomNumber == structureCount-1) { // if this is the last iteration
 	done = true; 
 }
-
 
 // coordinates for atom in question, each run considers a new atom
 var x = atomInfo[atomNumber]['x'];
@@ -190,14 +161,12 @@ var overlapP = false;
 var surfaceArea = 0;
 var mag = 0;
 
-
+var mass = 0;
 
 for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
-	
-	
 	// random point of sphere
-	thetha = 0.0;
-	phi = 0.0;
+	//thetha = 0.0;
+	//phi = 0.0;
 	theta = 2*Math.PI*Math.random();
 	phi = Math.acos(2*Math.random()-1.0);
 	xu = Math.cos(theta)*Math.sin(phi);
@@ -217,13 +186,34 @@ for (i=0;i<probesPerAtom;i++) { // for each of the probes given per atom
 		notOverlap++; // increment number of non-overlapped	
 	}
 	
-	
-
 	if (i == probesPerAtom -1) { // on the last iteration of the for loop, compute the surface area
 		totalRad = atomRad + probeRad; // sum of radii
 		surfaceArea = 4*Math.PI*Math.pow(totalRad,2)*notOverlap/probesPerAtom; // surface area of sphere S with radius (r(probe) + r(atom)) * non-overlapping probe fraction
 		}
 } // end for loop
+
+if (atomNumber == (atomInfo.length-1)) {
+masses = e.data[8];
+mass = computeMass();
+}
+
+function computeMass() {
+	nA = 6.022*Math.pow(10,23);
+	massGrams = 0;
+	for (i=0;i<structureCount;i++) {
+		sym = atomInfo[i]['sym'];
+		m = parseFloat(masses[sym]);
+		massGrams += m/nA;
+	}
+	return massGrams;
+}
+
+function matrixDotVector(m,v) {
+	sX = m[0]*v[0] + m[3]*v[1] + m[6]*v[2];
+	sY = m[1]*v[0] + m[4]*v[1] + m[7]*v[2];
+	sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
+	return [sX, sY, sZ];
+}
 
 // check overlap with structure 
 function probeOverlap(probePoint) {
@@ -268,62 +258,21 @@ function probeOverlap(probePoint) {
 // periodic boundary calculations, needs fixing for triclinic
 function pbCond(dist,probePt) {
 	
-	function minOverlap(probePt) {
-				probeX1 = probePt[0];
-				probeY1 = probePt[1];
-				probeZ1 = probePt[2];
-		overlapPBC = false; 
-	for (h=0;h<structureCount;h++) { // compare to rest of structure
-		if (!overlapPBC) { // if the probe has not overlapped with any structure atoms
-				
-				// structure atom coordinates
-				xb = atomInfo[h]['x'];
-				yb = atomInfo[h]['y'];
-				zb = atomInfo[h]['z'];
-				
-				// structure atom radius
-				sym = atomInfo[h]['sym'];
-				compareRad = atomDiameters[sym]/2;
-				
-				// distance between probe and atom
-				
-				distP = distance(probeX1, probeY1, probeZ1, xb, yb, zb);
-				dr = vectMag(distP);
-				if (dr < (probeRad + compareRad - 0.001)) { // check if overlap
-							overlapPBC = true; // flag
-					} // end if
-			}
-		}
-		return overlapPBC;
-			} // end minOverlap function
-			
-			
-			
-			
 			if (triclinic) {
+		
+	fractional = [0,0,0];	
+	fractional = matrixDotVector(inverseMatrix, dist);
+	//console.log(dist);
+	xVect = [0,0,0];
+	xVect[0] = fractional[0] - Math.round(fractional[0]);
+	xVect[1] = fractional[1] - Math.round(fractional[1]);
+	xVect[2] = fractional[2] - Math.round(fractional[2]);
+	//console.log(xVect);
+	//console.log(cellMatrix);
+	cartesian = matrixDotVector(cellMatrix,xVect);
+	//console.log(cartesian);
+	return cartesian;
 			
-			pbcFlag = false;
-			
-				for (p=0;p<6;p++) {
-					if (!pbcFlag) {
-						if (pointToPlane(probePt,planes[p]) > probeRad*2+4) {
-						newPoint = shiftPoint(probePt,p,shiftArray);
-						if (minOverlap(newPoint)) {
-							pbcFlag = true;
-						}
-					}
-					else {
-					//	console.log('distance of: ' + pointToPlane(probePt,planes[p]) + 'at point ' + probePt);
-					}
-				}
-				}
-				
-				if (pbcFlag) { // overlap occured due to PBC
-					return -1;	
-				}
-				else {
-					return dist;
-				}
 				
 				
 			} // end if triclinic
@@ -429,5 +378,5 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	
-postMessage([surfaceArea, done]);
+postMessage([surfaceArea, done, mass]);
 }
