@@ -38,6 +38,7 @@ $(function() {
 	var layerZ = [];
 	var sliderTemp = 0;
 	var channelDisplay = false;
+	var fileRequested = false;
 	var xyzFile ='';
 	
 	clearAll(); // needed?
@@ -69,7 +70,7 @@ $(function() {
 		var f = '"%FILE"';
 		// JSmol config
 		var Info = {
-			color: "#FFFFFF", // white background (note this changes legacy default which was black)
+			//color: "#FFFFFF", // white background (note this changes legacy default which was black)
 			height: windowHeight,      // pixels (but it may be in percent, like "100%")
 			width: "100%",
 			  use: "HTML5",     // "HTML5" or "Java" (case-insensitive)
@@ -80,7 +81,7 @@ $(function() {
 			serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
 			// src: initialMOF,          // file to load
 			//script: "set antialiasDisplay;background white; load " + str + "; set appendNew false; set defaultDropScript 'zap; load ASYNC " + f + "; console; var r = " + f + "; print r; spacefill only;'; zoom 60; spacefill only;",       // script to run
-			script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 60; spacefill",       // script to run
+			script: "set antialiasDisplay; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill; background image './Images/gradBlue2.png';",       // script to run
 			defaultModel: "",   // name or id of a model to be retrieved from a database
 			addSelectionOptions: false,  // to interface with databases
 			debug: false
@@ -88,16 +89,16 @@ $(function() {
 		// adjust z-index to behind all other elements (see css)
 		Info.z = {
 			header: 2,
-			  rear: 2,
-			  main: 2,
-			  image: 2,
-			  front: 2,
-			  fileOpener: 2,
-			  coverImage: 2,
-			  dialog: 2,
-			  menu: 2,
+			  rear: 3,
+			  main: 3,
+			  image: 3,
+			  front: 3,
+			  fileOpener: 3,
+			  coverImage: 3,
+			  dialog: 3,
+			  menu: 3,
 			  console: 2,
-			  monitorZIndex: 2
+			  monitorZIndex: 3
 		};
 		// hardcoded DOTSOV cell matrix
 		cellMatrix = [ 26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833 ];
@@ -579,18 +580,19 @@ $(function() {
 	}
 	
 	$("#submitChannels").click(function() {
-		channelDisplay = true;
-		submitChannels(channelDisplay);
+		console.log(fileRequested);
+		console.log(channelDisplay);
+		submitChannels();
 	});
 		
 	$("#saveChannel").click(function() {
-			submitChannels(channelDisplay);		
+			fileRequested = true;
+			submitChannels();		
 	});
 
 	
 	//////////////////////////
-	function submitChannels(displayMode) {
-		
+	function submitChannels() {
 		var resolution = $("#channelResolution").val();
 		var probeR = $("#channelProbeSize").val();
 		if (isNaN(resolution) || isNaN(probeR) || resolution < 0 || probeR < 0) {
@@ -639,17 +641,20 @@ $(function() {
 				layerY[i] = layerY[i].slice(0,-1);
 			}
 			
-			if (displayMode) {
+			
+			if (!channelDisplay && !fileRequested) {
 			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
 			$("#depthSliders").show();
 			initializeSliderX(layerX.length);
 			initializeSliderY(layerY.length);
 			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
+			Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
+			channelDisplay = true;
 			}
-			else {
+			if (fileRequested) {
 				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
 				saveAs(blob, "structureChannels.xyz");
+				fileRequested = false;
 			}
 			$("#channelLoaderGIF").hide();
 		    channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
@@ -658,8 +663,21 @@ $(function() {
 		
 		} // end if 
 		
-		else {
+		else { if(!channelDisplay && !fileRequested) {
+			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
+			$("#depthSliders").show();
+			initializeSliderX(layerX.length);
+			initializeSliderY(layerY.length);
+			initializeSliderZ(layerZ.length);
 			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
+			channelDisplay = true;
+		}
+			if (fileRequested) {
+				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
+				saveAs(blob, "structureChannels.xyz");
+				fileRequested = false;
+			}
+			$("#channelLoaderGIF").hide();
 		}
 	}
 }
@@ -1033,6 +1051,7 @@ $(function() {
 		$("#addmeSA").empty();
 	});
 	$("#clearVF").click(function() {
+		Jmol.script(jmolApplet0, 'select boron; delete selected;');
 		$("#probeCountVF").val('');
 		$("#probeSizeVF").val('');
 		$("#addmeVF").empty();
