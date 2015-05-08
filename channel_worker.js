@@ -4,7 +4,12 @@ var triclinic = e.data[1];
 var	cellMatrix = e.data[2];
 var	inverseMatrix = e.data[3];
 var cellSize = e.data[4];
-
+var unitResolution = parseFloat(e.data[5]);
+var probeSize = parseFloat(e.data[6]);
+var layerX = [];
+var layerY = [];
+var layerZ = [];
+var adj = atomInfo.length + 1;
 
 
 for (i=0;i<cellSize.length;i++) {
@@ -129,9 +134,9 @@ Zr:	2.783167595,
 
 var coords = [];
 
-// a resolution of 0.5 A is made
+// a resolution of 2.0 A is made
 
-var unitResolution = 0.5;
+//var unitResolution = 2.0;
 var gridSize = [];
 for (i=0;i<cellSize.length;i++) {
 	gridSize[i] = Math.round(cellSize[i]/unitResolution);
@@ -152,6 +157,9 @@ for (i=0;i<gridSize[0];i++) {
 //console.log(index);
 	for (i=0;i<coords.length;i++) {
 		coords[i] = matrixDotVector(cellMatrix,coords[i]);
+		coords[i][0] = coords[i][0].toFixed(3); 
+		coords[i][1] = coords[i][1].toFixed(3); 
+		coords[i][2] = coords[i][2].toFixed(3); 
 	}
 
 
@@ -160,11 +168,50 @@ var noOverlapCoords = [];
 index = 0;
 
 for (i=0;i<coords.length;i++) {
-	if (!checkOverlap(coords[i],0.5)) {
-		noOverlapCoords[index] = coords[i];
+	if (!checkOverlap(coords[i],probeSize)) {
+		noOverlapCoords[i] = coords[i];
 		index++;
 	}
+	else {
+		noOverlapCoords[i] = '';
+	}
 }
+
+
+//console.log(noOverlapCoords);
+
+// needs fixing (only does square)
+var ind = 0;
+
+// needed?
+for (i=0;i<gridSize[1];i++) {
+	layerZ[i] = '';
+}
+for (i=0;i<gridSize[0];i++) {
+	layerY[i] = '';
+}
+for (i=0;i<gridSize[2];i++) {
+	layerX[i] = '';
+}
+
+
+ind = 0;
+for (i=0;i<gridSize[2];i++) {
+	for (j=0;j<gridSize[1];j++) {
+		for (k=0;k<gridSize[0];k++) {
+			ind = i*gridSize[1]*gridSize[0] + j*gridSize[0] + k;
+			if (noOverlapCoords[ind] != null && noOverlapCoords[ind] != '') {
+			//layerY[k] += noOverlapCoords[ind] + '\n'; // change k to j for layerZ, to i for layerX
+			adjusted = adj + ind;
+			layerY[k] += 'B' + adjusted + ',';
+			layerX[i] += 'B' + adjusted + ',';
+			layerZ[j] += 'B' + adjusted + ',';
+			} 
+		}	
+	}
+}
+
+
 
 
 function checkOverlap(pt, r) {
@@ -248,5 +295,20 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	return distanceVector;
 }	
 
-postMessage([noOverlapCoords]);
+var returnCoords = [];
+index = 0;
+for (i=0;i<noOverlapCoords.length;i++) {
+	if (noOverlapCoords[i] && noOverlapCoords[i][0]) {
+	returnCoords[index] = noOverlapCoords[i];
+		index++;
+	}
+}
+var fileString = returnCoords.length + "\n" + "Probes\n";
+for (i=0;i<returnCoords.length;i++) {
+	cur = returnCoords[i];
+	fileString +='B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
+}
+
+
+postMessage([noOverlapCoords, layerX, layerY, layerZ, fileString]);
 }

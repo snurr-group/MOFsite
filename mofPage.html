@@ -9,8 +9,10 @@
 		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 		 <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 		 <script src="./jsmol/JSmol.min.nojq.js"></script>
+		 <script src="./FileSaver/FileSaver.min.js"></script>
 		<script src="./mof.js"></script> 
 		 <script src="./flot/jquery.flot.min.js"></script>
+		
 		 
 		<title>MOF Explorer</title>
 		<meta name="description" content="">
@@ -91,7 +93,37 @@
 		<input type="radio" name="structureDisplay" value="Structure">Structure
 		<input type="radio" name="structureDisplay" value="Channels">Channels
 		<br />
+	
+		<span id="channelError"></span>
+		<span id="channelButtons">
+		Display resolution:
+		<input type="text" name="resolution" class="channelInput" id="channelResolution"> &#197;<br /> 
+		Probe Size:
+		<input type="text" name="resolution" class="channelInput" id="channelProbeSize"> &#197;
 		<br />
+		<br />
+		<span class="btn" id="submitChannels">Display</span> 
+		<span class="btn" id="saveChannel">Save File</span> 
+		
+		<br />
+		<br />
+		<img id="channelLoaderGIF" src="./Images/ajax_clock_small.gif" />
+		</span>
+		
+		
+		
+		<span id="depthSliders">
+		X-Depth <br />
+		<div id="xSlider"></div>
+		Y-Depth <br />
+		<div id="ySlider"></div>
+		Z-Depth <br />
+		<div id="zSlider"></div> 
+				
+		</span>
+		
+		<br />
+		
 		<span class="displayParameter">Atom display type</span> <br />
 		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill
 		<input type="radio" name="atomsDisplay" value="BallStick">Ball and Stick <br />
@@ -109,6 +141,7 @@
 		<div>
 		<input type="file" id="files" name="files[]" multiple />
 	 	 <div id="dragDrop">Or drag and drop a CIF file here</div>
+	 	 <div id="notCIF"></div>
 	 	 <div id="uploadBox"></div>
 	 	 
 	 	 

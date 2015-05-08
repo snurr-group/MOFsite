@@ -221,8 +221,10 @@ var boxSize = 5;
 						if (done) {
 							volumeCalc = flaggedProbeCount/probeNumber*Math.pow(boxSize,3);
 							volumeCalc = volumeCalc.toFixed(3);
+							volumeExact = Math.pow((3.6892/2 + probeSize),3)*Math.PI*4/3;
+							volumeExact = volumeExact.toFixed(3);
 							$("#loaderGIF").hide();
-							$("#addmeVOL").append('The volume 26.290 &#197;<sup>3</sup>. <br/> The volume obtained through <br /> simulation is ' + volumeCalc + ' &#197;<sup>3</sup>. <br /><br />');
+							$("#addmeVOL").append('The volume is ' + volumeExact + ' &#197;<sup>3</sup>. <br/> The volume obtained through <br /> simulation is ' + volumeCalc + ' &#197;<sup>3</sup>. <br /><br />');
 							worker.terminate();
 							coordinates = '';
 							coordArray = [];

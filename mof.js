@@ -33,6 +33,12 @@ $(function() {
 	var sProps = {}; // objects stored as {name -  {cellMatrix, inverseMatrix, mass, density, ..}} 
 	//var masses = {};
 	var displayType = 'spacefill only'; // used to preserve display type when a file is uploaded
+	var layerX = [];
+	var layerY = [];
+	var layerZ = [];
+	var sliderTemp = 0;
+	var channelDisplay = false;
+	var xyzFile ='';
 	
 	clearAll(); // needed?
 	showMOF();
@@ -135,17 +141,29 @@ $(function() {
 	}
 	);
 	obj.on('drop', function (e) {
-		//obj.removeClass("border");
 		e.preventDefault();
 		var files = e.originalEvent.dataTransfer.files;
 		for (var i = 0, f; f = files[i]; i++) {
 			var reader = new FileReader();
 			reader.onload = (function(theFile) {
+				if (theFile.name.split('.').pop().toLowerCase() != 'cif') {
+					$("#notCIF").html('not an accepted file type.');
+				}
+				else {
+					$("#notCIF").html('');
 				return function(e) {
+					
 					t = e.target.result;
+					
 					name = t;
 					userLoaded = true;
 					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + ';');
+					if (unitCellDisplay) {
+						Jmol.script(jmolApplet0, 'unitcell on;');
+					}
+					else {
+						Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+					}
 					var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 					// used for corner locations
 					cellMatrix = computeCellMatrix(t); // also updates isTriclinc
@@ -156,6 +174,7 @@ $(function() {
 					$("#boxRadio").hide();
 					demo = false;
 					//Jmol.script(jmolApplet0, 'spacefill only;');
+				}
 				};
 			}
 			)(f);
@@ -190,7 +209,7 @@ $(function() {
 	
 	// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
 	function handleFileSelect(evt) {
-		var files = evt.target.files;
+		var files = evt.target.files;		
 		// FileList object
 		// files is a FileList of File objects. List some properties.
 		var output = [];
@@ -198,13 +217,25 @@ $(function() {
 			var reader = new FileReader();
 			// Closure to capture the file information.
 			reader.onload = (function(theFile) {
+				if (theFile.name.split('.').pop().toLowerCase() != 'cif') {
+							$("#notCIF").html('not an accepted file type.');
+				}
+				else {
+					$("#notCIF").html('');
 				return function(e) {
 					t = e.target.result;
 					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + ';');
+					if (unitCellDisplay) {
+						Jmol.script(jmolApplet0, 'unitcell on;  boundbox on;');
+					}
+					else {
+						Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+					}
+					
 					
 					//~ name = t;
 					// replaced with name = first line of CIF file uploaded 
-					nameString = loadedName = t.split('\n')[0];
+					nameString = t.split('\n')[0];
 					
 					
 					if (sProps[nameString] == null) {
@@ -228,6 +259,7 @@ $(function() {
 					$("#boxText").hide(); // needed?
 					$("#boxRadio").hide(); // needed?
 					demo = false;
+				}
 				};
 			}
 			)(f);
@@ -368,13 +400,17 @@ $(function() {
 	//
 	$('input:radio[name="structureDisplay"]').filter('[value="Structure"]').prop('checked', true);
 	$("input[name='structureDisplay']").change(function(){
-		if($(this).val() == "Channels") {
+		if($(this).val() == "Channels") { 
 			showChannels();
+			
 		}
 		else {
+			$("#depthSliders").hide();
 			showStructure();
+			 
 		}
 	});
+		
 	
 	$('input:radio[name="atomsDisplay"]').filter('[value="Spacefill"]').prop('checked', true);
 	$('input:radio[name="atomsDisplay"]').change(function() {
@@ -391,6 +427,87 @@ $(function() {
 				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; wireframe -0.1;');
 			}
 	});
+	
+	function initializeSliderX(maxLayer) {
+	$("#xSlider").slider({
+		range: 'min', 
+		min: 0,
+		max: maxLayer,
+		value: 0,
+		slide: function(event, ui) {
+			$("#zSlider").slider( "option", "value", 0 );
+			$("#ySlider").slider( "option", "value", 0 );
+			if (ui.value < sliderTemp) {
+				showLayer(ui.value, layerX, maxLayer);
+				sliderTemp = ui.value;
+			}
+			else {
+				hideLayer(ui.value, layerX);
+				sliderTemp = ui.value;
+			}
+		}
+	});
+	}
+	function initializeSliderY(maxLayer) {
+	$("#ySlider").slider({
+		range: 'min', 
+		min: 0,
+		max: maxLayer,
+		value: 0,
+		slide: function(event, ui) {
+			$("#zSlider").slider( "option", "value", 0 );
+			$("#xSlider").slider( "option", "value", 0 );
+			if (ui.value < sliderTemp) {
+				showLayer(ui.value, layerY, maxLayer);
+				sliderTemp = ui.value;
+			}
+			else {
+				hideLayer(ui.value, layerY);
+				sliderTemp = ui.value;
+			}
+		}
+	});
+	}
+	
+	function initializeSliderZ(maxLayer) {
+	$("#zSlider").slider({
+		range: 'min', 
+		min: 0,
+		max: maxLayer,
+		value: 0,
+		slide: function(event, ui) {
+			$("#xSlider").slider( "option", "value", 0 );
+			$("#ySlider").slider( "option", "value", 0 );
+			if (ui.value < sliderTemp) {
+				showLayer(ui.value, layerZ, maxLayer);
+				sliderTemp = ui.value;
+			}
+			else {
+				hideLayer(ui.value, layerZ);
+				sliderTemp = ui.value;
+			}
+		}
+	});
+	}
+	
+
+
+	function hideLayer(layerVal, layerArr) {
+		var layerStr = '';
+		for (i=0;i<layerVal;i++) {
+			layerStr += layerArr[i] + ',';
+		}
+		layerStr = layerStr.slice(0,-1);
+		Jmol.script(jmolApplet0, 'hide ' + layerStr + ';');
+	}
+	function showLayer(layerVal, layerArr, maxLayer) {
+		var layerStr = '';
+		for (i=maxLayer;i>layerVal;i--) {
+			layerStr += layerArr[i];
+		}
+		layerStr = layerStr.slice(0,-1);
+		Jmol.script(jmolApplet0, 'display ' + layerStr + ';');
+	}
 	
 	var unitCellDisplay = true;
 	$('input:radio[name="unitCell"]').filter('[value="On"]').prop('checked', true);
@@ -428,14 +545,19 @@ $(function() {
 	var flaggedProbeCount = 0;
 	var firstRun = true;
 	
-	
+
 	function showStructure() {
+		channelDisplay = false;
+		$("#channelButtons").hide();
+		$("#channelLoaderGIF").hide();
+		$("#channelError").html('');
+		$("#depthSliders").hide();
 		if (userLoaded) {
 			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t" {1 1 1}; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t"; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; spacefill only;');
 			}
 		}
 		else {
@@ -448,8 +570,36 @@ $(function() {
 		}
 	}
 	
-	//////////////////////////
+	
 	function showChannels() {
+		$("#channelError").html('');
+		$("#channelResolution").val('');
+		$("#channelProbeSize").val('');
+		$("#channelButtons").show();
+	}
+	
+	$("#submitChannels").click(function() {
+		channelDisplay = true;
+		submitChannels(channelDisplay);
+	});
+		
+	$("#saveChannel").click(function() {
+			submitChannels(channelDisplay);		
+	});
+
+	
+	//////////////////////////
+	function submitChannels(displayMode) {
+		
+		var resolution = $("#channelResolution").val();
+		var probeR = $("#channelProbeSize").val();
+		if (isNaN(resolution) || isNaN(probeR) || resolution < 0 || probeR < 0) {
+			$("#channelError").html('Please enter positive numbers for the resolution and probe size');
+		}
+		else {
+			//channelDisplay = true;
+			$("#channelLoaderGIF").show();
+			$("#channelError").html('');
 		if (typeof(w) == "undefined") {
 			var worker = new Worker("channel_worker.js");
 		}
@@ -464,18 +614,44 @@ $(function() {
 		}
 		channelString = '';
 		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC]]);
+		worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC], resolution, probeR]);
 		worker.onmessage = function(event) {
 			response = event.data;
 			coords = response[0];
+			layerX = response[1];
+			layerY = response[2];
+			layerZ = response[3];
+			xyzFile = response[4]; // global variable
 			num = coords.length.toString();
-			//num = num.toString(); // combine with above line?
 			var channelString = num + "\n" + "Probes\n";
 			for (i=0;i<coords.length;i++) {
 				cur = coords[i];
 				channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
 			}
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 60; select boron; spacefill 0.5;');
+			
+			for (i=0;i<layerX.length;i++) {
+				layerX[i] = layerX[i].slice(0,-1);
+			}
+			for (i=0;i<layerZ.length;i++) {
+				layerZ[i] = layerZ[i].slice(0,-1);
+			}
+			for (i=0;i<layerY.length;i++) {
+				layerY[i] = layerY[i].slice(0,-1);
+			}
+			
+			if (displayMode) {
+			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
+			$("#depthSliders").show();
+			initializeSliderX(layerX.length);
+			initializeSliderY(layerY.length);
+			initializeSliderZ(layerZ.length);
+			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
+			}
+			else {
+				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
+				saveAs(blob, "structureChannels.xyz");
+			}
+			$("#channelLoaderGIF").hide();
 		    channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
 		}
 		// worker.terminate(); // implement this?
@@ -483,9 +659,10 @@ $(function() {
 		} // end if 
 		
 		else {
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 60; select boron; spacefill 0.5;');
+			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
 		}
 	}
+}
 	
 	//////////////////////////////////////////
 	///// Submission of Physical Property Simulation, VF, SA, PSD
@@ -819,7 +996,7 @@ $(function() {
 
 	function loadSupercell(x,y,z) {
 		if (userLoaded) {
-			Jmol.script(jmolApplet0, 'var t = "' + name + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill;');
+			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill;');
 		} else {
 			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill;	');
 		}
