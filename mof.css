@@ -1,3 +1,4 @@
+/* GLOBAL */ 
 html, body {
     margin: 0;
     height: 100%;
@@ -6,77 +7,69 @@ html, body {
 }
 
 p {font-family: 'Source Sans Pro', sans-serif; font-size:1.1em;}
+#mainPage p {padding-left:10px;} 
 
-code {background:#F0F0E8;} /* code blocks given class of prettify to work with google script */
+code {background:#D5D5D5;} /* code blocks given class of prettify to work with google script */
 		 
 ul {list-style-type:none}
 
 h3 {padding-bottom:5px; padding-top:5px;}
-		
+				
 		 /*  IDs */ 
-/*
-		 #accordion1 {width:250px;}
-*/
+		 
+		 #addmePSD {display:none; padding-left:10px;}	
 		 #channelButtons {display:none;}
 	     
 	     #channelLoaderGIF {display: none;}
 	     
 		 #clearButton {display:none; position:relative; left:80%;}
 		
-		 #clearSA {margin-left:5%;}
+		 #closePopup {padding-left:10px; margin-top:30px; text-decoration: underline; font-weight:bold;} 
 		 
 		 #acknowledgements {position:absolute; bottom:1%;}
 		 
 		 #appLinks {padding-bottom:100px; padding-top:15px;}
 		 
-/*
-		 #histogram {width:200px; height: 200px;} 
-*/
+
+		 #histogramContainer {position:absolute; right:30%; z-index:5; display:none; width:40%; height:60%; top:12%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
+		 #histogram {position:absolute; left:5%; top:20px; z-index:5; display:none; width:90%; height:95%; top:20px; background-color:#CCCCFF; opacity:0.9;} 
+
 		 #displayTitle {padding-left:30%;}
 		 
 		 #howTitle {text-decoration:underline; padding-top:15px;} 
 		 #howDoesItWork {position:absolute; width:98%; padding-left:1%;} 
+		 
+		 #inTextCode {color:#4C4C4C;}
+		 
+		 #outputPanel {display: inline-block; width:220px; right:1%; z-index:2; margin-top:10px; background-color: #0A222B; opacity:0.8; border-radius:5px; color: #C6C7CB;}		
+		 #leftPanel {display:inline-block; width:220px; position:absolute; top:60px; left:1%; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px;}		
+		 #rightPanel {display:inline-block; width:220px; position:absolute; top:60px; right:1%; z-index:2;}		
+		 #physicalPropsPanel {display: inline-block; right:1%; width:220px; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px;}		
 		 		 
-		 #loaderGIF {display:none; padding-left:10px;}
+		 #loaderGIF {display:none; padding-left:30px;}
 		 
 		 #maker, #MCContainer, #supercellContainer {margin-left:20px;} 
 		  
 		 #makeIconDown, #MCIconDown, #spIconDown {display:none;}
 		 
-		 #makeMOF {position:absolute; left:75%;} 
-		 
-/*
-		 #mainPage p {margin-right:20px; margin-left:20px;} 
-*/
-		 
+		 #makeMOF {position:absolute; left:75%;}  
 		 
 		 #mcDemo {position:absolute; left:45%;}
 		 
 		 #mofFail {display:none;}
 		 
 		 #mofPageLink {position: absolute; left:10%;}
-		 
-		 #physicalPropertiesTitle {padding-left:10px; padding-right:10px;}
+		 		 
+		 #physicalPropertiesTitle, #outputTitle {padding-left:10px; padding-right:10px; text-decoration:underline;}
 	 
-
-/*
-		 #rightPanel {display: inline-block; position:absolute; top:60px; right:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}	
-		 #leftPanel {display: inline-block; position: absolute; top:60px; left:1%; z-index:2; border: 1px solid #B2E0FF; border-radius:25px;}
-*/
-
-		 #rightPanel {display: inline-block; width:300px; position:absolute; top:60px; right:1%; z-index:2;}	
-		 #leftPanel {display: inline-block; width:300px; position: absolute; top:60px; left:1%; z-index:2;}
-		 
+		 #psdGraphLink, #psdDataLink {margin-right:15px; margin-left:5px; padding-bottom:10px; text-decoration:underline; font-size:1.2em; color:#ffffff}
 		 
 		 #siteDescription {padding-right:6%; padding-left:6%; padding-top:30px;}
 		 
-		 #unitcellInfo {position:absolute; z-index:2; bottom:10px; width:150px; left:10px;}
+		 #unitcellInfo {position:absolute; z-index:2; top:90px; left:260px; width:150px; color: #35B9DA;}
 		 
 		 #uploadBox {height:180px; width:180px; border: 3px dotted #B2E0FF;}
 		 
-/*
-		 #viewer {position:relative; z-index:1;}
-*/
 		 
 		 #depthSliders {display:none;}
 		 
@@ -86,6 +79,37 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		/*  Classes */
 		
 		.accordion {width:100%;}
+		
+		.accTitle {padding-left:10px; color: #D5D5D5;}
+		
+.explorerBtn {
+  background: #8bbad9;
+  background-image: -webkit-linear-gradient(top, #8bbad9, #1f628c);
+  background-image: -moz-linear-gradient(top, #8bbad9, #1f628c);
+  background-image: -ms-linear-gradient(top, #8bbad9, #1f628c);
+  background-image: -o-linear-gradient(top, #8bbad9, #1f628c);
+  background-image: linear-gradient(to bottom, #8bbad9, #1f628c);
+  -webkit-border-radius: 10;
+  -moz-border-radius: 10;
+  border-radius: 10px;
+  text-shadow: 1px 3px 1px #302e30;
+  font-family: Courier New;
+  color: #8ceaff;
+  font-size: 36px;
+  padding: 33px 34px 33px 35px;
+  border: solid #532d82 3px;
+  text-decoration: none;
+}
+
+.explorerBtn:hover {
+  background: #46a39a;
+  background-image: -webkit-linear-gradient(top, #46a39a, #3498db);
+  background-image: -moz-linear-gradient(top, #46a39a, #3498db);
+  background-image: -ms-linear-gradient(top, #46a39a, #3498db);
+  background-image: -o-linear-gradient(top, #46a39a, #3498db);
+  background-image: linear-gradient(to bottom, #46a39a, #3498db);
+  text-decoration: none;
+}		
 		
 		
 .btn {
@@ -130,7 +154,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 
 	.navImage {height:100px; width:auto}
 	
-	.pageTitle { text-align:center; color: #C6C7CB; position:absolute; width:90%; margin-left: 5%; padding-top:10px; padding-bottom:10px; top:15px; font-size:2em; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px; }
+	.pageTitle { text-align:center; color: #C6C7CB; position:absolute; width:98%; margin-left: 1%; padding-top:10px; padding-bottom:10px; top:15px; font-size:2em; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px; }
 	.pageTile b {text-align:center;  z-index:2;}
 		 
 	.probeCount, .probeSize {width:50px;}

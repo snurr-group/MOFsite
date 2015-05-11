@@ -23,7 +23,9 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
+<!--
 		<link rel="stylesheet" href="./CSS/jquery-ui.theme-main.css">
+-->
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
 		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
 		
@@ -40,9 +42,13 @@
 <br />
 <div id="siteDescription">
 <p>
+<!--
 Metal Organic Frameworks or MOFs are compounds consisting of metal nodes and organic linkers. MOFs have applicaions in many areas such as
 gas adsorption for storage or separations. This site is intended to serve as a learning and research tool for MOFs. 
 Here you may explore the physical properties of MOFs in MOF Explorer, learn about Monte Carlo 
+simulations in the Demo module, or combine building blocks to make your own MOF in MOF Maker.
+-->
+Explore the physical properties of MOFs in MOF Explorer, learn about Monte Carlo 
 simulations in the Demo module, or combine building blocks to make your own MOF in MOF Maker.
 
 </p>
@@ -51,7 +57,10 @@ simulations in the Demo module, or combine building blocks to make your own MOF 
 </div>
 <br />
 <div id="appLinks">
+<!--
 <span id="mofPageLink"><img class="navImage" src="./Images/mofPage.jpg" /><p>MOF Explorer</p></span> 
+-->
+<span id="mofPageLink" class="explorerBtn">MOF Explorer</span>
 <span id="mcDemo"><img class="navImage" src="./Images/demoPage.jpg" /><p>"Sphere in a box" demo</p></span> 
 <span id="makeMOF"><img class="navImage" src="./Images/makerPage.jpg" /><p>MOF Maker</p></span> 
 <br />
@@ -60,7 +69,7 @@ simulations in the Demo module, or combine building blocks to make your own MOF 
 <div id="howDoesItWork">
 <h3 id="howTitle">How does it work?</h3>
 <div class="accordion">
-<h3>Molecular visualization</h3>
+<h3 class="accTitle">Molecular visualization</h3>
 <div>
 <p>All of the structures are represented using JSMol, a free javascript molecular visualizer. Each atom in a strucutre has a unique position given by (x,y,z) coordinates, and a 
 diameter given by a value measured in Angstroms (&#197;). Each atom is assumed to be a sphere with a defined center and diameter. This simplification drives the visualization and 
@@ -69,7 +78,7 @@ A supercell arises when a unit cell is repeated several times. To visualize a su
 Or open MOF Explorer and set the supercell parameters.</p>
 </div>
 
-<h3>Periodic Boundary Conditions</h3>
+<h3 class="accTitle">Periodic Boundary Conditions</h3>
 <div>
 
 <p> When performing calculations it is often important to know the distance between two structure atoms. Due to periodic boundary 
@@ -134,7 +143,7 @@ function pbCond(dist) { <br />
 </div>
 
 
-<h3>Void Fraction</h3>
+<h3 class="accTitle">Void Fraction</h3>
 <div>
 <p>The void fraction of a structure is a measure of the volume it occupies within a unit cell. A hollower or emptier cell corresponds to a greater void fraction. Calculating the void
 fraction is akin to throwing a large number of darts at the structure and seeing how many hit. Instead of darts the simulation uses spherical probes of a given size (point probes have size 0).
@@ -172,13 +181,13 @@ The ratio of those that remain to the total used is the void fraction.
 			} 	}  }  }		<br />
 </code>
 <br />
-This calculation makes use of a function <code>pbCond</code> which accepts the distance vector between two points as an argument and returns a distance vector. Details of periodic boundary
+This calculation makes use of a function <code id="inTextCode">pbCond</code> which accepts the distance vector between two points as an argument and returns a distance vector. Details of periodic boundary
 conditions can be found above in the <a>periodic boundary conditions</a> section.
 </p>
 </div>
 
 
-<h3>Surface Area</h3>
+<h3 class="accTitle">Surface Area</h3>
 <div>
 
 <p> The surface area of a MOF is a measure of the exposure of atoms to their surroundings. The term surface area conventionally refers to the geometric or absolute surface area which can 
@@ -223,7 +232,7 @@ This is repeated for all of the structure atoms and the resultant volumetric and
 </p>
 </div>
 
-<h3>Pore Size Distribution</h3>
+<h3 class="accTitle">Pore Size Distribution</h3>
 <div>
 <p>
 Some MOFs are finding applications for gas adsorption due to their highly porous nature. The pores of a MOF can be quantified using a pore size distribution (PSD). The PSD is a measure

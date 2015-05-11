@@ -12,6 +12,7 @@
 		 <script src="./FileSaver/FileSaver.min.js"></script>
 		<script src="./mof.js"></script> 
 		 <script src="./flot/jquery.flot.min.js"></script>
+		 <script src="./flot/jquery.flot.axislabels.js"></script>
 		
 		 
 		<title>MOF Explorer</title>
@@ -25,10 +26,9 @@
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
 		
-<!--
 		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
--->
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
+		<link rel="stylesheet" href="./CSS/jquery-ui.structure.min.css">
 		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
 
 		
@@ -53,10 +53,67 @@
 	 	
 	 	<!-- LEFT PANEL -->
 	 	<span id="leftPanel">
+<!--
 	 	<h1 id="displayTitle">Display</h1>
+-->
 	 	
 	 	<div id="accordion1">
-  <h3>Supercell</h3>
+  
+    
+
+	 	<h3>Display Options</h3>
+		<div>
+		
+		<span class="displayParameter">Display </span> <br />
+		<input type="radio" name="structureDisplay" value="Structure">Structure
+		<input type="radio" name="structureDisplay" value="Channels">Channels
+		<br />
+	
+		<span id="channelError"></span>
+		<span id="channelButtons">
+		Grid resolution:
+		<input type="text" name="resolution" class="channelInput" id="channelResolution"> &#197;<br /> 
+		Probe Size:
+		<input type="text" name="resolution" class="channelInput" id="channelProbeSize"> &#197;
+		<br />
+		<br />
+		<span class="btn" id="submitChannels">Display</span> or 
+		<span class="btn" id="saveChannel">Save File</span> 
+		
+		<br />
+		<br />
+		<img id="channelLoaderGIF" src="./Images/ajax_clock_small.gif" />
+		</span>
+		
+		
+		
+		<span id="depthSliders">
+		X-Depth <br />
+		<div id="xSlider"></div>
+		Y-Depth <br />
+		<div id="ySlider"></div>
+		Z-Depth <br />
+		<div id="zSlider"></div> 
+				
+		</span>
+		
+		<br />
+		
+		<span class="displayParameter">Atom display type</span> <br />
+		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill <br />
+		<input type="radio" name="atomsDisplay" value="BallStick">Ball and Stick <br />
+		<input type="radio" name="atomsDisplay" value="Wireframe">Wireframe
+		<br />
+		<br />
+		<span class="displayParameter">Unit Cell Display</span> 
+		<br />
+		<input type="radio" name="unitCell" value="On">On
+		<input type="radio" name="unitCell" value="Off">Off
+		<br />
+		<br />
+		</div> <!-- end display options -->
+		
+		<h3>Show Supercell</h3>
   <div id="superCellDiv">
 			
 	 	<input type="radio" name="x" value="1">x<sup>1</sup>
@@ -83,76 +140,29 @@
 	 	</div>
 	 	<br />
 	 	<span class="btn" id="submitSupercell">Apply supercell</span>
+	 	<br />
+	 	<br />
 	 	</div> <!-- end superCellDiv -->
-    
-
-	 	<h3>Display Options</h3>
-		<div>
 		
-		<span class="displayParameter">Display </span> <br />
-		<input type="radio" name="structureDisplay" value="Structure">Structure
-		<input type="radio" name="structureDisplay" value="Channels">Channels
-		<br />
-	
-		<span id="channelError"></span>
-		<span id="channelButtons">
-		Display resolution:
-		<input type="text" name="resolution" class="channelInput" id="channelResolution"> &#197;<br /> 
-		Probe Size:
-		<input type="text" name="resolution" class="channelInput" id="channelProbeSize"> &#197;
-		<br />
-		<br />
-		<span class="btn" id="submitChannels">Display</span> 
-		<span class="btn" id="saveChannel">Save File</span> 
-		
-		<br />
-		<br />
-		<img id="channelLoaderGIF" src="./Images/ajax_clock_small.gif" />
-		</span>
-		
-		
-		
-		<span id="depthSliders">
-		X-Depth <br />
-		<div id="xSlider"></div>
-		Y-Depth <br />
-		<div id="ySlider"></div>
-		Z-Depth <br />
-		<div id="zSlider"></div> 
-				
-		</span>
-		
-		<br />
-		
-		<span class="displayParameter">Atom display type</span> <br />
-		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill
-		<input type="radio" name="atomsDisplay" value="BallStick">Ball and Stick <br />
-		<input type="radio" name="atomsDisplay" value="Wireframe">Wireframe
-		<br />
-		<br />
-		<span class="displayParameter">Unit Cell Display</span> 
-		<br />
-		<input type="radio" name="unitCell" value="On">On
-		<input type="radio" name="unitCell" value="Off">Off
-		<br />
-		<br />
-		</div> 
 		<h3>File Upload</h3>
 		<div>
 		<input type="file" id="files" name="files[]" multiple />
-	 	 <div id="dragDrop">Or drag and drop a CIF file here</div>
+	 	 <div id="dragDrop">Or drop a CIF file here</div>
 	 	 <div id="notCIF"></div>
 	 	 <div id="uploadBox"></div>
 	 	 
 	 	 
 	 	 </div>
+		
 		</div> <!-- end accordion -->
 	 	</span> <!-- end left panel span -->
 	 	
 	 	<!-- RIGHT PANEL -->
 	 	<span id="rightPanel">
-			
-			<h1 id="physicalPropertiesTitle">Physical Properties</h1>
+			<span id="physicalPropsPanel">
+<!--
+			<h1 id="physicalPropertiesTitle">Calculate</h1>
+-->
 			
 			<!-- Accordion start -->
 			<div id="accordion2">
@@ -169,7 +179,7 @@
 	 	 <input type="text" name="size" class="probeSize" id="probeSizeVF"> Angstroms 
 	 	 </div>
 	 	 <br />
-	 	 <span id="addmeVF"></span>
+	 	 
 	 	 <span class="btn run" id="VF">Sumbit</span>
 	 	 <span class="btn" id="clearVF">Clear</span>  
 	 	 <br />
@@ -178,7 +188,7 @@
 	 	 
 	 	 <h3>Surface Area</h3>
 	 	 <div>
-	 	 <div>Calculate the solvent-accessible <br> surface area with 
+	 	 <div>Calculate the solvent-accessible surface area with 
 	 	 <br />
 			
 	 	 <input type="text" name="count" class="probeCount" id="probeCountSA"> Probes per atom
@@ -187,7 +197,7 @@
 	 	 
 	 	 </div>
 	 	 <br />
-	 	 <span id="addmeSA"></span>
+	 	 
 	 	  <span class="btn run" id="SA">Submit</span>  
 	 	  <span class="btn" id="clearSA">Clear</span>  
 	 	  <br />
@@ -206,8 +216,8 @@
 	 	 </div>
 	 	 <br />
 
-	 	 <div id="histogram"></div>
-	 	 <span id="addmePSD"></span>
+	 	 
+	 	 
 
 	 	 
 	 	 <span class="btn run" id="PSD">Submit</span>  
@@ -216,18 +226,30 @@
 	 	 <br />
 	 	 </div> <!-- close enterProbeCount div -->
 	 	 </div> <!-- end accordion -->
-	 	 <br />
+	 	 
 <!--
 	 	 <span id="clearButton"><span class="btn" id="clear">Clear</span></span>
 -->
-	 	  <br />
-	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
-	 	  <br />
+	 	  
+	 	
+	 	 </span> <!-- end physicalPropsPanel -->
+
+	 	 <span id="outputPanel">
+	 	 <h1 id="outputTitle">Output</h1>
+	 	   <span id="loaderGIF">
+	 	  <img src="./Images/ajax_clock_small.gif" />
+	 	  </span> 
+	 	 <span id="addmeVF"></span> <span id="addmeSA"></span> <span id="addmePSD"><a href="#" id="psdGraphLink">Graph</a><a href="#" id="psdDataLink">Raw Data</a></span> 
 	 	 
+	 	 </span> <!-- end output panel span -->
 	 	 
-	 	 </span> <!-- end right panel span -->				 
+	 	 </span> <!-- end right panel span -->		
+	 	 
+	 	 	 
 
 		<p id="unitcellInfo"></p>
 </span> <!-- end page span -->
+<span id="histogramContainer"><a href="#" id="closePopup">X</a><div id="histogram"></div></span>
+
 </body>
 </html>

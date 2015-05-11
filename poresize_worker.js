@@ -128,6 +128,7 @@ var maxProbeSize = e.data[7];
 var step = 0.05; // resolution of point location
 var stepSize = 0.01; // resolution of radius 
 var probeSizeArray = [];
+var rawDataArray = [];
 	var atomX = [];
 	var atomY = [];
 	var atomZ = [];
@@ -146,6 +147,7 @@ var bound = maxProbeSize/(stepSize*2);
 
 for (p=0;p<bound;p++) {
 	probeSizeArray[p] = 0;
+	rawDataArray[p] = 0;
 }
 
 for (q=0;q<numProbes;q++) {
@@ -164,6 +166,7 @@ for (q=0;q<numProbes;q++) {
 	testPointArray = incrementPoint(probePoint);
 	probeSize = findPore(testPointArray,r);
 	probeSizeArray = binArray(probeSize,probeSizeArray);
+	rawDataArray = addData(probeSize,rawDataArray);
 }
 
 
@@ -276,6 +279,13 @@ function randomCoords() {
 		
 		return arr;
 	}
+	
+	
+	function addData(max, arr) {
+		maxIndex = Math.round(max/stepSize);
+		arr[maxIndex]++;
+		return arr;
+	}
 
 function checkOverlap(pt, r) {
 	
@@ -308,20 +318,7 @@ function checkOverlap(pt, r) {
 			}
 				else {
 					overlap = false;
-				}
-				
-				/*
-		if (distR == -1) {
-					overlap = true;
-				}
-		else {
-					dr = vectMag(distR);
-						if (dr < (radius+r)) { // check if overlap
-							overlap = true; // flag
-					} // end if
-				}
-				*/		
-									
+				}				
 		}
 		} 
 		return overlap;
@@ -427,7 +424,13 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }			
-		
-postMessage([probeSizeArray,stepSize*2]);
+
+// process raw data with stepSize*2 as pore diameter
+var rawDataString = 'Pore Diameter    Number of Probes \n';
+for (i=0;i<rawDataArray.length;i++) {
+	rawDataString += (i*stepSize*2).toFixed(2) + '            ' + rawDataArray[i] + '\n';
+}
+
+postMessage([probeSizeArray,stepSize*2, rawDataString]);
 
 } 

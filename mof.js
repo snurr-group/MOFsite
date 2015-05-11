@@ -109,7 +109,8 @@ $(function() {
 		  .append(myJmol)
 		  .addClass("padded");
 		  
-		$("#unitcellInfo").html('mass = 9677.7 Da <br /> density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
+		  //mass = 9677.7 Da 
+		$("#unitcellInfo").html('density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 	}
 	// end initializeJmol
 	////////////////////////////////////////////////
@@ -384,7 +385,7 @@ $(function() {
 			
 			density = massGrams / (cellVol * Math.pow(10,-24)); // density in g/cm3
 			density = density.toFixed(3);
-			$("#unitcellInfo").html('mass = ' + mass + ' Da <br /> density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
+			$("#unitcellInfo").html('density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
 		});
 		
 	}
@@ -691,7 +692,7 @@ $(function() {
 		// clear previous output
 		$("#addmeSA").empty(); 
 		$("#addmeVF").empty(); 
-		$("#addmePSD").empty();
+		$("#addmePSD").hide(); // has content - hide rather than empty
 		$("#histogram").html(''); // can not empty because can not plot into a null space
 		$("#histogram").hide(); 
 		
@@ -859,9 +860,10 @@ $(function() {
 					response = event.data;
 					histArray = response[0];
 					stepSize = response[1];
+					rawDataString = response[2];
 					$("#loaderGIF").hide();
-					generateHistogram(histArray, probeSize, stepSize);
-					$("#addmePSD").append('<br />');
+					generateHistogram(histArray, probeSize, stepSize, rawDataString);
+					$("#addmePSD").show();
 				}
 			}
 			// end if PSD, worker call
@@ -897,16 +899,22 @@ $(function() {
 		}
 		// end for SAs
 	}); // end for click on .run (submit) button
+	
 	// end of MC simulation
-	function generateHistogram(rawData, minSize, stepSize) {
-		$("#histogram").css({height: "200px", width: "200px"});
+	function generateHistogram(rawData, minSize, stepSize, dataStr) {
 		var upper =  0 + (rawData.indexOf(0) + 2)*stepSize;
 		histOptions = {
 			yaxis: {
-				max: 1
+				max: 1,
+				axisLabel: 'Relative abundance',
+            axisLabelUseCanvas: false,
+            //axisLabelFontSizePixels: 20,
 			}
 			, xaxis : {
-				max: probeSize
+				max: probeSize,
+				axisLabel: 'Pore Diameter (&#197;)',
+            axisLabelUseCanvas: false,
+            axisLabelFontSizePixels: 20,
 			}
 		}
 		;
@@ -935,11 +943,25 @@ $(function() {
 			// normalize
 		}
 		var maxVal = Math.max.apply(null,data);
+		
+		$("#histogramContainer").show();
 		$("#histogram").show();
 		$.plot($('#histogram'), [data], histOptions);
-		
-	
+		$("#psdGraphLink").click(function() {
+			$("#histogramContainer").show();
+			$("#histogram").show();
+		});	
+		$("#psdDataLink").click(function() {
+			var blob = new Blob([dataStr], {type: "text/plain;charset=utf-8"});
+			saveAs(blob, "PoreSizeDistribution.txt");
+		});	
 	}
+	
+	$("#closePopup").click(function() {
+		$("#histogramContainer").hide();
+		$("#histogram").hide();
+	});
+	
 	// fix this??
 	function triclinicVol(a,b,c,angles) {
 		// angles in radians
