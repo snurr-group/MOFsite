@@ -556,18 +556,18 @@ $(function() {
 		$("#depthSliders").hide();
 		if (userLoaded) {
 			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; spacefill only;');
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; spacefill only;');
 			}
 		}
 		else {
 			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; zoom 60; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; rotate y 30; rotate x 30; zoom 20; spacefill only;');
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; zoom 60; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; rotate y 30; rotate x 30; zoom 20; spacefill only;');
 			}
 		}
 	}
@@ -649,7 +649,7 @@ $(function() {
 			initializeSliderX(layerX.length);
 			initializeSliderY(layerY.length);
 			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
+			Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
 			channelDisplay = true;
 			}
 			if (fileRequested) {
@@ -670,7 +670,7 @@ $(function() {
 			initializeSliderX(layerX.length);
 			initializeSliderY(layerY.length);
 			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 60; select boron; spacefill 2.0;');
+			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
 			channelDisplay = true;
 		}
 			if (fileRequested) {
@@ -818,7 +818,7 @@ $(function() {
 				if (typeof(w) == "undefined") {
 				var worker = new Worker("overlap_worker.js");
 				}
-				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
+				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; rotate y 30; rotate x 30; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var upperBound = Math.ceil(probeNumber/500); 
 				for (i=0;i<upperBound;i++) {
@@ -1036,9 +1036,9 @@ $(function() {
 
 	function loadSupercell(x,y,z) {
 		if (userLoaded) {
-			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill;');
+			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill;');
 		} else {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill;	');
+			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill;');
 		}
 	}
 	function clearAll() {

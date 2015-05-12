@@ -23,6 +23,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 	     #channelLoaderGIF {display: none;}
 	     
 		 #clearButton {display:none; position:relative; left:80%;}
+		 
+		 #clearMaker {margin-left:10px;}
 		
 		 #closePopup {padding-left:10px; margin-top:30px; text-decoration: underline; font-weight:bold;} 
 		 
@@ -140,7 +142,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 }
 
 
-	.buildBlock {width:50px; height:auto;}
+	.buildBlock {width:70px; height:auto;}
     
     .channelInput {width:50px;}
     
@@ -151,6 +153,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 	.displayParameter {padding-left:12px; padding-top:15px; padding-top:10px; text-decoration:underline;}	 
 		 
 	.makeIcon, .MCIcon, .spIcon {height:12px; width:auto; margin-left:3px; }
+		 
+	.makerTitle {text-decoration:underline;}	 
 		 
 	.navImage {height:100px; width:auto}
 	

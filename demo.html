@@ -21,8 +21,12 @@
 		<!-- Replace favicon.ico & apple-titleouch-icon.png in the root of your domain and delete these references -->
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-		<link rel="stylesheet" href="./demo.css">
+		<link rel="stylesheet" href="./mof.css">
+		
+		
+		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
+		<link rel="stylesheet" href="./CSS/jquery-ui.structure.min.css">
 		
 		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
 
@@ -40,8 +44,10 @@
 
 	 	<!-- RIGHT PANEL -->
 	 	<span id="rightPanel">
-			
+			<span id="physicalPropsPanel">
+<!--
 			<h1 id="physicalPropertiesTitle">Physical Properties</h1>
+-->
 			
 			<!-- Accordion start -->
 			<div id="accordion2">
@@ -58,8 +64,10 @@
 	 	 <input type="text" name="size" class="probeSize" id="probeSizeVF"> Angstroms 
 	 	 </div>
 	 	 <br />
-	 	 <span id="addmeVF"></span>
 	 	 <span class="btn run" id="VF">Sumbit</span>
+	 	 <br />
+	 	 <br />
+	 	 
 	 	 </div>
 	 	 
 	 	 <h3>Volume</h3>
@@ -74,19 +82,29 @@
 	 	 <input type="text" name="size" class="probeSize" id="probeSizeVOL"> Angstroms 
 	 	 </div>
 	 	 <br />
-	 	 <span id="addmeVOL"></span>
-	 	 <span class="btn run" id="VOL">Submit</span>
 	 	 
+	 	 <span class="btn run" id="VOL">Submit</span>
+	 	 <br />
+	 	 <br />
 	 	 </div>
 	 	 
 
 
 	 	 </div> <!-- end accordion -->
 		
-	 	  <br />
-	 	  <img id="loaderGIF" src="./Images/ajax_clock_small.gif" />
-	 	  <br />
-	 	 <div id="histogram"></div>
+	 	
+	 	</span> <!-- end physicalPropsPanel -->
+	 	 
+	 	 
+	 	  <span id="outputPanel">
+	 	 <h1 id="outputTitle">Output</h1>
+	 	   <span id="loaderGIF">
+	 	  <img src="./Images/ajax_clock_small.gif" />
+	 	  </span> 
+	 	 <span id="addmeVF"></span> <span id="addmeVOL"></span>
+	 	 
+	 	 </span> <!-- end output panel span -->
+	 	 
 	 	 
 	 	 </span> <!-- end right panel span -->
 	 	 

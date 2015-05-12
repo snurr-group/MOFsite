@@ -14,7 +14,14 @@ $(function() {
 	var vectA = [];
 	var vectB = [];
 	var vectC = [];
-	
+	var displayType = 'spacefill only'; // used to preserve display type when a file is uploaded
+	var layerX = [];
+	var layerY = [];
+	var layerZ = [];
+	var sliderTemp = 0;
+	var channelDisplay = false;
+	var fileRequested = false;
+	var xyzFile ='';
 	
 	windowHeight = $(window).height();
 	function initializeJmol(str) {
@@ -30,7 +37,7 @@ $(function() {
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 60; spacefill",       // script to run
+   script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill; background image './Images/gradBlue2.png';",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -55,7 +62,7 @@ Info.z = {
 		cellMatrix = [ 26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833 ];
 		inverseMatrix = inverse3x3(cellMatrix);
 
-		$("#unitcellInfo").html('mass = 9677.7 Da <br /> density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
+		$("#unitcellInfo").html('density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 
 
 // JSmol Applet
@@ -245,14 +252,14 @@ $(".buildBlock").click(function () {
 			
 			density = massGrams / (cellVol * Math.pow(10,-24)); // density in g/cm3
 			density = density.toFixed(3);
-			$("#unitcellInfo").html('mass = ' + mass + ' Da <br /> density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
+			$("#unitcellInfo").html('density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
 		});
 	}
 	
-	
+
 	function loadViewer(name) {
 		name = name.toString();
-		Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill;');		
+		Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill;');		
 	}
 	
 	function clearAll() {
@@ -260,7 +267,7 @@ $(".buildBlock").click(function () {
 		hashArray = [];
 	}
 	
-	$('#clear').click(function() {
+	$('#clearMaker').click(function() {
 		clearAll();
 		$("#mofFail").hide();
 	});
@@ -332,35 +339,165 @@ $(".buildBlock").click(function () {
 	);
 	
 	function loadSupercell(x,y,z) {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; set autobond on; spacefill;	');
+			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill;	');
 	}
 	
+	//////////////// CHANNELS
 	
-	function showStructure() {
-		if (userLoaded) {
-			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t" {1 1 1}; spacefill only;');
+	function initializeSliderX(maxLayer) {
+	$("#xSlider").slider({
+		range: 'min', 
+		min: 0,
+		max: maxLayer,
+		value: 0,
+		slide: function(event, ui) {
+			$("#zSlider").slider( "option", "value", 0 );
+			$("#ySlider").slider( "option", "value", 0 );
+			if (ui.value < sliderTemp) {
+				showLayer(ui.value, layerX, maxLayer);
+				sliderTemp = ui.value;
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t"; spacefill only;');
+				hideLayer(ui.value, layerX);
+				sliderTemp = ui.value;
+			}
+		}
+	});
+	}
+	function initializeSliderY(maxLayer) {
+	$("#ySlider").slider({
+		range: 'min', 
+		min: 0,
+		max: maxLayer,
+		value: 0,
+		slide: function(event, ui) {
+			$("#zSlider").slider( "option", "value", 0 );
+			$("#xSlider").slider( "option", "value", 0 );
+			if (ui.value < sliderTemp) {
+				showLayer(ui.value, layerY, maxLayer);
+				sliderTemp = ui.value;
+			}
+			else {
+				hideLayer(ui.value, layerY);
+				sliderTemp = ui.value;
+			}
+		}
+	});
+	}
+	
+	function initializeSliderZ(maxLayer) {
+	$("#zSlider").slider({
+		range: 'min', 
+		min: 0,
+		max: maxLayer,
+		value: 0,
+		slide: function(event, ui) {
+			$("#xSlider").slider( "option", "value", 0 );
+			$("#ySlider").slider( "option", "value", 0 );
+			if (ui.value < sliderTemp) {
+				showLayer(ui.value, layerZ, maxLayer);
+				sliderTemp = ui.value;
+			}
+			else {
+				hideLayer(ui.value, layerZ);
+				sliderTemp = ui.value;
+			}
+		}
+	});
+	}
+	
+
+
+	function hideLayer(layerVal, layerArr) {
+		var layerStr = '';
+		for (i=0;i<layerVal;i++) {
+			layerStr += layerArr[i] + ',';
+		}
+		layerStr = layerStr.slice(0,-1);
+		Jmol.script(jmolApplet0, 'hide ' + layerStr + ';');
+	}
+	function showLayer(layerVal, layerArr, maxLayer) {
+		var layerStr = '';
+		for (i=maxLayer;i>layerVal;i--) {
+			layerStr += layerArr[i];
+		}
+		layerStr = layerStr.slice(0,-1);
+		Jmol.script(jmolApplet0, 'display ' + layerStr + ';');
+	}
+	
+	var unitCellDisplay = true;
+	$('input:radio[name="unitCell"]').filter('[value="On"]').prop('checked', true);
+	$('input:radio[name="unitCell"]').change(function() {
+		if ($(this).val() == "On") {
+			$("#unitcellInfo").show();
+			unitCellDisplay = true;
+			Jmol.script(jmolApplet0, 'unitcell on; axes on; boundbox on;');
+		}
+		else {
+			$("#unitcellInfo").hide();
+			unitCellDisplay = false;
+			Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+		}
+	});	
+	
+	function showStructure() {
+		channelDisplay = false;
+		$("#channelButtons").hide();
+		$("#channelLoaderGIF").hide();
+		$("#channelError").html('');
+		$("#depthSliders").hide();
+		if (userLoaded) {
+			if (unitCellDisplay) {
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill only;');
+			}
+			else {
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; zoom 40; spacefill only;');
 			}
 		}
 		else {
 			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; zoom 60; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill only;');
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; zoom 60; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; rotate y 30; rotate x 30; zoom 40; spacefill only;');
 			}
 		}
 	}
 	
-	//////////////////////////
+	
 	function showChannels() {
+		$("#channelError").html('');
+		$("#channelResolution").val('');
+		$("#channelProbeSize").val('');
+		$("#channelButtons").show();
+	}
+	
+	$("#submitChannels").click(function() {
+		console.log(fileRequested);
+		console.log(channelDisplay);
+		submitChannels();
+	});
+		
+	$("#saveChannel").click(function() {
+			fileRequested = true;
+			submitChannels();		
+	});
+
+	
+	//////////////////////////
+	function submitChannels() {
+		var resolution = $("#channelResolution").val();
+		var probeR = $("#channelProbeSize").val();
+		if (isNaN(resolution) || isNaN(probeR) || resolution < 0 || probeR < 0) {
+			$("#channelError").html('Please enter positive numbers for the resolution and probe size');
+		}
+		else {
+			//channelDisplay = true;
+			$("#channelLoaderGIF").show();
+			$("#channelError").html('');
 		if (typeof(w) == "undefined") {
 			var worker = new Worker("channel_worker.js");
 		}
-		console.log(cellMatrix);
 
 		if (channelStrings[loadedName] == null) {
 		
@@ -372,29 +509,133 @@ $(".buildBlock").click(function () {
 		}
 		channelString = '';
 		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC]]);
+		worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC], resolution, probeR]);
 		worker.onmessage = function(event) {
 			response = event.data;
 			coords = response[0];
-			console.log(coords);
+			layerX = response[1];
+			layerY = response[2];
+			layerZ = response[3];
+			xyzFile = response[4]; // global variable
 			num = coords.length.toString();
-			//num = num.toString(); // combine with above line?
 			var channelString = num + "\n" + "Probes\n";
 			for (i=0;i<coords.length;i++) {
 				cur = coords[i];
 				channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
 			}
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 60; select boron; spacefill 0.5;');
+			
+			for (i=0;i<layerX.length;i++) {
+				layerX[i] = layerX[i].slice(0,-1);
+			}
+			for (i=0;i<layerZ.length;i++) {
+				layerZ[i] = layerZ[i].slice(0,-1);
+			}
+			for (i=0;i<layerY.length;i++) {
+				layerY[i] = layerY[i].slice(0,-1);
+			}
+			
+			
+			if (!channelDisplay && !fileRequested) {
+			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
+			$("#depthSliders").show();
+			initializeSliderX(layerX.length);
+			initializeSliderY(layerY.length);
+			initializeSliderZ(layerZ.length);
+			Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
+			channelDisplay = true;
+			}
+			if (fileRequested) {
+				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
+				saveAs(blob, "structureChannels.xyz");
+				fileRequested = false;
+			}
+			$("#channelLoaderGIF").hide();
 		    channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
 		}
 		// worker.terminate(); // implement this?
 		
 		} // end if 
 		
-		else {
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 60; select boron; spacefill 0.5;');
+		else { if(!channelDisplay && !fileRequested) {
+			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
+			$("#depthSliders").show();
+			initializeSliderX(layerX.length);
+			initializeSliderY(layerY.length);
+			initializeSliderZ(layerZ.length);
+			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
+			channelDisplay = true;
+		}
+			if (fileRequested) {
+				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
+				saveAs(blob, "structureChannels.xyz");
+				fileRequested = false;
+			}
+			$("#channelLoaderGIF").hide();
 		}
 	}
+}
+	
+	//////////END CHANNELS
+	
+	//~ function showStructure() {
+		//~ if (userLoaded) {
+			//~ if (unitCellDisplay) {
+			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; spacefill only;');
+			//~ }
+			//~ else {
+			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t"; rotate y 30; rotate x 30; spacefill only;');
+			//~ }
+		//~ }
+		//~ else {
+			//~ if (unitCellDisplay) {
+			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; zoom 20; rotate y 30; rotate x 30; spacefill only;');
+			//~ }
+			//~ else {
+			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; zoom 20; rotate y 30; rotate x 30; spacefill only;');
+			//~ }
+		//~ }
+	//~ }
+	//~ 
+	//~ //////////////////////////
+	//~ function showChannels() {
+		//~ if (typeof(w) == "undefined") {
+			//~ var worker = new Worker("channel_worker.js");
+		//~ }
+		//~ console.log(cellMatrix);
+//~ 
+		//~ if (channelStrings[loadedName] == null) {
+		//~ 
+		//~ var fileInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
+		//~ if (!userLoaded) {
+			//~ cellA = fileInfo['models'][0]['_cell_length_a'];
+			//~ cellB = fileInfo['models'][0]['_cell_length_b'];
+			//~ cellC = fileInfo['models'][0]['_cell_length_c'];
+		//~ }
+		//~ channelString = '';
+		//~ var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+		//~ worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC]]);
+		//~ worker.onmessage = function(event) {
+			//~ response = event.data;
+			//~ coords = response[0];
+			//~ console.log(coords);
+			//~ num = coords.length.toString();
+			//~ //num = num.toString(); // combine with above line?
+			//~ var channelString = num + "\n" + "Probes\n";
+			//~ for (i=0;i<coords.length;i++) {
+				//~ cur = coords[i];
+				//~ channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
+			//~ }
+			//~ Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 40; rotate y 30; rotate x 30; select boron; spacefill 0.5;');
+		    //~ channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
+		//~ }
+		//~ // worker.terminate(); // implement this?
+		//~ 
+		//~ } // end if 
+		//~ 
+		//~ else {
+			//~ Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 40; rotate y 30; rotate x 30; select boron; spacefill 0.5;');
+		//~ }
+	//~ }
 	
 	
 	function inverse3x3(matrix) {

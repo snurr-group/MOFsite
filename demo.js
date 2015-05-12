@@ -13,7 +13,7 @@ $(function() {
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "zap; set antialiasDisplay;background white; load " + str + " {1 1 1}; set displayCellParameters false; set appendNew false; zoom 20; spacefill only;",       // script to run
+   script: "zap; set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set displayCellParameters false; set appendNew false; zoom 20; spacefill only; background image './Images/gradBlue2.png';",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -166,7 +166,7 @@ var boxSize = 5;
 					// updates coordinateArray as well
 					inlineString+= ' B ' + coordinates + '\n';
 				}
-				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
+				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var upperBound = Math.ceil(probeNumber/500);
 				var calcVF = (1-4/3*Math.PI*Math.pow(radius,3)/Math.pow(boxSize,3)).toFixed(3);
@@ -204,7 +204,7 @@ var boxSize = 5;
 					// updates coordinateArray as well
 					inlineString+= ' B ' + coordinates + '\n';
 				}
-				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 60; select boron; spacefill ' + probeDisplaySize + ';');
+				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var upperBound = Math.ceil(probeNumber/500);
 				for (i=0;i<upperBound;i++) {

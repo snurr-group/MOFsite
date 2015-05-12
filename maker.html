@@ -21,7 +21,7 @@
 		<!-- Replace favicon.ico & apple-titleouch-icon.png in the root of your domain and delete these references -->
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-		<link rel="stylesheet" href="./maker.css">
+		<link rel="stylesheet" href="./mof.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
 
@@ -38,7 +38,9 @@
 
 
 <span id="leftPanel">
+<!--
 	 	<h1 id="displayTitle">Display</h1>
+-->
 	 	
 	 	<div id="accordion1">
   <h3>Supercell</h3>
@@ -77,10 +79,40 @@
 		<span class="displayParameter">Display </span> <br />
 		<input type="radio" name="structureDisplay" value="Structure">Structure
 		<input type="radio" name="structureDisplay" value="Channels">Channels
+		
+	
+		<span id="channelError"></span>
+		<span id="channelButtons">
+		Grid resolution:
+		<input type="text" name="resolution" class="channelInput" id="channelResolution"> &#197;<br /> 
+		Probe Size:
+		<input type="text" name="resolution" class="channelInput" id="channelProbeSize"> &#197;
+		<br />
+		<br />
+		<span class="btn" id="submitChannels">Display</span> or 
+		<span class="btn" id="saveChannel">Save File</span> 
+		
+		<br />
+		<br />
+		<img id="channelLoaderGIF" src="./Images/ajax_clock_small.gif" />
+		</span>
+		
+		
+		
+		<span id="depthSliders">
+		X-Depth <br />
+		<div id="xSlider"></div>
+		Y-Depth <br />
+		<div id="ySlider"></div>
+		Z-Depth <br />
+		<div id="zSlider"></div> 
+				
+		</span>
+		
 		<br />
 		<br />
 		<span class="displayParameter">Atom display type</span> <br />
-		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill
+		<input type="radio" name="atomsDisplay" value="Spacefill">Spacefill <br />
 		<input type="radio" name="atomsDisplay" value="BallStick">Ball and Stick <br />
 		<input type="radio" name="atomsDisplay" value="Wireframe">Wireframe
 		<br />
@@ -101,7 +133,10 @@
 <!-- RIGHT PANEL  -->	 	
 	 	
 <span id="rightPanel">
+	<span id="physicalPropsPanel">
+<!--
 	 	<h1 id="displayTitle">Build</h1>
+-->
 	 	
 	 	<div id="accordion2">
  <h3>Select Building Blocks</h3>
@@ -112,18 +147,18 @@
 		<p class="makerTitle">Metals</p>
 		 <img hash="cu2" class="buildBlock" src="./Images/cu2.png" >     
 		 <img hash="zn4o" class="buildBlock" src="./Images/zn4o.png" >  
-		<a> <img hash="zn2" class="buildBlock" src="./Images/zn2.png" />  </a>
+		<img hash="zn2" class="buildBlock" src="./Images/zn2.png" /> 
 		
 
 		<p class="makerTitle">Organics</p>
-		<a> <img hash="phenyl" class="buildBlock" src="./Images/phenyldicarboxylate.png" /> </a>
-		<a> <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/tetraphenyltricarboxylate.png" /> </a>
-		<a> <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/tetraphenylhexacarboxylate.png" /></a>
-		<a> <img hash="n2" class="buildBlock" id="buildBlock4" src="./Images/diazenediphenylcarboxylate.png" /> </a>
+		 <img hash="phenyl" class="buildBlock" src="./Images/phenyldicarboxylate.png" /> 
+		 <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/tetraphenyltricarboxylate.png" /> 
+		 <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/tetraphenylhexacarboxylate.png" />
+		 <img hash="n2" class="buildBlock" id="buildBlock4" src="./Images/diazenediphenylcarboxylate.png" /> 
 		<br />
 		<br />
 		<span class="controlButton btn" id="generate"> Generate! </span> 
-	 	<span class="controlButton btn" id="clear"> Clear </span> 
+	 	<span class="controlButton btn" id="clearMaker"> Clear </span> 
 	 	<br />
 	 	<br />
 		<span id="mofFail">No MOF could be made from these building blocks, please try again. </span>
@@ -131,6 +166,7 @@
 		
 		
 		</div> <!-- end accordion -->
+		</span> <!-- end physical props panel span -->
 	 	</span> <!-- end right panel span -->
 
 <div id="unitcellInfo"></div>
