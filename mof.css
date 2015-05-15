@@ -18,6 +18,9 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 /*  IDs */ 
 		 
 		 #addmePSD {display:none; padding-left:10px;}	
+		 
+		 #bar {width:100%; height:0px; border-style:solid; border-width:0.1px; margin-top:40px; color:#B4B2DA; }
+		 
 		 #channelButtons {display:none;}
 	     
 	     #channelLoaderGIF {display: none;}
@@ -38,7 +41,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 
 		 #displayTitle {padding-left:30%;}
 		 
-		 #howTitle {text-decoration:underline; padding-top:15px;} 
+		 #howTitle {text-decoration:underline; padding-top:15px; color: #C6C7CB;} 
 		 #howDoesItWork {position:absolute; width:98%; padding-left:1%;} 
 		 
 		 #inTextCode {color:#4C4C4C;}
@@ -54,19 +57,19 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		  
 		 #makeIconDown, #MCIconDown, #spIconDown {display:none;}
 		 
-		 #makeMOF {position:absolute; left:75%;}  
+		 #makeMOF {position:absolute; left:72%;}  
 		 
-		 #mcDemo {position:absolute; left:45%;}
+		 #mcDemo {position:absolute; left:40%; }
 		 
 		 #mofFail {display:none;}
 		 
-		 #mofPageLink {position: absolute; left:10%;}
+		 #mofPageLink {position: absolute; left:8%;}
 		 		 
 		 #physicalPropertiesTitle, #outputTitle {padding-left:10px; padding-right:10px; text-decoration:underline;}
 	 
 		 #psdGraphLink, #psdDataLink {margin-right:15px; margin-left:5px; padding-bottom:10px; text-decoration:underline; font-size:1.2em; color:#ffffff}
 		 
-		 #siteDescription {padding-right:6%; padding-left:6%; padding-top:30px;}
+		 #siteDescription {padding-right:6%; padding-left:2%; padding-top:30px; color: #C6C7CB;}
 		 
 		 #unitcellInfo {position:absolute; z-index:2; top:90px; left:260px; width:150px; color: #35B9DA;}
 		 
@@ -84,32 +87,25 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		
 		.accTitle {padding-left:10px; color: #D5D5D5;}
 		
-.explorerBtn {
-  background: #8bbad9;
-  background-image: -webkit-linear-gradient(top, #8bbad9, #1f628c);
-  background-image: -moz-linear-gradient(top, #8bbad9, #1f628c);
-  background-image: -ms-linear-gradient(top, #8bbad9, #1f628c);
-  background-image: -o-linear-gradient(top, #8bbad9, #1f628c);
-  background-image: linear-gradient(to bottom, #8bbad9, #1f628c);
-  -webkit-border-radius: 10;
-  -moz-border-radius: 10;
-  border-radius: 10px;
-  text-shadow: 1px 3px 1px #302e30;
+.indexBtn {
+  background: #2b3a8c;
+  background-image: -webkit-linear-gradient(top, #2b3a8c, #031c2b);
+  background-image: -moz-linear-gradient(top, #2b3a8c, #031c2b);
+  background-image: -ms-linear-gradient(top, #2b3a8c, #031c2b);
+  background-image: -o-linear-gradient(top, #2b3a8c, #031c2b);
+  background-image: linear-gradient(to bottom, #2b3a8c, #031c2b);
+  -webkit-border-radius: 5;
+  -moz-border-radius: 5;
+  border-radius: 5px;
   font-family: Courier New;
-  color: #8ceaff;
-  font-size: 36px;
-  padding: 33px 34px 33px 35px;
-  border: solid #532d82 3px;
+  color: #ffffff;
+  font-size: 30px;
+  padding: 12px 22px 12px 22px;
   text-decoration: none;
 }
 
-.explorerBtn:hover {
-  background: #46a39a;
-  background-image: -webkit-linear-gradient(top, #46a39a, #3498db);
-  background-image: -moz-linear-gradient(top, #46a39a, #3498db);
-  background-image: -ms-linear-gradient(top, #46a39a, #3498db);
-  background-image: -o-linear-gradient(top, #46a39a, #3498db);
-  background-image: linear-gradient(to bottom, #46a39a, #3498db);
+.indexBtn:hover {
+  background: #255f80;
   text-decoration: none;
 }		
 		
