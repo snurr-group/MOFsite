@@ -6,7 +6,7 @@ html, body {
     background-image: url('./Images/gradBlue2.png');
 }
 
-p {font-family: 'Source Sans Pro', sans-serif; font-size:1.1em;}
+p {font-family: 'Source Sans Pro', sans-serif; font-size:1.0em;}
 #mainPage p {padding-left:10px;} 
 
 code {background:#D5D5D5;} /* code blocks given class of prettify to work with google script */
