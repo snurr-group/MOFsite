@@ -5,6 +5,9 @@ html, body {
     font-family: 'Source Sans Pro', sans-serif;
     background-image: url('./Images/gradBlue2.png');
 }
+#mofPage span {
+font-size:0.8em;
+}
 
 p {font-family: 'Source Sans Pro', sans-serif; font-size:1.0em;}
 #mainPage p {padding-left:10px;} 
