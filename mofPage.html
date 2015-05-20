@@ -26,9 +26,13 @@
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
 		
+		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
+		
+<!--
 		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.structure.min.css">
+-->
 		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
 
 		
@@ -44,7 +48,12 @@
 -->
 	
 	<span id="viewer" style="z-index:1;"> </span>
-	 	<div class="pageTitle"><b>MOF Explorer</b></div>
+	 	<div class="pageTitle"><b> <ul class="menu">
+  <li><a href="./index.html"><span>Main Page</span></a></li>
+  <li><a href="./mofPage.html" class="active"><span>MOF Explorer</span></a></li>
+  <li><a href="./demo.html"><span>Demo Module</span></a></li>
+  <li><a href="./maker.html"><span>MOF Maker</span></a></li>
+</ul>MOF Explorer</b></div>
 	 	
 	 	
 	 	
@@ -77,15 +86,19 @@
 		<input type="text" name="resolution" class="channelInput" id="channelProbeSize"> &#197;
 		<br />
 		<br />
+<!--
 		<span class="btn" id="submitChannels">Display</span> or 
-		<span class="btn" id="saveChannel">Save File</span> 
+-->
+		<span class="btn" id="saveChannel">Save File</span> or
+		<span class="btn" id="learnMore">Learn More</span> 
 		
 		<br />
 		<br />
-		<img id="channelLoaderGIF" src="./Images/ajax_clock_small.gif" />
+		<span id="channelLoaderGIF">Please wait  <img src="./Images/ajax_clock_small.gif" /> <br /></span>
 		</span>
 		
 		
+<!--
 		
 		<span id="depthSliders">
 		X-Depth <br />
@@ -96,6 +109,7 @@
 		<div id="zSlider"></div> 
 				
 		</span>
+-->
 		
 		<br />
 		
@@ -239,8 +253,7 @@
 	 	   <span id="loaderGIF">
 	 	  <img src="./Images/ajax_clock_small.gif" />
 	 	  </span> 
-	 	 <span id="addmeVF"></span> <span id="addmeSA"></span> <span id="addmePSD"><a href="#" id="psdGraphLink">Graph</a><a href="#" id="psdDataLink">Raw Data</a></span> 
-	 	 
+	 	 <span id="addmeVF"></span> <span id="addmeSA"></span> <span id="addmePSD"><a href="#" id="psdGraphLink">Graph</a><a href="#" id="psdDataLink">Raw Data</a> </span> 
 	 	 </span> <!-- end output panel span -->
 	 	 
 	 	 </span> <!-- end right panel span -->		
@@ -250,6 +263,8 @@
 		<p id="unitcellInfo"></p>
 </span> <!-- end page span -->
 <span id="histogramContainer"><a href="#" id="closePopup">X</a><div id="histogram"></div></span>
+<span id="learnMorePopup"><a href="#" id="closeLMPopup">X</a><div id="learnMoreContent">The channel space is computed by placing probes at all empty locations. <br />
+The resultant XYZ file can be opened in most common molecular visualizers. </div></span>
 
 </body>
 </html>

@@ -81,7 +81,7 @@ $(function() {
 			serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
 			// src: initialMOF,          // file to load
 			//script: "set antialiasDisplay;background white; load " + str + "; set appendNew false; set defaultDropScript 'zap; load ASYNC " + f + "; console; var r = " + f + "; print r; spacefill only;'; zoom 60; spacefill only;",       // script to run
-			script: "set antialiasDisplay; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill; background image './Images/gradBlue2.png';",       // script to run
+			script: "set antialiasDisplay; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill 23%; wireframe 0.15; background image './Images/gradBlue2.png';",       // script to run
 			defaultModel: "",   // name or id of a model to be retrieved from a database
 			addSelectionOptions: false,  // to interface with databases
 			debug: false
@@ -556,18 +556,18 @@ $(function() {
 		$("#depthSliders").hide();
 		if (userLoaded) {
 			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; spacefill 23%; wireframe 0.15;');
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; spacefill 23%; wireframe 0.15;');
 			}
 		}
 		else {
 			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; rotate y 30; rotate x 30; zoom 20; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; rotate y 30; rotate x 30; zoom 20; spacefill 23%; wireframe 0.15;');
 			}
 			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; rotate y 30; rotate x 30; zoom 20; spacefill only;');
+			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; rotate y 30; rotate x 30; zoom 20; spacefill 23%; wireframe 0.15;');
 			}
 		}
 	}
@@ -580,17 +580,21 @@ $(function() {
 		$("#channelButtons").show();
 	}
 	
-	$("#submitChannels").click(function() {
-		console.log(fileRequested);
-		console.log(channelDisplay);
-		submitChannels();
-	});
+	//~ $("#submitChannels").click(function() {
+		//~ submitChannels();
+	//~ });
 		
 	$("#saveChannel").click(function() {
 			fileRequested = true;
 			submitChannels();		
 	});
 
+	$("#learnMore").click(function() {
+		$("#learnMorePopup").show();
+		$("#learnMorePopup").draggable();
+		$("#learnMoreContent").show();
+		
+	});
 	
 	//////////////////////////
 	function submitChannels() {
@@ -621,37 +625,37 @@ $(function() {
 		worker.onmessage = function(event) {
 			response = event.data;
 			coords = response[0];
-			layerX = response[1];
-			layerY = response[2];
-			layerZ = response[3];
+			//~ layerX = response[1];
+			//~ layerY = response[2];
+			//~ layerZ = response[3];
 			xyzFile = response[4]; // global variable
-			num = coords.length.toString();
-			var channelString = num + "\n" + "Probes\n";
-			for (i=0;i<coords.length;i++) {
-				cur = coords[i];
-				channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
-			}
+			//~ num = coords.length.toString();
+			//~ var channelString = num + "\n" + "Probes\n";
+			//~ for (i=0;i<coords.length;i++) {
+				//~ cur = coords[i];
+				//~ channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
+			//~ }
 			
-			for (i=0;i<layerX.length;i++) {
-				layerX[i] = layerX[i].slice(0,-1);
-			}
-			for (i=0;i<layerZ.length;i++) {
-				layerZ[i] = layerZ[i].slice(0,-1);
-			}
-			for (i=0;i<layerY.length;i++) {
-				layerY[i] = layerY[i].slice(0,-1);
-			}
+			//~ for (i=0;i<layerX.length;i++) {
+				//~ layerX[i] = layerX[i].slice(0,-1);
+			//~ }
+			//~ for (i=0;i<layerZ.length;i++) {
+				//~ layerZ[i] = layerZ[i].slice(0,-1);
+			//~ }
+			//~ for (i=0;i<layerY.length;i++) {
+				//~ layerY[i] = layerY[i].slice(0,-1);
+			//~ }
 			
 			
-			if (!channelDisplay && !fileRequested) {
-			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
-			$("#depthSliders").show();
-			initializeSliderX(layerX.length);
-			initializeSliderY(layerY.length);
-			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
-			channelDisplay = true;
-			}
+			//~ if (!channelDisplay && !fileRequested) {
+			//~ Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
+			//~ $("#depthSliders").show();
+			//~ initializeSliderX(layerX.length);
+			//~ initializeSliderY(layerY.length);
+			//~ initializeSliderZ(layerZ.length);
+			//~ Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
+			//~ channelDisplay = true;
+			//~ }
 			if (fileRequested) {
 				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
 				saveAs(blob, "structureChannels.xyz");
@@ -787,13 +791,7 @@ $(function() {
 					randCoord[0] = randCoord[0].toFixed(4);
 					randCoord[1] = randCoord[1].toFixed(4);
 					randCoord[2] = randCoord[2].toFixed(4);
-					//~ console.log(randCoord);
-					//~ var tricCoords = Jmol.evaluateVar(jmolApplet0, '[{' + xx + '/1 ' + yy + '/1 ' + zz + '/1}.x {' + xx + '/1 ' + yy + '/1 ' + zz + '/1}.y {' + xx + '/1 ' + yy + '/1 ' + zz + '/1}.z];');		console.log(tricCoords);
-					//~ tricCoords[0] = Math.abs(tricCoords[0]).toString();
-					//~ tricCoords[1] = Math.abs(tricCoords[1]).toString();
-					//~ tricCoords[2] = Math.abs(tricCoords[2]).toString();
 					coordinateArray[i-1] = randCoord;
-				//	inlineString += ' B ' + tricCoords[0] + ' ' + tricCoords[1] + ' ' + tricCoords[2] + '\n';
 					inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
 				}
 				loaded = false;
@@ -838,14 +836,6 @@ $(function() {
 							$("#loaderGIF").hide();
 							$("#addmeVF").append('The void fraction is ' + vFraction + '<br /><br /> ');
 							worker.terminate();
-							// remove this code below?
-							if (name.indexOf('Kr') > -1) {
-								//	var remainingProbes = probeNumber - flaggedProbeCount; 
-								var krVol = cellA*cellB*cellC*flaggedProbeCount/probeNumber;
-								krVol = krVol.toFixed(2);
-								$("#addmeVF").append('<br /> The volume of Krypton is 27.3 A<sup>3</sup>. The volume obtained through simulation is: ' + krVol + '&#197;<sup>3</sup>.');
-							}
-							// worker.termniate(); // implement this? 
 						}
 					}
 				}
@@ -943,13 +933,14 @@ $(function() {
 			// normalize
 		}
 		var maxVal = Math.max.apply(null,data);
-		
+		var dataset = [{data: data, color: "#5482FF" }];
 		$("#histogramContainer").show();
+		$("#histogramContainer").draggable();
 		$("#histogram").show();
-		$.plot($('#histogram'), [data], histOptions);
+		$.plot($('#histogram'), dataset, histOptions);
 		$("#psdGraphLink").click(function() {
 			$("#histogramContainer").show();
-			$("#histogram").show();
+			$("#histogram").show();			
 		});	
 		$("#psdDataLink").click(function() {
 			var blob = new Blob([dataStr], {type: "text/plain;charset=utf-8"});
@@ -960,6 +951,11 @@ $(function() {
 	$("#closePopup").click(function() {
 		$("#histogramContainer").hide();
 		$("#histogram").hide();
+	});
+	
+	$("#closeLMPopup").click(function() {
+		$("#learnMorePopup").hide();
+		$("#learnMoreContent").hide();
 	});
 	
 	// fix this??
@@ -1036,9 +1032,9 @@ $(function() {
 
 	function loadSupercell(x,y,z) {
 		if (userLoaded) {
-			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill;');
+			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
 		} else {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill;');
+			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
 		}
 	}
 	function clearAll() {
