@@ -1,9 +1,10 @@
 html, body {
     margin: 0;
     height: 100%;
+    font-family: 'Source Sans Pro', sans-serif;
+    background-image: url('./Images/gradBlue2.png');
 }
-
-p {font-family: 'Source Sans Pro', sans-serif; font-size:1.1em;}
+span, p {font-family: 'Source Sans Pro', sans-serif; font-size:7pt;}
 
 
 #rightPanel {display: inline-block; width:300px; position:absolute; top:60px; right:1%; z-index:2;}	
@@ -49,4 +50,4 @@ p {font-family: 'Source Sans Pro', sans-serif; font-size:1.1em;}
 		 .pageTile b {text-align:center;  z-index:2;}
 
  #clearButton {display:none; position:relative; left:80%;}
-#unitcellInfo {position:absolute; z-index:2; bottom:10px; width:150px; left:10px;}
+#unitcellInfo {position:absolute; z-index:2; top:90px; left:260px; width:150px; color: #35B9DA;}

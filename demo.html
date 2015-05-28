@@ -47,7 +47,17 @@
 </ul>
 Sphere in a Box Demo</b></div>
 
-
+<span id="selectBox">
+	 	
+	 	Box Size
+	 	 	
+	 	<br />	 	
+	 	<input id="radio5" type="radio" name="boxSize" value="5">5A
+	 	<input id="radio10" type="radio" name="boxSize" value="10">10A
+	 	<input id="radio15" type="radio" name="boxSize" value="15">15A
+	 	
+	 	</span> <!-- end select box -->
+	 	
 	 	<!-- RIGHT PANEL -->
 	 	<span id="rightPanel">
 			<span id="physicalPropsPanel">
@@ -104,9 +114,9 @@ Sphere in a Box Demo</b></div>
 	 	 
 	 	  <span id="outputPanel">
 	 	 <h1 id="outputTitle">Output</h1>
-	 	   <span id="loaderGIF">
-	 	  <img src="./Images/ajax_clock_small.gif" />
-	 	  </span> 
+	 	   <div class="meter">
+			<span id="progressBar" style="width: 0%"></span>
+		</div> 
 	 	 <span id="addmeVF"></span> <span id="addmeVOL"></span>
 	 	 
 	 	 </span> <!-- end output panel span -->
@@ -114,16 +124,7 @@ Sphere in a Box Demo</b></div>
 	 	 
 	 	 </span> <!-- end right panel span -->
 	 	 
-	 	 <div id="selectBox">
-	 	
-	 	Box Size
-	 	 	
-	 	<br />	 	
-	 	<input id="radio5" type="radio" name="boxSize" value="5">5A
-	 	<input id="radio10" type="radio" name="boxSize" value="10">10A
-	 	<input id="radio15" type="radio" name="boxSize" value="15">15A
-	 	
-	 	</div> <!-- end select box -->
+	 	 
 	 	 
 	 	 
 </div>

@@ -37,7 +37,7 @@ $(function() {
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill; background image './Images/gradBlue2.png';",       // script to run
+   script: "set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill 23%; wireframe 0.15; background image './Images/gradBlue2.png';",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -259,7 +259,7 @@ $(".buildBlock").click(function () {
 
 	function loadViewer(name) {
 		name = name.toString();
-		Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill;');		
+		Jmol.script(jmolApplet0,'set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill 23%; wireframe 0.15; background image "./Images/gradBlue2.png";');		
 	}
 	
 	function clearAll() {
@@ -339,7 +339,7 @@ $(".buildBlock").click(function () {
 	);
 	
 	function loadSupercell(x,y,z) {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill;	');
+			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15; background image "./Images/gradBlue2.png";');
 	}
 	
 	//////////////// CHANNELS

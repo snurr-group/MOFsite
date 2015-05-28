@@ -378,5 +378,5 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	var distanceVector = [Math.abs(x1-x2),  Math.abs(y1-y2),   Math.abs(z1-z2)]; // return distance vector
 	return distanceVector;
 }	
-postMessage([surfaceArea, done, mass]);
+postMessage([surfaceArea, done, mass, atomNumber]);
 }

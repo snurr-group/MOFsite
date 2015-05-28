@@ -23,7 +23,7 @@ for (i=0;i<inverseMatrix.length;i++) {
 	inverseMatrix[i] = parseFloat(inverseMatrix[i]);
 }
 }
-	var lengthA = array.length; // number of probes in this iteration (set to 500 on main thread)
+	var lengthA = array.length; // number of probes in this iteration (set on main thread)
 	var lengthB = atoms.length; // number of structure atoms, useful for pinpointing probes
 	var index = 0;
 	var x1=0;
@@ -152,7 +152,7 @@ Zr:	2.783167595,
 		y1 = array[i][1];
 		z1 = array[i][2];
 
-		var fixedI = i + 500*adjustment;
+		var fixedI = i + lengthA*adjustment;
 		var dr = 0;
 		for (k=0;k<lengthB;k++) { // compare to coordinates of structure
 			
@@ -171,7 +171,7 @@ Zr:	2.783167595,
 			
 			if (dr < (probeRadius + radius)) { 
 				flagged[index] = fixedI;
-				val = correction + i + 1 + 500*adjustment; 
+				val = correction + i + 1 + lengthA*adjustment; 
 				overlap[index] = 'B' + val;
 				index++;
 			}
@@ -239,9 +239,9 @@ function isInArray(value, arr) {
 	overlap=overlap.filter(function(item,i,allItems){ // kill duplicates 
     return i==allItems.indexOf(item);
 }).join(',');
-if (500*(adjustment+1)>=numProbes) {
+if (lengthA*(adjustment+1)>=numProbes) {
 	done = true;
 }
-	postMessage([overlap,done]);
+	postMessage([overlap,done,adjustment]);
 };
 

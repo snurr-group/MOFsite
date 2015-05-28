@@ -53,6 +53,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 
 		 #outputPanel {display: inline-block; width:220px; right:1%; z-index:2; margin-top:10px; background-color: #0A222B; opacity:0.8; border-radius:5px; color: #C6C7CB;}		
 		 #leftPanel {display:inline-block; width:220px; position:absolute; top:60px; left:1%; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px;}		
+		 #selectBox {display:inline-block; width:220px; position:absolute; top:60px; left:1%; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px; color: #C6C7CB;}		
 		 #rightPanel {display:inline-block; width:220px; position:absolute; top:60px; right:1%; z-index:2;}		
 		 #physicalPropsPanel {display: inline-block; right:1%; width:220px; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px;}		
 		 
@@ -77,7 +78,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #outputPanel {padding-bottom:10px;}
 		 		 
 		 #physicalPropertiesTitle, #outputTitle {padding-left:10px; padding-right:10px; text-decoration:underline;}
-	 
+		 
+		
 		 #psdGraphLink, #psdDataLink {margin-right:15px; margin-left:5px; padding-bottom:10px; text-decoration:underline; font-size:1.2em; color:#ffffff}
 		 
 		 #siteDescription {padding-right:6%; padding-left:2%; padding-top:30px; margin-top:20px; color: #C6C7CB;}
@@ -85,9 +87,6 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #unitcellInfo {position:absolute; z-index:2; top:90px; left:260px; width:150px; color: #35B9DA;}
 		 
 		 #uploadBox {height:180px; width:180px; border: 3px dotted #B2E0FF;}
-		 
-		 
-		 #depthSliders {display:none;}
 		 
 		
 		
@@ -172,7 +171,11 @@ h3 {padding-bottom:5px; padding-top:5px;}
 	.makeIcon, .MCIcon, .spIcon {height:12px; width:auto; margin-left:3px; }
 		 
 	.makerTitle {text-decoration:underline;}	 
-		 
+	
+
+	.meter {display: none;} /* progress bar container */ 
+
+	
 	.navImage {height:100px; width:auto}
 	
 	.pageTitle { text-align:center; color: #C6C7CB; position:absolute; width:98%; margin-left: 1%; padding-bottom:10px; top:5px; font-size:2em; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px; }
@@ -189,7 +192,126 @@ h3 {padding-bottom:5px; padding-top:5px;}
 
 
 
+/* Progress bar */ 
 
+.meter { 
+			height: 10px;  /* Can be anything */
+			position: relative;
+			margin: 5px 5px 5px 5px; /* Just for demo spacing */
+			background: #555;
+			-moz-border-radius: 25px;
+			-webkit-border-radius: 25px;
+			border-radius: 25px;
+			padding: 5px;
+			-webkit-box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+			-moz-box-shadow   : inset 0 -1px 1px rgba(255,255,255,0.3);
+			box-shadow        : inset 0 -1px 1px rgba(255,255,255,0.3);
+		}
+		.meter > span {
+			display: block;
+			height: 100%;
+			   -webkit-border-top-right-radius: 8px;
+			-webkit-border-bottom-right-radius: 8px;
+			       -moz-border-radius-topright: 8px;
+			    -moz-border-radius-bottomright: 8px;
+			           border-top-right-radius: 8px;
+			        border-bottom-right-radius: 8px;
+			    -webkit-border-top-left-radius: 20px;
+			 -webkit-border-bottom-left-radius: 20px;
+			        -moz-border-radius-topleft: 20px;
+			     -moz-border-radius-bottomleft: 20px;
+			            border-top-left-radius: 20px;
+			         border-bottom-left-radius: 20px;
+			background-color: rgb(43,194,83);
+			background-image: -webkit-gradient(
+			  linear,
+			  left bottom,
+			  left top,
+			  color-stop(0, rgb(43,194,83)),
+			  color-stop(1, rgb(84,240,84))
+			 );
+			background-image: -moz-linear-gradient(
+			  center bottom,
+			  rgb(43,194,83) 37%,
+			  rgb(84,240,84) 69%
+			 );
+			-webkit-box-shadow: 
+			  inset 0 2px 9px  rgba(255,255,255,0.3),
+			  inset 0 -2px 6px rgba(0,0,0,0.4);
+			-moz-box-shadow: 
+			  inset 0 2px 9px  rgba(255,255,255,0.3),
+			  inset 0 -2px 6px rgba(0,0,0,0.4);
+			box-shadow: 
+			  inset 0 2px 9px  rgba(255,255,255,0.3),
+			  inset 0 -2px 6px rgba(0,0,0,0.4);
+			position: relative;
+			overflow: hidden;
+		}
+		.meter > span:after, .animate > span > span {
+			content: "";
+			position: absolute;
+			top: 0; left: 0; bottom: 0; right: 0;
+			background-image: 
+			   -webkit-gradient(linear, 0 0, 100% 100%, 
+			      color-stop(.25, rgba(255, 255, 255, .2)), 
+			      color-stop(.25, transparent), color-stop(.5, transparent), 
+			      color-stop(.5, rgba(255, 255, 255, .2)), 
+			      color-stop(.75, rgba(255, 255, 255, .2)), 
+			      color-stop(.75, transparent), to(transparent)
+			   );
+			background-image: 
+				-moz-linear-gradient(
+				  -45deg, 
+			      rgba(255, 255, 255, .2) 25%, 
+			      transparent 25%, 
+			      transparent 50%, 
+			      rgba(255, 255, 255, .2) 50%, 
+			      rgba(255, 255, 255, .2) 75%, 
+			      transparent 75%, 
+			      transparent
+			   );
+			z-index: 1;
+			-webkit-background-size: 50px 50px;
+			-moz-background-size: 50px 50px;
+			-webkit-animation: move 2s linear infinite;
+			   -webkit-border-top-right-radius: 8px;
+			-webkit-border-bottom-right-radius: 8px;
+			       -moz-border-radius-topright: 8px;
+			    -moz-border-radius-bottomright: 8px;
+			           border-top-right-radius: 8px;
+			        border-bottom-right-radius: 8px;
+			    -webkit-border-top-left-radius: 20px;
+			 -webkit-border-bottom-left-radius: 20px;
+			        -moz-border-radius-topleft: 20px;
+			     -moz-border-radius-bottomleft: 20px;
+			            border-top-left-radius: 20px;
+			         border-bottom-left-radius: 20px;
+			overflow: hidden;
+		}
+		
+		.animate > span:after {
+			display: none;
+		}
+		
+				
+		.orange > span {
+			background-color: #f1a165;
+			background-image: -moz-linear-gradient(top, #f1a165, #f36d0a);
+			background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #f1a165),color-stop(1, #f36d0a));
+			background-image: -webkit-linear-gradient(#f1a165, #f36d0a); 
+		}
+		
+		.red > span {
+			background-color: #f0a3a3;
+			background-image: -moz-linear-gradient(top, #f0a3a3, #f42323);
+			background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #f0a3a3),color-stop(1, #f42323));
+			background-image: -webkit-linear-gradient(#f0a3a3, #f42323);
+		}
+		
+		.nostripes > span > span, .nostripes > span:after {
+			-webkit-animation: none;
+			background-image: none;
+		}
 
 		
 

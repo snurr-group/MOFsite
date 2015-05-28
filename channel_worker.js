@@ -202,10 +202,10 @@ for (i=0;i<gridSize[2];i++) {
 			ind = i*gridSize[1]*gridSize[0] + j*gridSize[0] + k;
 			if (noOverlapCoords[ind] != null && noOverlapCoords[ind] != '') {
 			//layerY[k] += noOverlapCoords[ind] + '\n'; // change k to j for layerZ, to i for layerX
-			adjusted = adj + ind;
-			layerY[k] += 'B' + adjusted + ',';
-			layerX[i] += 'B' + adjusted + ',';
-			layerZ[j] += 'B' + adjusted + ',';
+			//~ adjusted = adj + ind;
+			//~ layerY[k] += 'B' + adjusted + ',';
+			//~ layerX[i] += 'B' + adjusted + ',';
+			//~ layerZ[j] += 'B' + adjusted + ',';
 			} 
 		}	
 	}
@@ -310,5 +310,5 @@ for (i=0;i<returnCoords.length;i++) {
 }
 
 
-postMessage([noOverlapCoords, layerX, layerY, layerZ, fileString]);
+postMessage([noOverlapCoords, fileString]);
 }

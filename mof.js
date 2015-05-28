@@ -6,7 +6,6 @@ $(function() {
 	// NAVIGATION		
 	// global variables	
 	var loaded = true;
-	var demo = false;
 	var userLoaded = false;
 	var isTriclinic = false;
 	var cellMatrix = [];
@@ -18,7 +17,6 @@ $(function() {
 	var cellC = 0;
 	var probeNumber = 0;
 	var currentNumber = 0;
-	var transf = [];
 	var angle = [];
 	var side = [];
 	// non-orthorhombic lattice vectors
@@ -30,27 +28,24 @@ $(function() {
 	var channelString = '';
 	var loadedName = '';
 	var channelStrings = {};
-	var sProps = {}; // objects stored as {name -  {cellMatrix, inverseMatrix, mass, density, ..}} 
-	//var masses = {};
-	var displayType = 'spacefill only'; // used to preserve display type when a file is uploaded
-	var layerX = [];
-	var layerY = [];
-	var layerZ = [];
-	var sliderTemp = 0;
+	var displayType = 'spacefill 23%; wireframe 0.15;'; // used to preserve display type when a file is uploaded
 	var channelDisplay = false;
 	var fileRequested = false;
 	var xyzFile ='';
 	
 	clearAll(); // needed?
-	showMOF();
+	
 	
 	//////////////////////////////////////
 	// LOAD MOF structure
 	/////////////////////////////////////
+	
+	showMOF();
+	
 	function showMOF() {
 		name = "DOTSOV";
 		// name of initial load, subsequently name of loaded file
-		var nameString = "./MOFs/" + name + ".cif";
+		var nameString = "./MOFs/" + name + ".cif"; // nameString not used elsewhere, consolidate this
 		// path to loaded file
 		initializeJmol(nameString);
 		// get JSON files which act as hashtables for MOF generation
@@ -63,10 +58,10 @@ $(function() {
 		$.getJSON("atomMasses.json", function(data) {
 			masses = data;
 		});
-	}
+	} // end showMOF()
 	
-	// end showMOF()
-	function initializeJmol(str,demo) {
+	
+	function initializeJmol(str) {
 		var f = '"%FILE"';
 		// JSmol config
 		var Info = {
@@ -101,7 +96,7 @@ $(function() {
 			  monitorZIndex: 3
 		};
 		// hardcoded DOTSOV cell matrix
-		cellMatrix = [ 26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833 ];
+		cellMatrix = [26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833];
 		inverseMatrix = inverse3x3(cellMatrix);
 		// JSmol Applet
 		var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
@@ -112,36 +107,34 @@ $(function() {
 		  //mass = 9677.7 Da 
 		$("#unitcellInfo").html('density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 	}
+	/////////////////////////////////
 	// end initializeJmol
-	////////////////////////////////////////////////
+	/////////////////////////////////
 	
 	
 	/////////////////////////////////////////
 	/////// UPLOAD FILE FROM DIALOGUE OR DARG & DROP
 	/////////////////////////////////////////
+	
+		// drag and drop controls
+	var obj = $("#uploadBox"); 
+	
 
-
-	
-	// drag and drop controls
-	var obj = $("#mofPage");
-	
-	
-	
-	obj.on('dragenter', function (e) {
-		e.stopPropagation();
-		e.preventDefault();
-	//	obj.addClass("border");
-	}
-	);
-	obj.on('dragleave', function(e) {
-		//obj.removeClass('border');
-	}
-	);
-	obj.on('dragover', function (e) {
-		e.stopPropagation();
-		e.preventDefault();
-	}
-	);
+	//~ obj.on('dragenter', function (e) {
+		//~ e.stopPropagation();
+		//~ e.preventDefault();
+	//~ //	obj.addClass("border");
+	//~ }
+	//~ );
+	//~ obj.on('dragleave', function(e) {
+		//~ //obj.removeClass('border');
+	//~ }
+	//~ );
+	//~ obj.on('dragover', function (e) {
+		//~ e.stopPropagation();
+		//~ e.preventDefault();
+	//~ }
+	//~ );
 	obj.on('drop', function (e) {
 		e.preventDefault();
 		var files = e.originalEvent.dataTransfer.files;
@@ -149,7 +142,7 @@ $(function() {
 			var reader = new FileReader();
 			reader.onload = (function(theFile) {
 				if (theFile.name.split('.').pop().toLowerCase() != 'cif') {
-					$("#notCIF").html('not an accepted file type.');
+					$("#notCIF").html('Not an accepted file type.');
 				}
 				else {
 					$("#notCIF").html('');
@@ -158,13 +151,15 @@ $(function() {
 					t = e.target.result;
 					
 					name = t;
-					userLoaded = true;
-					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + ';');
+					userLoaded = true;					
+					
+					console.log(unitCellDisplay);
+					
 					if (unitCellDisplay) {
-						Jmol.script(jmolApplet0, 'unitcell on;');
+						Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {1 1 1};' + displayType + 'zoom 40; rotate x 30; rotate y 30;');
 					}
 					else {
-						Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+						Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + 'zoom 40; rotate x 30; rotate y 30; boundbox off; unitcell off; axes off;');
 					}
 					var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 					// used for corner locations
@@ -174,7 +169,6 @@ $(function() {
 					userLoaded = true;
 					$("#boxText").hide();
 					$("#boxRadio").hide();
-					demo = false;
 					//Jmol.script(jmolApplet0, 'spacefill only;');
 				}
 				};
@@ -183,31 +177,30 @@ $(function() {
 			reader.readAsText(f);
 		}
 		
-		
-		//handleFileUpload(files,obj);
-	}
-	);
+	});
+	
+	// needed to prevent browser from opening dropped files
 	$(document).on('dragenter', function (e) {
 		e.stopPropagation();
 		e.preventDefault();
-	}
-	);
+	});
 	$(document).on('dragover', function (e) {
 		e.stopPropagation();
 		e.preventDefault();
-	}
-	);
+	});
 	$(document).on('drop', function (e) {
 		e.stopPropagation();
 		e.preventDefault();
-	}
-	);
-	function handleFileUpload(files,obj) {
-		for (var i = 0; i < files.length; i++) {
-			var fd = new FormData();
-			fd.append('file', files[i]);
-		}
-	}
+	});
+	// 
+	
+	//~ function handleFileUpload(files,obj) {
+		//~ for (var i = 0; i < files.length; i++) {
+			//~ var fd = new FormData();
+			//~ fd.append('file', files[i]);
+		//~ }
+	//~ }
+	
 	
 	// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
 	function handleFileSelect(evt) {
@@ -234,23 +227,6 @@ $(function() {
 						Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
 					}
 					
-					
-					//~ name = t;
-					// replaced with name = first line of CIF file uploaded 
-					nameString = t.split('\n')[0];
-					
-					
-					if (sProps[nameString] == null) {
-						
-				//		console.log('brilliant');
-					}
-					 				
-					//~ sProps[nameString]['cellMatrix'] = [];
-					//~ sProps[nameString]['cellMatrix'] = computeCellMatrix(t);
-					//~ sProps[nameString]['inverseMatrix'] = computeCellMatrix(t);
-					
-					
-					
 					var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 					// used for corner locations
 					cellMatrix = computeCellMatrix(t);
@@ -260,7 +236,6 @@ $(function() {
 					loaded = true;
 					$("#boxText").hide(); // needed?
 					$("#boxRadio").hide(); // needed?
-					demo = false;
 				}
 				};
 			}
@@ -272,85 +247,75 @@ $(function() {
 	// end function file select
 	document.getElementById('files').addEventListener('change', handleFileSelect, false);
 	
-	// compute the matrix that describes the unit cell based on the CIF file used
-	function computeCellMatrix(t) {
-		loadedName = t.split('\n')[0];
-		//loadedNames[t.split('\n')[0]] = ''; // enter first line of file into object with no value
-		angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
-		sideIndices = [t.indexOf('_cell_length_a'), t.indexOf('_cell_length_b'), t.indexOf('_cell_length_c')];
-		angleSubstrings = [t.substring(angleIndices[0]), t.substring(angleIndices[1]), t.substring(angleIndices[2])];
-		sideSubstrings = [t.substring(sideIndices[0]), t.substring(sideIndices[1]), t.substring(sideIndices[2])];
-		//  angle (works for floats and ints)
-		var floatExp = /\d+\.\d+/;
-		var intExp = /\d+/;
-		for (i=0;i<3;i++) {
-			if (angleSubstrings[i].search(floatExp) <= angleSubstrings[0].search(intExp)) {
-				angle[i] = +angleSubstrings[i].match(floatExp)[0];
-			} else {
-				angle[i] = +angleSubstrings[i].match(intExp)[0];
-			}
-			if (sideSubstrings[i].search(floatExp) <= sideSubstrings[0].search(intExp)) {
-				side[i] = +sideSubstrings[i].match(floatExp)[0];
-			} else {
-				side[i] = +sideSubstrings[i].match(intExp)[0];
-			}
-		}
-		if (angle[0] == angle[1] && angle[1] == angle[2]) {
-			isTriclinic = false;
-		} else {
-			isTriclinic = true;
-		}
-		
-		displayUnitcellInfo(side,angle);
-		
-		// an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
-		// (b) is in the xz-plane and (c) has a positive y component.
-		// further, alpha is the angle (bc), beta is (ac), gamma is (ab)
-		// if this is the case, then the vectors (a), (b), (c) may be calculated
-		// using polar coordinates, theta = angle with (a), psi = angle with (b)
-		// angle is now [alpha, beta, gamma]
-		// side is [a, b, c]
-		cellA = side[0];
-		cellB = side[1];
-		cellC = side[2];
-		thetaA = 0;
-		thetaB = angle[2]*Math.PI/180; // gamma
-		thetaC = angle[1]*Math.PI/180; // beta
-		
-		psiA = angle[2]*Math.PI/180; // gamma
-		psiB = 0;
-		psiC = angle[0]*Math.PI/180; // alpha
-		
-		rA = side[0];
-		rB = side[1];
-		rC = side[2];
-		
-		vectA = polarVect(rA,thetaA,psiA);
-		vectB = polarVect(rB,thetaB,psiB);
-		vectC = polarVect(rC,thetaC,psiC);
-		
-		alpha = angle[0]*Math.PI/180;
-		beta = angle[1]*Math.PI/180;
-		gamma = angle[2]*Math.PI/180;
-		
-		A = cellA;
-		B = cellB;
-		C = cellC;
-		
-		a_x = A;
-		a_y = 0.0;
-		a_z = 0.0;
-		b_x = B * Math.cos(gamma);
-		b_y = B * Math.sin(gamma);
-		b_z = 0.0;
-		c_x = C * Math.cos(beta);
-		c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y;
-		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
-		
-		cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
-		return cellMatrix;
-	}
+////////////////////
+//// END FILE UPLOAD
+///////////////////	
 	
+	
+	
+	////////////////////////////////////////
+	//// DISPLAY PARAMETERS
+	////////////////////////////////////////	
+	// x1, y1, z1 checked by default
+	$('input:radio[name="x"]').filter('[value="1"]').prop('checked', true);
+	$('input:radio[name="y"]').filter('[value="1"]').prop('checked', true);
+	$('input:radio[name="z"]').filter('[value="1"]').prop('checked', true);
+	
+	//
+	$('input:radio[name="structureDisplay"]').filter('[value="Structure"]').prop('checked', true);
+	$("input[name='structureDisplay']").change(function(){
+		if($(this).val() == "Channels") { 
+			showChannels();
+			
+		}
+		else {
+			$("#depthSliders").hide();
+			showStructure();
+			 
+		}
+	});
+	
+	$('input:radio[name="atomsDisplay"]').filter('[value="Spacefill"]').prop('checked', true);
+	$('input:radio[name="atomsDisplay"]').change(function() {
+			if ($(this).val() == "Spacefill") {
+				displayType = 'spacefill only';
+				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill only;');
+			}
+			if ($(this).val() == "BallStick") {
+				displayType = 'spacefill 23%; wireframe 0.15';
+				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill 23%; wireframe 0.15;');
+			}
+			if ($(this).val() == "Wireframe") {
+				displayType = 'wireframe -0.1';
+				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; wireframe -0.1;');
+			}
+	});
+	
+	
+	var unitCellDisplay = true;
+	$('input:radio[name="unitCell"]').filter('[value="On"]').prop('checked', true);
+	$('input:radio[name="unitCell"]').change(function() {
+		if ($(this).val() == "On") {
+			$("#unitcellInfo").show();
+			unitCellDisplay = true;
+			Jmol.script(jmolApplet0, 'unitcell on; boundbox on; ');
+		}
+		else {
+			$("#unitcellInfo").hide();
+			unitCellDisplay = false;
+			Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+		}
+	});	
+		
+		
+		//~ 
+	//~ // prevent form submission when supercell is submitted
+	//~ $("#supercellSelector").submit(function(event) {
+		//~ event.preventDefault();
+	//~ }
+	//~ );
+	//~ //  load supercell of current structure based on radio input
+
 	
 	function displayUnitcellInfo(sides,angles) {
 		for (i=0;i<sides.length;i++) {
@@ -379,7 +344,6 @@ $(function() {
 			nA = 6.02*Math.pow(10,23);
 			massGrams = mass/nA; // total mass in grams
 			
-			//mass = +mass.toFixed(3);
 			mass = parseFloat(mass);
 			mass = mass.toFixed(1);
 			
@@ -387,189 +351,59 @@ $(function() {
 			density = density.toFixed(3);
 			$("#unitcellInfo").html('density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
 		});
-		
+	} // end displayUnitCellInfo
+	
+	
+	function loadSupercell(x,y,z) {
+		if (userLoaded) {
+			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
+		} else {
+			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
+		}
+	}
+	function clearAll() {
+		hashArray = [];
+		$('input[name=count]').val('');
+		$('input[name=size]').val('');
 	}
 	
-	
-	////////////////////////////////////////
-	//// DISPLAY PARAMETERS
-	////////////////////////////////////////	
-	// x1, y1, z1 checked by default
-	$('input:radio[name="x"]').filter('[value="1"]').prop('checked', true);
-	$('input:radio[name="y"]').filter('[value="1"]').prop('checked', true);
-	$('input:radio[name="z"]').filter('[value="1"]').prop('checked', true);
-	
-	//
-	$('input:radio[name="structureDisplay"]').filter('[value="Structure"]').prop('checked', true);
-	$("input[name='structureDisplay']").change(function(){
-		if($(this).val() == "Channels") { 
-			showChannels();
-			
-		}
-		else {
-			$("#depthSliders").hide();
-			showStructure();
-			 
-		}
-	});
-		
-	
-	$('input:radio[name="atomsDisplay"]').filter('[value="Spacefill"]').prop('checked', true);
-	$('input:radio[name="atomsDisplay"]').change(function() {
-			if ($(this).val() == "Spacefill") {
-				displayType = 'spacefill only';
-				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill only;');
-			}
-			if ($(this).val() == "BallStick") {
-				displayType = 'spacefill 23%; wireframe 0.15';
-				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill 23%; wireframe 0.15;');
-			}
-			if ($(this).val() == "Wireframe") {
-				displayType = 'wireframe -0.1';
-				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; wireframe -0.1;');
-			}
-	});
-	
-	function initializeSliderX(maxLayer) {
-	$("#xSlider").slider({
-		range: 'min', 
-		min: 0,
-		max: maxLayer,
-		value: 0,
-		slide: function(event, ui) {
-			$("#zSlider").slider( "option", "value", 0 );
-			$("#ySlider").slider( "option", "value", 0 );
-			if (ui.value < sliderTemp) {
-				showLayer(ui.value, layerX, maxLayer);
-				sliderTemp = ui.value;
-			}
-			else {
-				hideLayer(ui.value, layerX);
-				sliderTemp = ui.value;
-			}
-		}
-	});
-	}
-	function initializeSliderY(maxLayer) {
-	$("#ySlider").slider({
-		range: 'min', 
-		min: 0,
-		max: maxLayer,
-		value: 0,
-		slide: function(event, ui) {
-			$("#zSlider").slider( "option", "value", 0 );
-			$("#xSlider").slider( "option", "value", 0 );
-			if (ui.value < sliderTemp) {
-				showLayer(ui.value, layerY, maxLayer);
-				sliderTemp = ui.value;
-			}
-			else {
-				hideLayer(ui.value, layerY);
-				sliderTemp = ui.value;
-			}
-		}
-	});
-	}
-	
-	function initializeSliderZ(maxLayer) {
-	$("#zSlider").slider({
-		range: 'min', 
-		min: 0,
-		max: maxLayer,
-		value: 0,
-		slide: function(event, ui) {
-			$("#xSlider").slider( "option", "value", 0 );
-			$("#ySlider").slider( "option", "value", 0 );
-			if (ui.value < sliderTemp) {
-				showLayer(ui.value, layerZ, maxLayer);
-				sliderTemp = ui.value;
-			}
-			else {
-				hideLayer(ui.value, layerZ);
-				sliderTemp = ui.value;
-			}
-		}
-	});
-	}
-	
+	$("#infoBox").hide();
+	$("#maker").hide();
+	$("#MCContainer").hide();
+	$("#supercellContainer").hide();
+	$("#boxText").hide();
+	$("#boxRadio").hide();
 
-
-	function hideLayer(layerVal, layerArr) {
-		var layerStr = '';
-		for (i=0;i<layerVal;i++) {
-			layerStr += layerArr[i] + ',';
-		}
-		layerStr = layerStr.slice(0,-1);
-		Jmol.script(jmolApplet0, 'hide ' + layerStr + ';');
-	}
-	function showLayer(layerVal, layerArr, maxLayer) {
-		var layerStr = '';
-		for (i=maxLayer;i>layerVal;i--) {
-			layerStr += layerArr[i];
-		}
-		layerStr = layerStr.slice(0,-1);
-		Jmol.script(jmolApplet0, 'display ' + layerStr + ';');
-	}
 	
-	var unitCellDisplay = true;
-	$('input:radio[name="unitCell"]').filter('[value="On"]').prop('checked', true);
-	$('input:radio[name="unitCell"]').change(function() {
-		if ($(this).val() == "On") {
-			$("#unitcellInfo").show();
-			unitCellDisplay = true;
-			Jmol.script(jmolApplet0, 'unitcell on; axes on; boundbox on;');
-		}
-		else {
-			$("#unitcellInfo").hide();
-			unitCellDisplay = false;
-			Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
-		}
-	});	
+	$( "#accordion1" ).accordion( {
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
 	
-	//~ // needed?
-	//~ $('input:radio[name="box"]').filter('[value="box1"]').prop('checked', true);
-	//~ $('input:radio[name="box"]').filter('[value="box2"]').prop('checked', false);
-	//~ $('input:radio[name="box"]').filter('[value="box3"]').prop('checked', false);
+	$( "#accordion2" ).accordion( {
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
 
-	// prevent form submission when supercell is submitted
-	$("#supercellSelector").submit(function(event) {
-		event.preventDefault();
-	}
-	);
-	//  load supercell of current structure based on radio input
-	$("#submitSupercell").click(function() {
-		var x = $('input[name=x]:checked').val();
-		var y = $('input[name=y]:checked').val();
-		var z = $('input[name=z]:checked').val();
-		loadSupercell(x, y, z);
-	}
-	);
-	var flaggedProbeCount = 0;
-	var firstRun = true;
+///////////////////////////////
+///// END DISPLAY PARAMETERS
+///////////////////////////////
 	
-
+	
+	
+	/////////////////////////////////
+	//////// CHANNELS AND STRUCTURE 
+	/////////////////////////////////
+	
+	
 	function showStructure() {
 		channelDisplay = false;
 		$("#channelButtons").hide();
 		$("#channelLoaderGIF").hide();
 		$("#channelError").html('');
 		$("#depthSliders").hide();
-		if (userLoaded) {
-			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; spacefill 23%; wireframe 0.15;');
-			}
-			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; spacefill 23%; wireframe 0.15;');
-			}
-		}
-		else {
-			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; rotate y 30; rotate x 30; zoom 20; spacefill 23%; wireframe 0.15;');
-			}
-			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; rotate y 30; rotate x 30; zoom 20; spacefill 23%; wireframe 0.15;');
-			}
-		}
 	}
 	
 	
@@ -580,23 +414,7 @@ $(function() {
 		$("#channelButtons").show();
 	}
 	
-	//~ $("#submitChannels").click(function() {
-		//~ submitChannels();
-	//~ });
-		
-	$("#saveChannel").click(function() {
-			fileRequested = true;
-			submitChannels();		
-	});
 
-	$("#learnMore").click(function() {
-		$("#learnMorePopup").show();
-		$("#learnMorePopup").draggable();
-		$("#learnMoreContent").show();
-		
-	});
-	
-	//////////////////////////
 	function submitChannels() {
 		var resolution = $("#channelResolution").val();
 		var probeR = $("#channelProbeSize").val();
@@ -611,7 +429,7 @@ $(function() {
 			var worker = new Worker("channel_worker.js");
 		}
 
-		if (channelStrings[loadedName] == null) {
+	//	if (channelStrings[loadedName] == null) {
 		
 		var fileInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		if (!userLoaded) {
@@ -625,71 +443,27 @@ $(function() {
 		worker.onmessage = function(event) {
 			response = event.data;
 			coords = response[0];
-			//~ layerX = response[1];
-			//~ layerY = response[2];
-			//~ layerZ = response[3];
-			xyzFile = response[4]; // global variable
-			//~ num = coords.length.toString();
-			//~ var channelString = num + "\n" + "Probes\n";
-			//~ for (i=0;i<coords.length;i++) {
-				//~ cur = coords[i];
-				//~ channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
-			//~ }
 			
-			//~ for (i=0;i<layerX.length;i++) {
-				//~ layerX[i] = layerX[i].slice(0,-1);
-			//~ }
-			//~ for (i=0;i<layerZ.length;i++) {
-				//~ layerZ[i] = layerZ[i].slice(0,-1);
-			//~ }
-			//~ for (i=0;i<layerY.length;i++) {
-				//~ layerY[i] = layerY[i].slice(0,-1);
-			//~ }
+			xyzFile = response[1]; // global variable
 			
-			
-			//~ if (!channelDisplay && !fileRequested) {
-			//~ Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
-			//~ $("#depthSliders").show();
-			//~ initializeSliderX(layerX.length);
-			//~ initializeSliderY(layerY.length);
-			//~ initializeSliderZ(layerZ.length);
-			//~ Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
-			//~ channelDisplay = true;
-			//~ }
 			if (fileRequested) {
 				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
 				saveAs(blob, "structureChannels.xyz");
 				fileRequested = false;
 			}
 			$("#channelLoaderGIF").hide();
-		    channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
-		}
-		// worker.terminate(); // implement this?
-		
-		} // end if 
-		
-		else { if(!channelDisplay && !fileRequested) {
-			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
-			$("#depthSliders").show();
-			initializeSliderX(layerX.length);
-			initializeSliderY(layerY.length);
-			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
-			channelDisplay = true;
-		}
-			if (fileRequested) {
-				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
-				saveAs(blob, "structureChannels.xyz");
-				fileRequested = false;
-			}
-			$("#channelLoaderGIF").hide();
+			 worker.terminate(); 
 		}
 	}
 }
+	///////////////////////////////////
+	////// END CHANNELS AND STRUCTURE
+	///////////////////////////////////
 	
-	//////////////////////////////////////////
+	
+	////////////////////////////////////////////////////////////////
 	///// Submission of Physical Property Simulation, VF, SA, PSD
-	//////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
 	
 	$(".run").click(function() {
 		
@@ -728,19 +502,14 @@ $(function() {
 			var inlineString = probeNumber.toString() + "\n" + "Probes\n";
 			$("#loaderGIF").show();
 		}
-
-
-		if (loaded) { // what does this do?
-			transf  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
-		}
 		
 		Jmol.script(jmolApplet0, 'select boron; spacefill 0;'); // hide all boron, try delete instead?
 		
-		if (flaggedProbeCount != 0) {
-			Jmol.script(jmolApplet0, 'select boron; hide {selected}');
-		} // again, is this needed? is it different from three lines up?
-		var overString = '';
+		//~ if (flaggedProbeCount != 0) {
+			//~ Jmol.script(jmolApplet0, 'select boron; hide {selected}');
+		//~ } // again, is this needed? is it different from three lines up?
 		
+		var overString = '';
 		
 		
 		var modelInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
@@ -751,18 +520,6 @@ $(function() {
 		}
 		
 		currentNumber = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo").length;
-		//var isTriclinic = triclinicCheck(); // this check is done when file is loaded 
-		
-		
-		function triclinicCheck() {
-			var center = transf['center'];
-			var vect = transf['vector'];
-			return Math.abs(center[0] - center[1]) > 0.01 || Math.abs(center[0] - center[2]) > 0.01 || Math.abs(center[1] - center[2]) > 0.01;
-		} // probably not needed
-		
-		
-		
-		
 		
 		var probeDisplaySize = probeSize;
 		if (probeDisplaySize < 0.1) {
@@ -779,7 +536,31 @@ $(function() {
 		var done = false;
 		
 		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
-		if (mode == 'VF' || mode == 'PSD' || mode == 'negativeStructure') {
+		/////// Calculate randomly distributed coordinates
+		if (mode == 'VF' || mode == 'PSD') {
+			var coordinateArray = [];
+			function getRandomCo(p) {
+		var rX = (Math.random() * cellA).toFixed(5);
+		var rY = (Math.random() * cellB).toFixed(5);
+		var rZ = (Math.random() * cellC).toFixed(5);
+		var coords = rX + ' ' + rY + ' ' + rZ;
+		coordinateArray[p-1] = [rX, rY, rZ];
+		return coords;
+	}
+			
+			
+			if (!isTriclinic) {
+				var coordinates = '';
+				var coordArray = [];
+							for (i=1;i<=probeNumber;i++) {
+					coordinates = getRandomCo(i);
+					// updates coordinateArray as well
+					//~ inlineString+= ' B ' + coordinates + '\n';
+				}
+			} else {
+				tricFunc();
+			}
+			
 			
 			function tricFunc() {
 				for (i=1;i<=probeNumber;i++) {
@@ -792,52 +573,56 @@ $(function() {
 					randCoord[1] = randCoord[1].toFixed(4);
 					randCoord[2] = randCoord[2].toFixed(4);
 					coordinateArray[i-1] = randCoord;
-					inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
+					//~ inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
 				}
 				loaded = false;
 			}
-			if (!isTriclinic) {
-				var coordinates = '';
-				var coordArray = [];
-							for (i=1;i<=probeNumber;i++) {
-					coordinates = getRandomCo(i);
-					// updates coordinateArray as well
-					inlineString+= ' B ' + coordinates + '\n';
-				}
-			} else {
-				tricFunc();
-			}
-		} // end if VF, PSD, Channel view
-		
-		
 			
+			
+	
+			
+		} 
+		//////////////////// END if VF or PSD
+		
+		
 			if (mode == 'VF') {
 				$("#addmeVF").empty();
 				if (typeof(w) == "undefined") {
 				var worker = new Worker("overlap_worker.js");
 				}
-				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; rotate y 30; rotate x 30; select boron; spacefill ' + probeDisplaySize + ';');
+				//~ Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 40; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
-				var upperBound = Math.ceil(probeNumber/500); 
+				var vfIncrement = 10;
+				var upperBound = Math.ceil(probeNumber/vfIncrement); 
+				var prog = 0;
+				$(".meter").show();
+				$("#progressBar").css("width", prog);
 				for (i=0;i<upperBound;i++) {
-					var start = 500*i;
-					var end = 500*(i+1);
+					var start = vfIncrement*i;
+					var end = vfIncrement*(i+1);
 					worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber, isTriclinic, cellMatrix, inverseMatrix]);
 					worker.onmessage = function(event) {
+						
 						response = event.data;
 						overString = response[0];
-						Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
+						
+						pIndex = response[2];
+						prog = (100/(upperBound)*(pIndex+1)).toString() + '%';
+						$("#progressBar").css("width", prog);
+					
+						//~ Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
 						// hide overlapping probes
 						done = response[1];
 						flaggedProbeCount += (overString.match(/B/g) || []).length;
 						if (done) {
 							//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
 							vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);
-							$("#loaderGIF").hide();
+							$(".meter").hide();
 							$("#addmeVF").append('The void fraction is ' + vFraction + '<br /><br /> ');
 							worker.terminate();
 						}
 					}
+					
 				}
 			}
 			// worker call for VF
@@ -845,15 +630,28 @@ $(function() {
 				if (typeof(w) == "undefined") {
 				var worker = new Worker("poresize_worker.js");
 			}
+				var prog = 0;
+				$(".meter").show();
+				$("#progressBar").css("width", prog);
 				worker.postMessage([molInfo, probeNumber, [cellA, cellB, cellC], isTriclinic, inverseMatrix,coordinateArray.slice(start, end), cellMatrix, probeSize]);
 				worker.onmessage = function(event) {
 					response = event.data;
-					histArray = response[0];
-					stepSize = response[1];
-					rawDataString = response[2];
-					$("#loaderGIF").hide();
+					psdDone = response[0];
+					
+					if (!psdDone) {
+						pIndex = response[1];
+						prog = (100/(probeNumber)*(pIndex+1)).toString() + '%';
+						$("#progressBar").css("width", prog);
+					}
+					else {
+					histArray = response[1];
+					stepSize = response[2];
+					rawDataString = response[3];
+					$(".meter").hide();
 					generateHistogram(histArray, probeSize, stepSize, rawDataString);
 					$("#addmePSD").show();
+					worker.terminate();
+					}
 				}
 			}
 			// end if PSD, worker call
@@ -867,7 +665,9 @@ $(function() {
 			} else {
 				cellVol = triclinicVol(vectA, vectB, vectC, angle);
 			}
-			
+			var prog = 0;
+			$(".meter").show();
+			$("#progressBar").css("width", prog);
 			
 			var surfaceArea = 0;
 			$("#addmeSA").empty();
@@ -876,13 +676,16 @@ $(function() {
 				workerSA.onmessage = function(event) {
 					surfaceArea +=event.data[0];
 					done = event.data[1];
-					if (done) {
-						mass = event.data[2];
-						surfaceAreaV = surfaceArea * 10000 / cellVol;
-						surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;
-						$("#loaderGIF").hide();
-						$("#addmeSA").append('The surface area is ' + surfaceAreaV.toFixed(2) + ' m<sup>2</sup>/cm<sup>3</sup> or ' + surfaceAreaG.toFixed(2) + ' m<sup>2</sup>/g. <br /><br />');
-						workerSA.terminate();
+					pIndex = event.data[3];
+					prog = (100/(currentNumber)*(pIndex+1)).toString() + '%';
+					$("#progressBar").css("width", prog);
+						if (done) {
+							mass = event.data[2];
+							surfaceAreaV = surfaceArea * 10000 / cellVol;
+							surfaceAreaG = surfaceArea * Math.pow(10,-20) * 1/mass;	
+							$(".meter").hide();
+							$("#addmeSA").append('The surface area is ' + surfaceAreaV.toFixed(2) + ' m<sup>2</sup>/cm<sup>3</sup> or ' + surfaceAreaG.toFixed(2) + ' m<sup>2</sup>/g. <br /><br />');
+							workerSA.terminate();
 					}
 				}
 			}
@@ -890,7 +693,16 @@ $(function() {
 		// end for SAs
 	}); // end for click on .run (submit) button
 	
-	// end of MC simulation
+	
+	
+	///////////////////////////////////
+	///// END SUBMISSION CALCULATIONS
+	///////////////////////////////////
+	
+	//////////////////////
+	//// PSD HISTOGRAM
+	//////////////////////
+	
 	function generateHistogram(rawData, minSize, stepSize, dataStr) {
 		var upper =  0 + (rawData.indexOf(0) + 2)*stepSize;
 		histOptions = {
@@ -946,7 +758,37 @@ $(function() {
 			var blob = new Blob([dataStr], {type: "text/plain;charset=utf-8"});
 			saveAs(blob, "PoreSizeDistribution.txt");
 		});	
-	}
+	} // end generateHistogram()
+	
+	///////////////////////////////
+	////// END HISTOGRAM
+	///////////////////////////////
+	
+	
+	
+	////////////////////////
+	//// BUTTONS
+	////////////////////////
+	
+	$("#clearSA").click(function() {
+		$("#probeCountSA").val('');
+		$("#probeSizeSA").val('');
+		$("#addmeSA").empty();
+	});
+	$("#clearVF").click(function() {
+		Jmol.script(jmolApplet0, 'select boron; delete selected;');
+		$("#probeCountVF").val('');
+		$("#probeSizeVF").val('');
+		$("#addmeVF").empty();
+	});
+	$("#clearPSD").click(function() {
+		$("#probeCountPSD").val('');
+		$("#probeSizePSD").val('');
+		$("#histogram").empty();
+		$("#histogram").css({height: "0px"});
+		$("#addmePSD").empty();
+	});
+	
 	
 	$("#closePopup").click(function() {
 		$("#histogramContainer").hide();
@@ -958,18 +800,43 @@ $(function() {
 		$("#learnMoreContent").hide();
 	});
 	
-	// fix this??
+	
+	$("#saveChannel").click(function() {
+			fileRequested = true;
+			submitChannels();		
+	});
+
+	$("#learnMore").click(function() {
+		$("#learnMorePopup").show();
+		$("#learnMorePopup").draggable();
+		$("#learnMoreContent").show();
+		
+	});
+	
+	$("#submitSupercell").click(function() {
+		var x = $('input[name=x]:checked').val();
+		var y = $('input[name=y]:checked').val();
+		var z = $('input[name=z]:checked').val();
+		loadSupercell(x, y, z);
+	});
+	
+	
+	////////////////////////
+	//// END BUTTONS
+	////////////////////////
+	
+	
+	////////////////////////
+	//// MATH
+	////////////////////////
 	function triclinicVol(a,b,c,angles) {
 		// angles in radians
 		alpha = angles[0]*Math.PI/180;
 		beta = angles[1]*Math.PI/180;
 		gamma = angles[2]*Math.PI/180;
 		v = vectMag(a)*vectMag(b)*vectMag(c)*Math.sqrt(1-Math.pow(Math.cos(alpha),2) - Math.pow(Math.cos(beta),2) - Math.pow(Math.cos(gamma),2) + 2*Math.cos(alpha)*Math.cos(beta)*Math.cos(gamma));
-		console.log(v);
-		crossAB = vectorCross(a,b);
-		//console.log(crossAB);
-		tripleProd = vectorDot(c,crossAB);
-		console.log(tripleProd);
+		//~ crossAB = vectorCross(a,b);
+		//~ tripleProd = vectorDot(c,crossAB);
 		return Math.abs(v);
 	}
 	function polarVect(r,t,p) {
@@ -1019,81 +886,89 @@ $(function() {
 		sZ = m[2]*v[0] + m[5]*v[1] + m[8]*v[2];
 		return [sX, sY, sZ];
 	}
-	var coordinateArray = [];
-	function getRandomCo(p) {
-		var rX = (Math.random() * cellA).toFixed(5);
-		var rY = (Math.random() * cellB).toFixed(5);
-		var rZ = (Math.random() * cellC).toFixed(5);
-		var coords = rX + ' ' + rY + ' ' + rZ;
-		coordinateArray[p-1] = [rX, rY, rZ];
-		return coords;
-	}
-
-
-	function loadSupercell(x,y,z) {
-		if (userLoaded) {
-			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
-		} else {
-			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
+	
+	// compute the matrix that describes the unit cell based on the CIF file used
+	function computeCellMatrix(t) {
+		loadedName = t.split('\n')[0];
+		//loadedNames[t.split('\n')[0]] = ''; // enter first line of file into object with no value
+		angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
+		sideIndices = [t.indexOf('_cell_length_a'), t.indexOf('_cell_length_b'), t.indexOf('_cell_length_c')];
+		angleSubstrings = [t.substring(angleIndices[0]), t.substring(angleIndices[1]), t.substring(angleIndices[2])];
+		sideSubstrings = [t.substring(sideIndices[0]), t.substring(sideIndices[1]), t.substring(sideIndices[2])];
+		//  angle (works for floats and ints)
+		var floatExp = /\d+\.\d+/;
+		var intExp = /\d+/;
+		for (i=0;i<3;i++) {
+			if (angleSubstrings[i].search(floatExp) <= angleSubstrings[0].search(intExp)) {
+				angle[i] = +angleSubstrings[i].match(floatExp)[0];
+			} else {
+				angle[i] = +angleSubstrings[i].match(intExp)[0];
+			}
+			if (sideSubstrings[i].search(floatExp) <= sideSubstrings[0].search(intExp)) {
+				side[i] = +sideSubstrings[i].match(floatExp)[0];
+			} else {
+				side[i] = +sideSubstrings[i].match(intExp)[0];
+			}
 		}
-	}
-	function clearAll() {
-		hashArray = [];
-		$('input[name=count]').val('');
-		$('input[name=size]').val('');
+		if (angle[0] == angle[1] && angle[1] == angle[2] && side[0] == side[1] && side[1] == side[2]) {
+			isTriclinic = false;
+		} else {
+			isTriclinic = true;
+		}
+		
+		displayUnitcellInfo(side,angle);
+		
+		// an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
+		// (b) is in the xz-plane and (c) has a positive y component.
+		// further, alpha is the angle (bc), beta is (ac), gamma is (ab)
+		// if this is the case, then the vectors (a), (b), (c) may be calculated
+		// using polar coordinates, theta = angle with (a), psi = angle with (b)
+		// angle is now [alpha, beta, gamma]
+		// side is [a, b, c]
+		cellA = side[0];
+		cellB = side[1];
+		cellC = side[2];
+		thetaA = 0;
+		thetaB = angle[2]*Math.PI/180; // gamma
+		thetaC = angle[1]*Math.PI/180; // beta
+		
+		psiA = angle[2]*Math.PI/180; // gamma
+		psiB = 0;
+		psiC = angle[0]*Math.PI/180; // alpha
+		
+		rA = side[0];
+		rB = side[1];
+		rC = side[2];
+		
+		vectA = polarVect(rA,thetaA,psiA);
+		vectB = polarVect(rB,thetaB,psiB);
+		vectC = polarVect(rC,thetaC,psiC);
+		
+		alpha = angle[0]*Math.PI/180;
+		beta = angle[1]*Math.PI/180;
+		gamma = angle[2]*Math.PI/180;
+		
+		A = cellA;
+		B = cellB;
+		C = cellC;
+		
+		a_x = A;
+		a_y = 0.0;
+		a_z = 0.0;
+		b_x = B * Math.cos(gamma);
+		b_y = B * Math.sin(gamma);
+		b_z = 0.0;
+		c_x = C * Math.cos(beta);
+		c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y;
+		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
+		
+		cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
+		return cellMatrix;
 	}
 	
-	$("#infoBox").hide();
-	$("#maker").hide();
-	$("#MCContainer").hide();
-	$("#supercellContainer").hide();
-	$("#boxText").hide();
-	$("#boxRadio").hide();
-	//~ $('#clear').click(function() {
-		//~ clearAll();
-		//~ $("#mofFail").hide();
-	//~ }); 
-	//~ $("#clearMC").click(function() {
-		//~ //Jmol.script(jmolApplet0, 'zap; set autobond on; load ./MOFs/' + name + '.cif {1 1 1}; spacefill only;');
-		//~ Jmol.script(jmolApplet0, 'delete B*;');
-		//~ $("#probeCount").val('');
-		//~ $("#probeSize").val('');
-		//~ count=0;
-		//~ $("#addme").empty();
-	//~ }
-	//~ );
-	
-	$("#clearSA").click(function() {
-		$("#probeCountSA").val('');
-		$("#probeSizeSA").val('');
-		$("#addmeSA").empty();
-	});
-	$("#clearVF").click(function() {
-		Jmol.script(jmolApplet0, 'select boron; delete selected;');
-		$("#probeCountVF").val('');
-		$("#probeSizeVF").val('');
-		$("#addmeVF").empty();
-	});
-	$("#clearPSD").click(function() {
-		$("#probeCountPSD").val('');
-		$("#probeSizePSD").val('');
-		$("#histogram").empty();
-		$("#histogram").css({height: "0px"});
-		$("#addmePSD").empty();
-	});
-	
-	$( "#accordion1" ).accordion( {
-		collapsible: true,
-		active: false,
-		heightStyle: "content"
-	}
-	);
-	$( "#accordion2" ).accordion( {
-		collapsible: true,
-		active: false,
-		heightStyle: "content"
-	}
-	);
+	///////////////////
+	//// END MATH
+	///////////////////
 	
 	
 	// fix ajax json call 
@@ -1107,5 +982,4 @@ $(function() {
 	}
 	);
 	////////////
-}
-);
+});

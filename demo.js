@@ -1,6 +1,6 @@
 $(function() {
 	windowHeight = $(window).height();
-	function initializeJmol(str) {
+	function initializeJmol(str, zoomSize) {
 	// JSmol config
 	 var Info = {
  color: "#FFFFFF", // white background (note this changes legacy default which was black)
@@ -13,7 +13,7 @@ $(function() {
    isSigned: false,               // only used in the Java modality
    serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
   // src: initialMOF,          // file to load
-   script: "zap; set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set displayCellParameters false; set appendNew false; zoom 20; spacefill only; background image './Images/gradBlue2.png';",       // script to run
+   script: "zap; set antialiasDisplay;background white; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set displayCellParameters false; set appendNew false; zoom " + zoomSize + "; spacefill only; background image './Images/gradBlue2.png';",       // script to run
    defaultModel: "",   // name or id of a model to be retrieved from a database
    addSelectionOptions: false,  // to interface with databases
    debug: false
@@ -43,7 +43,7 @@ var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 
 } // end initializeJmol
 
-initializeJmol('./MOFs/Kr5.cif');
+initializeJmol('./MOFs/Kr5.cif', '30');
 
 $( "#accordion1" ).accordion( {
 		collapsible: true,
@@ -85,15 +85,15 @@ var boxSize = 5;
 	$("#probeSizeVOL").val('');
 	
 	$("#radio5").click(function() {
-		initializeJmol('./MOFs/Kr5.cif');
+		initializeJmol('./MOFs/Kr5.cif', '30');
 		boxSize = 5;
 	});
 	$("#radio10").click(function() {
-		initializeJmol('./MOFs/Kr10.cif');
+		initializeJmol('./MOFs/Kr10.cif', '20');
 		boxSize = 10;
 	});
 	$("#radio15").click(function() {
-		initializeJmol('./MOFs/Kr15.cif');
+		initializeJmol('./MOFs/Kr15.cif', '10');
 		boxSize = 15;
 	});
 	
@@ -168,22 +168,31 @@ var boxSize = 5;
 				}
 				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
-				var upperBound = Math.ceil(probeNumber/500);
+				var vfIncrement = 10;
+				var upperBound = Math.ceil(probeNumber/vfIncrement); 
+				var prog = 0;
+				$(".meter").show();
+				$("#progressBar").css("width", prog);
 				var calcVF = (1-4/3*Math.PI*Math.pow(radius,3)/Math.pow(boxSize,3)).toFixed(3);
 				for (i=0;i<upperBound;i++) {
-					var start = 500*i;
-					var end = 500*(i+1);
+					var start = vfIncrement*i;
+					var end = vfIncrement*(i+1);
 					worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber, isTriclinic]);
 					worker.onmessage = function(event) {
 						response = event.data;
 						overString = response[0];
-						Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
+						
+						pIndex = response[2];
+						prog = (100/(upperBound)*(pIndex+1)).toString() + '%';
+						$("#progressBar").css("width", prog);
+						
+						//~ Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
 						// hide overlapping probes
 						done = response[1];
 						flaggedProbeCount += (overString.match(/B/g) || []).length;
 						if (done) {
 							vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);
-							$("#loaderGIF").hide();
+							$(".meter").hide();
 							$("#addmeVF").append('The void fraction is ' + calcVF + '. <br/> The void fraction obtained through <br /> simulation is ' + vFraction + '.<br /><br />');
 							worker.terminate();
 							coordinates = '';
@@ -206,15 +215,24 @@ var boxSize = 5;
 				}
 				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
-				var upperBound = Math.ceil(probeNumber/500);
+				var vfIncrement = 10;
+				var upperBound = Math.ceil(probeNumber/vfIncrement); 
+				var prog = 0;
+				$(".meter").show();
+				$("#progressBar").css("width", prog);
 				for (i=0;i<upperBound;i++) {
-					var start = 500*i;
-					var end = 500*(i+1);
+					var start = vfIncrement*i;
+					var end = vfIncrement*(i+1);
 					worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber, isTriclinic]);
 					worker.onmessage = function(event) {
 						response = event.data;
 						overString = response[0];
-						Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
+						
+						pIndex = response[2];
+						prog = (100/(upperBound)*(pIndex+1)).toString() + '%';
+						$("#progressBar").css("width", prog);
+						
+						//~ Jmol.script(jmolApplet0, 'select ' + overString + '; delete selected;');
 						// hide overlapping probes
 						done = response[1];
 						flaggedProbeCount += (overString.match(/B/g) || []).length;
@@ -223,7 +241,7 @@ var boxSize = 5;
 							volumeCalc = volumeCalc.toFixed(3);
 							volumeExact = Math.pow((3.6892/2 + probeSize),3)*Math.PI*4/3;
 							volumeExact = volumeExact.toFixed(3);
-							$("#loaderGIF").hide();
+							$(".meter").hide();
 							$("#addmeVOL").append('The volume is ' + volumeExact + ' &#197;<sup>3</sup>. <br/> The volume obtained through <br /> simulation is ' + volumeCalc + ' &#197;<sup>3</sup>. <br /><br />');
 							worker.terminate();
 							coordinates = '';

@@ -25,30 +25,25 @@
 		<link rel="shortcut icon" href="/favicon.ico">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 		<link rel="stylesheet" href="./mof.css">
-		
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
-		
-<!--
-		<link rel="stylesheet" href="./CSS/jquery-ui.theme.css">
-		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
-		<link rel="stylesheet" href="./CSS/jquery-ui.structure.min.css">
--->
 		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
 
+
 		
-	<!--	 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css"> -->
+		
 	</head>
+
 	<body>
 		
 		
-<span id="mofPage">
+<div data-role="page" id="mofPage">
 
 <!--
 <div id="viewercontainer"> 
 -->
 	
 	<span id="viewer" style="z-index:1;"> </span>
-	 	<div class="pageTitle"><b> <ul class="menu">
+	<div class="pageTitle"><b> <ul class="menu">
   <li><a href="./index.html"><span>Main Page</span></a></li>
   <li><a href="./mofPage.html" class="active"><span>MOF Explorer</span></a></li>
   <li><a href="./demo.html"><span>Demo Module</span></a></li>
@@ -96,20 +91,6 @@
 		<br />
 		<span id="channelLoaderGIF">Please wait  <img src="./Images/ajax_clock_small.gif" /> <br /></span>
 		</span>
-		
-		
-<!--
-		
-		<span id="depthSliders">
-		X-Depth <br />
-		<div id="xSlider"></div>
-		Y-Depth <br />
-		<div id="ySlider"></div>
-		Z-Depth <br />
-		<div id="zSlider"></div> 
-				
-		</span>
--->
 		
 		<br />
 		
@@ -174,9 +155,6 @@
 	 	<!-- RIGHT PANEL -->
 	 	<span id="rightPanel">
 			<span id="physicalPropsPanel">
-<!--
-			<h1 id="physicalPropertiesTitle">Calculate</h1>
--->
 			
 			<!-- Accordion start -->
 			<div id="accordion2">
@@ -229,10 +207,6 @@
 	 	 
 	 	 </div>
 	 	 <br />
-
-	 	 
-	 	 
-
 	 	 
 	 	 <span class="btn run" id="PSD">Submit</span>  
 	 	 <span class="btn" id="clearPSD">Clear</span>  
@@ -241,18 +215,17 @@
 	 	 </div> <!-- close enterProbeCount div -->
 	 	 </div> <!-- end accordion -->
 	 	 
-<!--
-	 	 <span id="clearButton"><span class="btn" id="clear">Clear</span></span>
--->
 	 	  
 	 	
 	 	 </span> <!-- end physicalPropsPanel -->
 
 	 	 <span id="outputPanel">
 	 	 <h1 id="outputTitle">Output</h1>
-	 	   <span id="loaderGIF">
-	 	  <img src="./Images/ajax_clock_small.gif" />
-	 	  </span> 
+
+	 	  <div class="meter">
+			<span id="progressBar" style="width: 0%"></span>
+		</div> 
+	 	  		
 	 	 <span id="addmeVF"></span> <span id="addmeSA"></span> <span id="addmePSD"><a href="#" id="psdGraphLink">Graph</a><a href="#" id="psdDataLink">Raw Data</a> </span> 
 	 	 </span> <!-- end output panel span -->
 	 	 

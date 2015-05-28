@@ -167,6 +167,20 @@ for (q=0;q<numProbes;q++) {
 	probeSize = findPore(testPointArray,r);
 	probeSizeArray = binArray(probeSize,probeSizeArray);
 	rawDataArray = addData(probeSize,rawDataArray);
+	
+	if (q+1 != numProbes) {
+		postMessage([false, q]);
+	} 
+	
+	else  {
+		// process raw data with stepSize*2 as pore diameter
+var rawDataString = 'Pore Diameter    Number of Probes \n';
+for (i=0;i<rawDataArray.length;i++) {
+	rawDataString += (i*stepSize*2).toFixed(2) + '            ' + rawDataArray[i] + '\n';
+}
+
+postMessage([true, probeSizeArray,stepSize*2, rawDataString]);
+	}
 }
 
 
@@ -182,11 +196,8 @@ function findPore(pointArray,r) {
 		}
 	}
 		if (direction != -1) {
-			//console.log(direction);
 			newPoint = incrementPoint(pointArray[direction]);
-			//console.log(newPoint);
 			if (extraChance) {
-		//		console.log(r);
 				return r;
 			}
 			else {
@@ -335,15 +346,11 @@ function pbCond(dist,probePt) {
 		
 	fractional = [0,0,0];	
 	fractional = matrixDotVector(inverseMatrix, dist);
-	//console.log(dist);
 	xVect = [0,0,0];
 	xVect[0] = fractional[0] - Math.round(fractional[0]);
 	xVect[1] = fractional[1] - Math.round(fractional[1]);
 	xVect[2] = fractional[2] - Math.round(fractional[2]);
-	//console.log(xVect);
-	//console.log(cellMatrix);
 	cartesian = matrixDotVector(cellMatrix,xVect);
-	//console.log(cartesian);
 	return cartesian;
 			
 				
@@ -425,12 +432,5 @@ function distance(x1,y1,z1,x2,y2,z2) {
 	return distanceVector;
 }			
 
-// process raw data with stepSize*2 as pore diameter
-var rawDataString = 'Pore Diameter    Number of Probes \n';
-for (i=0;i<rawDataArray.length;i++) {
-	rawDataString += (i*stepSize*2).toFixed(2) + '            ' + rawDataArray[i] + '\n';
-}
-
-postMessage([probeSizeArray,stepSize*2, rawDataString]);
 
 } 
