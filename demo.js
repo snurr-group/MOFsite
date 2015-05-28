@@ -43,7 +43,7 @@ var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
 
 } // end initializeJmol
 
-initializeJmol('./MOFs/Kr5.cif', '30');
+initializeJmol('./MOFs/Kr5.cif', '20');
 
 $( "#accordion1" ).accordion( {
 		collapsible: true,
@@ -85,11 +85,11 @@ var boxSize = 5;
 	$("#probeSizeVOL").val('');
 	
 	$("#radio5").click(function() {
-		initializeJmol('./MOFs/Kr5.cif', '30');
+		initializeJmol('./MOFs/Kr5.cif', '20');
 		boxSize = 5;
 	});
 	$("#radio10").click(function() {
-		initializeJmol('./MOFs/Kr10.cif', '20');
+		initializeJmol('./MOFs/Kr10.cif', '15');
 		boxSize = 10;
 	});
 	$("#radio15").click(function() {

@@ -417,7 +417,7 @@ $(function() {
 
 	function submitChannels() {
 		var resolution = $("#channelResolution").val();
-		var probeR = $("#channelProbeSize").val();
+		var probeR = $("#channelProbeSize").val(); // this is the diameter, converted to radius in the worker call
 		if (isNaN(resolution) || isNaN(probeR) || resolution < 0 || probeR < 0) {
 			$("#channelError").html('Please enter positive numbers for the resolution and probe size');
 		}
@@ -504,11 +504,7 @@ $(function() {
 		}
 		
 		Jmol.script(jmolApplet0, 'select boron; spacefill 0;'); // hide all boron, try delete instead?
-		
-		//~ if (flaggedProbeCount != 0) {
-			//~ Jmol.script(jmolApplet0, 'select boron; hide {selected}');
-		//~ } // again, is this needed? is it different from three lines up?
-		
+	
 		var overString = '';
 		
 		
@@ -600,7 +596,7 @@ $(function() {
 				for (i=0;i<upperBound;i++) {
 					var start = vfIncrement*i;
 					var end = vfIncrement*(i+1);
-					worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize, [cellA, cellB, cellC], i, probeNumber, isTriclinic, cellMatrix, inverseMatrix]);
+					worker.postMessage([coordinateArray.slice(start, end), molInfo, currentNumber, probeSize/2, [cellA, cellB, cellC], i, probeNumber, isTriclinic, cellMatrix, inverseMatrix]);
 					worker.onmessage = function(event) {
 						
 						response = event.data;
