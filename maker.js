@@ -138,29 +138,6 @@ $(".buildBlock").click(function () {
 				angle[i] = +angle[i];
 			}
 		
-		//~ 
-		//~ loadedName = t.split('\n')[0];
-		//~ //loadedNames[t.split('\n')[0]] = ''; // enter first line of file into object with no value
-		//~ angleIndices = [t.indexOf('_cell_angle_alpha'), t.indexOf('_cell_angle_beta'), t.indexOf('_cell_angle_gamma')];
-		//~ sideIndices = [t.indexOf('_cell_length_a'), t.indexOf('_cell_length_b'), t.indexOf('_cell_length_c')];
-		//~ angleSubstrings = [t.substring(angleIndices[0]), t.substring(angleIndices[1]), t.substring(angleIndices[2])];
-		//~ sideSubstrings = [t.substring(sideIndices[0]), t.substring(sideIndices[1]), t.substring(sideIndices[2])];
-		//~ // find angle (works for floats and ints)
-		//~ var floatExp = /\d+\.\d+/;
-		//~ var intExp = /\d+/;
-		//~ for (i=0;i<3;i++) {
-			//~ if (angleSubstrings[i].search(floatExp) <= angleSubstrings[0].search(intExp)) {
-				//~ angle[i] = +angleSubstrings[i].match(floatExp)[0];
-			//~ } else {
-				//~ angle[i] = +angleSubstrings[i].match(intExp)[0];
-			//~ }
-			//~ if (sideSubstrings[i].search(floatExp) <= sideSubstrings[0].search(intExp)) {
-				//~ side[i] = +sideSubstrings[i].match(floatExp)[0];
-			//~ } else {
-				//~ side[i] = +sideSubstrings[i].match(intExp)[0];
-			//~ }
-		//~ }
-		
 		if (angle[0] == angle[1] && angle[1] == angle[2]) {
 			isTriclinic = false;
 		} else {
@@ -344,86 +321,7 @@ $(".buildBlock").click(function () {
 	
 	//////////////// CHANNELS
 	
-	function initializeSliderX(maxLayer) {
-	$("#xSlider").slider({
-		range: 'min', 
-		min: 0,
-		max: maxLayer,
-		value: 0,
-		slide: function(event, ui) {
-			$("#zSlider").slider( "option", "value", 0 );
-			$("#ySlider").slider( "option", "value", 0 );
-			if (ui.value < sliderTemp) {
-				showLayer(ui.value, layerX, maxLayer);
-				sliderTemp = ui.value;
-			}
-			else {
-				hideLayer(ui.value, layerX);
-				sliderTemp = ui.value;
-			}
-		}
-	});
-	}
-	function initializeSliderY(maxLayer) {
-	$("#ySlider").slider({
-		range: 'min', 
-		min: 0,
-		max: maxLayer,
-		value: 0,
-		slide: function(event, ui) {
-			$("#zSlider").slider( "option", "value", 0 );
-			$("#xSlider").slider( "option", "value", 0 );
-			if (ui.value < sliderTemp) {
-				showLayer(ui.value, layerY, maxLayer);
-				sliderTemp = ui.value;
-			}
-			else {
-				hideLayer(ui.value, layerY);
-				sliderTemp = ui.value;
-			}
-		}
-	});
-	}
 	
-	function initializeSliderZ(maxLayer) {
-	$("#zSlider").slider({
-		range: 'min', 
-		min: 0,
-		max: maxLayer,
-		value: 0,
-		slide: function(event, ui) {
-			$("#xSlider").slider( "option", "value", 0 );
-			$("#ySlider").slider( "option", "value", 0 );
-			if (ui.value < sliderTemp) {
-				showLayer(ui.value, layerZ, maxLayer);
-				sliderTemp = ui.value;
-			}
-			else {
-				hideLayer(ui.value, layerZ);
-				sliderTemp = ui.value;
-			}
-		}
-	});
-	}
-	
-
-
-	function hideLayer(layerVal, layerArr) {
-		var layerStr = '';
-		for (i=0;i<layerVal;i++) {
-			layerStr += layerArr[i] + ',';
-		}
-		layerStr = layerStr.slice(0,-1);
-		Jmol.script(jmolApplet0, 'hide ' + layerStr + ';');
-	}
-	function showLayer(layerVal, layerArr, maxLayer) {
-		var layerStr = '';
-		for (i=maxLayer;i>layerVal;i--) {
-			layerStr += layerArr[i];
-		}
-		layerStr = layerStr.slice(0,-1);
-		Jmol.script(jmolApplet0, 'display ' + layerStr + ';');
-	}
 	
 	var unitCellDisplay = true;
 	$('input:radio[name="unitCell"]').filter('[value="On"]').prop('checked', true);
@@ -440,28 +338,34 @@ $(".buildBlock").click(function () {
 		}
 	});	
 	
+	/////////////////////////////////
+	//////// CHANNELS AND STRUCTURE 
+	/////////////////////////////////
+	
+	$("#saveChannel").click(function() {
+			fileRequested = true;
+			submitChannels();		
+	});
+
+	$("#learnMore").click(function() {
+		$("#learnMorePopup").show();
+		$("#learnMorePopup").draggable();
+		$("#learnMoreContent").show();
+		
+	});
+	
+	$("#closeLMPopup").click(function() {
+		$("#learnMorePopup").hide();
+		$("#learnMoreContent").hide();
+	});
+	
+	
 	function showStructure() {
 		channelDisplay = false;
 		$("#channelButtons").hide();
 		$("#channelLoaderGIF").hide();
 		$("#channelError").html('');
 		$("#depthSliders").hide();
-		if (userLoaded) {
-			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill only;');
-			}
-			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; zoom 40; spacefill only;');
-			}
-		}
-		else {
-			if (unitCellDisplay) {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; rotate y 30; rotate x 30; zoom 40; spacefill only;');
-			}
-			else {
-			Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; rotate y 30; rotate x 30; zoom 40; spacefill only;');
-			}
-		}
 	}
 	
 	
@@ -472,22 +376,10 @@ $(".buildBlock").click(function () {
 		$("#channelButtons").show();
 	}
 	
-	$("#submitChannels").click(function() {
-		console.log(fileRequested);
-		console.log(channelDisplay);
-		submitChannels();
-	});
-		
-	$("#saveChannel").click(function() {
-			fileRequested = true;
-			submitChannels();		
-	});
 
-	
-	//////////////////////////
 	function submitChannels() {
 		var resolution = $("#channelResolution").val();
-		var probeR = $("#channelProbeSize").val();
+		var probeR = $("#channelProbeSize").val(); // this is the diameter, converted to radius in the worker call
 		if (isNaN(resolution) || isNaN(probeR) || resolution < 0 || probeR < 0) {
 			$("#channelError").html('Please enter positive numbers for the resolution and probe size');
 		}
@@ -499,7 +391,7 @@ $(".buildBlock").click(function () {
 			var worker = new Worker("channel_worker.js");
 		}
 
-		if (channelStrings[loadedName] == null) {
+	//	if (channelStrings[loadedName] == null) {
 		
 		var fileInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
 		if (!userLoaded) {
@@ -513,129 +405,22 @@ $(".buildBlock").click(function () {
 		worker.onmessage = function(event) {
 			response = event.data;
 			coords = response[0];
-			layerX = response[1];
-			layerY = response[2];
-			layerZ = response[3];
-			xyzFile = response[4]; // global variable
-			num = coords.length.toString();
-			var channelString = num + "\n" + "Probes\n";
-			for (i=0;i<coords.length;i++) {
-				cur = coords[i];
-				channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
-			}
 			
-			for (i=0;i<layerX.length;i++) {
-				layerX[i] = layerX[i].slice(0,-1);
-			}
-			for (i=0;i<layerZ.length;i++) {
-				layerZ[i] = layerZ[i].slice(0,-1);
-			}
-			for (i=0;i<layerY.length;i++) {
-				layerY[i] = layerY[i].slice(0,-1);
-			}
+			xyzFile = response[1]; // global variable
 			
-			
-			if (!channelDisplay && !fileRequested) {
-			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
-			$("#depthSliders").show();
-			initializeSliderX(layerX.length);
-			initializeSliderY(layerY.length);
-			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; select; delete; var q = "' + channelString + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
-			channelDisplay = true;
-			}
 			if (fileRequested) {
 				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
 				saveAs(blob, "structureChannels.xyz");
 				fileRequested = false;
 			}
 			$("#channelLoaderGIF").hide();
-		    channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
-		}
-		// worker.terminate(); // implement this?
-		
-		} // end if 
-		
-		else { if(!channelDisplay && !fileRequested) {
-			Jmol.script(jmolApplet0, 'unitcell off; boundbox off; axes off;');
-			$("#depthSliders").show();
-			initializeSliderX(layerX.length);
-			initializeSliderY(layerY.length);
-			initializeSliderZ(layerZ.length);
-			Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; rotate y 30; rotate x 30; zoom 20; select boron; spacefill 2.0;');
-			channelDisplay = true;
-		}
-			if (fileRequested) {
-				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
-				saveAs(blob, "structureChannels.xyz");
-				fileRequested = false;
-			}
-			$("#channelLoaderGIF").hide();
+			 worker.terminate(); 
 		}
 	}
 }
-	
-	//////////END CHANNELS
-	
-	//~ function showStructure() {
-		//~ if (userLoaded) {
-			//~ if (unitCellDisplay) {
-			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t" {1 1 1}; rotate y 30; rotate x 30; spacefill only;');
-			//~ }
-			//~ else {
-			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; var t = "' + name + '"; load "@t"; rotate y 30; rotate x 30; spacefill only;');
-			//~ }
-		//~ }
-		//~ else {
-			//~ if (unitCellDisplay) {
-			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif {1 1 1}; zoom 20; rotate y 30; rotate x 30; spacefill only;');
-			//~ }
-			//~ else {
-			//~ Jmol.script(jmolApplet0, 'delete; set autobond on; load ./MOFs/DOTSOV.cif; zoom 20; rotate y 30; rotate x 30; spacefill only;');
-			//~ }
-		//~ }
-	//~ }
-	//~ 
-	//~ //////////////////////////
-	//~ function showChannels() {
-		//~ if (typeof(w) == "undefined") {
-			//~ var worker = new Worker("channel_worker.js");
-		//~ }
-		//~ console.log(cellMatrix);
-//~ 
-		//~ if (channelStrings[loadedName] == null) {
-		//~ 
-		//~ var fileInfo = Jmol.getPropertyAsArray(jmolApplet0, "fileInfo");
-		//~ if (!userLoaded) {
-			//~ cellA = fileInfo['models'][0]['_cell_length_a'];
-			//~ cellB = fileInfo['models'][0]['_cell_length_b'];
-			//~ cellC = fileInfo['models'][0]['_cell_length_c'];
-		//~ }
-		//~ channelString = '';
-		//~ var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		//~ worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC]]);
-		//~ worker.onmessage = function(event) {
-			//~ response = event.data;
-			//~ coords = response[0];
-			//~ console.log(coords);
-			//~ num = coords.length.toString();
-			//~ //num = num.toString(); // combine with above line?
-			//~ var channelString = num + "\n" + "Probes\n";
-			//~ for (i=0;i<coords.length;i++) {
-				//~ cur = coords[i];
-				//~ channelString+= 'B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
-			//~ }
-			//~ Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelString + '"; load APPEND "@q"; zoom 40; rotate y 30; rotate x 30; select boron; spacefill 0.5;');
-		    //~ channelStrings[loadedName] = channelString; // store display string in object to avoid calculations for future attempts
-		//~ }
-		//~ // worker.terminate(); // implement this?
-		//~ 
-		//~ } // end if 
-		//~ 
-		//~ else {
-			//~ Jmol.script(jmolApplet0, 'set autobond off; delete; var q = "' + channelStrings[loadedName] + '"; load APPEND "@q"; zoom 40; rotate y 30; rotate x 30; select boron; spacefill 0.5;');
-		//~ }
-	//~ }
+	///////////////////////////////////
+	////// END CHANNELS AND STRUCTURE
+	///////////////////////////////////
 	
 	
 	function inverse3x3(matrix) {

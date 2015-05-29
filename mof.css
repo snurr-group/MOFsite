@@ -182,6 +182,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 	
 	.pageTitle { text-align:center; color: #C6C7CB; position:absolute; width:98%; margin-left: 1%; padding-bottom:10px; top:5px; font-size:2em; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px; }
 	.pageTile b {text-align:center;  z-index:2;}
+	
+	.panelContentDiv {padding-left:3px;}
 		 
 	.pbcExplain, .vfExplain, .saExplain, .psdExplain {margin-left:20px;}
 	
