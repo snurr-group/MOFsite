@@ -92,6 +92,10 @@ $(".buildBlock").click(function () {
 		$(this).toggleClass("selected");
 	});
 	
+$("#saveMaker").click(function() {
+	Jmol.script(jmolApplet0, 'write FILE "' + name + '.cif";');
+});	
+	
 	$('#generate').click(function() {
 		var hashArray =[];
 		i=0;
