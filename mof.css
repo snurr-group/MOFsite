@@ -19,6 +19,7 @@ ul {list-style-type:none}
 h3 {padding-bottom:5px; padding-top:5px;}
 				
 		 /*  IDs */ 
+		 #aboutDemoText {padding-left:10px; padding-right:10px;}
 		 
 		 #accordion1, #accordion2 {zoom: 1; filter: alpha(opacity=90); opacity: 0.9;}
 		 
@@ -28,6 +29,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 
 		 #bar {width:100%; height:0px; border-style:solid; border-width:2px; margin-top:40px; color:#C6C7CB; }
 		 
+		 #boxTitle, #aboutTitle {text-decoration:underline; padding-left:5px; }
+		 
 		 #channelButtons {display:none;}
 	     
 	     #channelLoaderGIF {display: none; margin-left:10px;}
@@ -36,12 +39,11 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 
 		 #clearMaker {margin-left:10px;}
 		
-		 #closePopup, #closeLMPopup {padding-left:10px; margin-top:30px; text-decoration: underline; font-weight:bold;} 
+		 #closePopup, #closeLMPopupChannel, #closeLMPopupVF, #closeLMPopupSA, #closeLMPopupPSD {padding-left:10px; margin-top:30px; text-decoration: underline; font-weight:bold;} 
 		 
 		 #acknowledgements {position:absolute; bottom:1%; color:#C6C7CB;}
 		 
 		 #appLinks {padding-bottom:100px; padding-top:15px;}
-		 
 
 		 #histogramContainer {position:absolute; right:30%; z-index:5; display:none; width:40%; height:60%; top:12%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
 		 #histogram {position:absolute; left:5%; top:20px; z-index:5; display:none; width:90%; height:93%; top:20px; background-color:#CCCCFF; opacity:0.9;} 
@@ -54,14 +56,20 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #inTextCode {color:#4C4C4C;}
 		 
 		 #outputPanel {display: inline-block; width:220px; right:1%; z-index:2; margin-top:10px; background-color: #0A222B; opacity:0.8; border-radius:5px; color: #C6C7CB;}		
+		 
 		 #leftPanel {display:inline-block; width:220px; position:absolute; top:60px; left:1%; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px;}		
-		 #selectBox {display:inline-block; width:220px; position:absolute; top:60px; left:1%; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px; color: #C6C7CB;}		
+		 #leftPanelDemo {display:inline-block; width:220px; position:absolute; top:60px; left:1%; z-index:2;}		
+		 #boxSizePanel {display: inline-block; left:1%; width:220px; margin-top:20px; z-index:2; color: #C6C7CB; background-color: #0A222B; opacity:0.8; border-radius:5px;}			
+		 #demoAboutPanel {display: inline-block; width:220px; left:1%; z-index:2; margin-top:10px; background-color: #0A222B; opacity:0.8; border-radius:5px; color: #C6C7CB;}		
+		
 		 #rightPanel {display:inline-block; width:220px; position:absolute; top:60px; right:1%; z-index:2;}		
 		 #physicalPropsPanel {display: inline-block; right:1%; width:220px; margin-top:20px; z-index:2; background-color: #0A222B; opacity:0.8; border-radius:5px;}		
 		 
-		 #learnMorePopup {position:absolute; right:60%; z-index:5; display:none; top:22%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
+		 #learnMorePopupChannel {position:absolute; right:60%; z-index:5; display:none; top:22%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
 		 #learnMoreContent {padding:10px 10px 10px 10px;}
-		 
+		 #learnMorePopupVF {position:absolute; right:20%; z-index:5; display:none; top:18%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
+		 #learnMorePopupSA {position:absolute; right:20%; z-index:5; display:none; top:26%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
+		 #learnMorePopupPSD {position:absolute; right:20%; z-index:5; display:none; top:30%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
 		 
 		 #loaderGIF {display:none; padding-left:30px;}
 		 
@@ -80,7 +88,6 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #outputPanel {padding-bottom:10px;}
 		 		 
 		 #physicalPropertiesTitle, #outputTitle {padding-left:10px; padding-right:10px; text-decoration:underline;}
-		 
 		
 		 #psdGraphLink, #psdDataLink {margin-right:15px; margin-left:5px; padding-bottom:10px; text-decoration:underline; font-size:1.2em; color:#ffffff}
 		 
@@ -173,10 +180,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 	.makeIcon, .MCIcon, .spIcon {height:12px; width:auto; margin-left:3px; }
 		 
 	.makerTitle {text-decoration:underline;}	 
-	
 
 	.meter {display: none;} /* progress bar container */ 
-
 	
 	.navImage {height:100px; width:auto}
 	
@@ -192,9 +197,6 @@ h3 {padding-bottom:5px; padding-top:5px;}
 	.probeCount, .probeSize {width:50px;}
 		 
 	.selected {border-style:solid; border-width:2px; border-color:blue;}
-
-
-
 
 /* Progress bar */ 
 

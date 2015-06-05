@@ -31,6 +31,7 @@ $(function() {
 	var displayType = 'spacefill 23%; wireframe 0.15;'; // used to preserve display type when a file is uploaded
 	var channelDisplay = false;
 	var fileRequested = false;
+	var superCellDisplay = false;
 	var xyzFile ='';
 	
 	clearAll(); // needed?
@@ -219,7 +220,7 @@ $(function() {
 					$("#notCIF").html('');
 				return function(e) {
 					t = e.target.result;
-					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t";' + displayType + ';');
+					Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t"; zoom 40; rotate x 30; rotate y 30;' + displayType);
 					if (unitCellDisplay) {
 						Jmol.script(jmolApplet0, 'unitcell on;  boundbox on;');
 					}
@@ -266,16 +267,13 @@ $(function() {
 	$("input[name='structureDisplay']").change(function(){
 		if($(this).val() == "Channels") { 
 			showChannels();
-			
 		}
 		else {
-			$("#depthSliders").hide();
 			showStructure();
-			 
 		}
 	});
 	
-	$('input:radio[name="atomsDisplay"]').filter('[value="Spacefill"]').prop('checked', true);
+	$('input:radio[name="atomsDisplay"]').filter('[value="BallStick"]').prop('checked', true);
 	$('input:radio[name="atomsDisplay"]').change(function() {
 			if ($(this).val() == "Spacefill") {
 				displayType = 'spacefill only';
@@ -359,6 +357,12 @@ $(function() {
 			Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t" {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
 		} else {
 			Jmol.script(jmolApplet0, 'load ./MOFs/' + name + '.cif {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
+		}
+		if (x != 1 || y != 1 || z != 1) {
+			superCellDisplay = true;
+		}
+		else {
+			superCellDisplay = false;
 		}
 	}
 	function clearAll() {
@@ -474,6 +478,26 @@ $(function() {
 		$("#histogram").html(''); // can not empty because can not plot into a null space
 		$("#histogram").hide(); 
 		
+		
+		if (superCellDisplay) {
+			if (userLoaded) {
+				Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; zoom 40; ' + displayType);
+			}
+			else {
+				Jmol.script(jmolApplet0, 'load "./MOFs/DOTSOV.cif" {1 1 1}; rotate y 30; rotate x 30; zoom 40; ' + displayType);
+			}
+					if (unitCellDisplay) {
+						Jmol.script(jmolApplet0, 'unitcell on;  boundbox on;');
+					}
+					else {
+						Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+					}
+			// return radios to show x1, y1, z1		
+			$('input:radio[name="x"]').filter('[value="1"]').prop('checked', true);
+			$('input:radio[name="y"]').filter('[value="1"]').prop('checked', true);
+			$('input:radio[name="z"]').filter('[value="1"]').prop('checked', true);		
+		}
+		
 		var mode = $(this).attr('id'); // read what kind of data is being requested based on which submit button is clicked
 		
 		switch (mode) {
@@ -534,6 +558,22 @@ $(function() {
 		////////////////// For VOID FRACTION AND PORE SIZE DISTRIBUTION 
 		/////// Calculate randomly distributed coordinates
 		if (mode == 'VF' || mode == 'PSD') {
+			function tricFunc() {
+				for (i=1;i<=probeNumber;i++) {
+					var xx = Math.random();
+					var yy = Math.random();
+					var zz = Math.random();
+					var ve = [xx, yy, zz];
+					randCoord = matrixDotVector(cellMatrix,ve);
+					randCoord[0] = randCoord[0].toFixed(4);
+					randCoord[1] = randCoord[1].toFixed(4);
+					randCoord[2] = randCoord[2].toFixed(4);
+					coordinateArray[i-1] = randCoord;
+					//~ inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
+				}
+				loaded = false;
+			}
+			
 			var coordinateArray = [];
 			function getRandomCo(p) {
 		var rX = (Math.random() * cellA).toFixed(5);
@@ -556,27 +596,6 @@ $(function() {
 			} else {
 				tricFunc();
 			}
-			
-			
-			function tricFunc() {
-				for (i=1;i<=probeNumber;i++) {
-					var xx = Math.random();
-					var yy = Math.random();
-					var zz = Math.random();
-					var ve = [xx, yy, zz];
-					randCoord = matrixDotVector(cellMatrix,ve);
-					randCoord[0] = randCoord[0].toFixed(4);
-					randCoord[1] = randCoord[1].toFixed(4);
-					randCoord[2] = randCoord[2].toFixed(4);
-					coordinateArray[i-1] = randCoord;
-					//~ inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
-				}
-				loaded = false;
-			}
-			
-			
-	
-			
 		} 
 		//////////////////// END if VF or PSD
 		
@@ -791,22 +810,43 @@ $(function() {
 		$("#histogram").hide();
 	});
 	
-	$("#closeLMPopup").click(function() {
-		$("#learnMorePopup").hide();
-		$("#learnMoreContent").hide();
+	$("#closeLMPopupChannel").click(function() {
+		$("#learnMorePopupChannel").hide();
 	});
-	
-	
+	$("#closeLMPopupVF").click(function() {
+		$("#learnMorePopupVF").hide();
+	});
+	$("#closeLMPopupSA").click(function() {
+		$("#learnMorePopupSA").hide();
+	});
+	$("#closeLMPopupPSD").click(function() {
+		$("#learnMorePopupPSD").hide();
+	});
+		
+	$("#learnVF").click(function() {
+		$("#learnMorePopupVF")
+		.show()
+		.draggable();
+	});
+	$("#learnSA").click(function() {
+		$("#learnMorePopupSA")
+		.show()
+		.draggable();
+	});
+	$("#learnPSD").click(function() {
+		$("#learnMorePopupPSD")
+		.show()
+		.draggable();
+	});
+
+	$("#learnChannel").click(function() {
+		$("#learnMorePopupChannel")
+		.show()
+		.draggable();
+	});
 	$("#saveChannel").click(function() {
 			fileRequested = true;
 			submitChannels();		
-	});
-
-	$("#learnMore").click(function() {
-		$("#learnMorePopup").show();
-		$("#learnMorePopup").draggable();
-		$("#learnMoreContent").show();
-		
 	});
 	
 	$("#submitSupercell").click(function() {

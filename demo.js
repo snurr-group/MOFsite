@@ -78,6 +78,10 @@ var boxSize = 5;
 	$('input:radio[name="boxSize"]').filter('[value="10"]').prop('checked', false);
 	$('input:radio[name="boxSize"]').filter('[value="15"]').prop('checked', false);
 	
+	$('input:radio[name="x"]').filter('[value="1"]').prop('checked', true);
+	$('input:radio[name="y"]').filter('[value="1"]').prop('checked', true);
+	$('input:radio[name="z"]').filter('[value="1"]').prop('checked', true);
+	
 	
 	$("#probeCountVF").val('');
 	$("#probeSizeVF").val('');
@@ -97,6 +101,26 @@ var boxSize = 5;
 		boxSize = 15;
 	});
 	
+	$("#submitSupercell").click(function() {
+		var x = $('input[name=x]:checked').val();
+		var y = $('input[name=y]:checked').val();
+		var z = $('input[name=z]:checked').val();
+		loadSupercell(x, y, z);
+	});
+	/////////////////////////////////////////
+	
+	function loadSupercell(x,y,z) {
+		
+			Jmol.script(jmolApplet0, 'load ./MOFs/Kr' + boxSize + '.cif {' + x + ' ' + y + ' ' + z + '}; zoom 60; rotate y 30; rotate x 30; set autobond on; spacefill 23%; wireframe 0.15;');
+		
+		if (x != 1 || y != 1 || z != 1) {
+			superCellDisplay = true;
+		}
+		else {
+			superCellDisplay = false;
+		}
+	}
+	
 	//////////////////////////////////////////
 	$(".run").click(function() {
 		$("#loaderGIF").show();
@@ -111,6 +135,25 @@ var boxSize = 5;
 		// clear previous output
 		
 		var overString = '';
+	
+		//~ if (superCellDisplay) {
+			//~ if (userLoaded) {
+				//~ Jmol.script(jmolApplet0, 'var t = "' + t + '"; load "@t"; rotate y 30; rotate x 30; zoom 40; ' + displayType);
+			//~ }
+			//~ else {
+				//~ Jmol.script(jmolApplet0, 'load "./MOFs/DOTSOV.cif" {1 1 1}; rotate y 30; rotate x 30; zoom 40; ' + displayType);
+			//~ }
+					//~ if (unitCellDisplay) {
+						//~ Jmol.script(jmolApplet0, 'unitcell on;  boundbox on;');
+					//~ }
+					//~ else {
+						//~ Jmol.script(jmolApplet0, 'unitcell off; axes off; boundbox off;');
+					//~ }
+			//~ // return radios to show x1, y1, z1		
+			//~ $('input:radio[name="x"]').filter('[value="1"]').prop('checked', true);
+			//~ $('input:radio[name="y"]').filter('[value="1"]').prop('checked', true);
+			//~ $('input:radio[name="z"]').filter('[value="1"]').prop('checked', true);		
+		//~ }
 	
 		var mode = $(this).attr('id');
 		switch (mode) {
@@ -166,7 +209,15 @@ var boxSize = 5;
 					// updates coordinateArray as well
 					inlineString+= ' B ' + coordinates + '\n';
 				}
-				Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; select boron; spacefill ' + probeDisplaySize + ';');
+				if (probeDisplaySize >= 2) {
+					probeDisplaySize = 1.9;
+				}
+				
+				if (probeDisplaySize > (cellA -3.9)) {
+					$("#addmeVF").append('The selected probe diameter is too large for meaningful results in the current unit cell. Please select a larger box size or smaller probe.'); 
+				}
+				else {
+					Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 20; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var vfIncrement = 10;
 				var upperBound = Math.ceil(probeNumber/vfIncrement); 
@@ -199,13 +250,19 @@ var boxSize = 5;
 							coordArray = [];
 						}
 					}
-				}
+				} // end for loop
+			}// end else
 			}
 			
 		
 		// end if void fraction calculations are requested (as opposed to surface area)
 		////////////// FOR VOLUME
 		if (mode == 'VOL') {
+			if (probeDisplaySize > (cellA -3.9)) {
+					$("#addmeVF").append('The selected probe diameter is too large for meaningful results in the current unit cell. Please select a larger box size or smaller probe.'); 
+				}
+				else {
+			
 				var coordinates = '';
 				var coordArray = [];
 				for (i=1;i<=probeNumber;i++) {
@@ -249,6 +306,7 @@ var boxSize = 5;
 						}
 					}
 				}
+			}
 			}
 		// end for SAs
 	}); // end for click on .run (submit) button

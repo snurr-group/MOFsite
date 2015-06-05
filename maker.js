@@ -282,7 +282,7 @@ $("#saveMaker").click(function() {
 		}
 	});
 	
-	$('input:radio[name="atomsDisplay"]').filter('[value="Spacefill"]').prop('checked', true);
+	$('input:radio[name="atomsDisplay"]').filter('[value="BallStick"]').prop('checked', true);
 	$('input:radio[name="atomsDisplay"]').change(function() {
 			if ($(this).val() == "Spacefill") {
 				Jmol.script(jmolApplet0,'select *; set autobond on; cartoons off; spacefill only;');
