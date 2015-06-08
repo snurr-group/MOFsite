@@ -21,7 +21,15 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 /*  IDs */ 
 		 #aboutDemoText {padding-left:10px; padding-right:10px;}
 		 
+		 #aboutDescription {padding-right:6%; padding-left:2%; padding-top:80px; margin-top:20px; color: #C6C7CB;}
+		 
+		 #aboutFooter {display:block; padding-left:10px; position:absolute; bottom:5%; color: #C6C7CB;}
+		 
 		 #accordion1, #accordion2 {zoom: 1; filter: alpha(opacity=90); opacity: 0.9;}
+		 
+		 #acknowledgements {position:absolute; bottom:1%; color:#C6C7CB;}
+		 
+		 #appLinks {padding-bottom:100px; padding-top:15px;}
 		 
 		 #addmePSD {display:none; padding-left:10px; padding-right:3px;}
 		 
@@ -40,10 +48,6 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #clearMaker {margin-left:10px;}
 		
 		 #closePopup, #closeLMPopupChannel, #closeLMPopupVF, #closeLMPopupSA, #closeLMPopupPSD {padding-left:10px; margin-top:30px; text-decoration: underline; font-weight:bold;} 
-		 
-		 #acknowledgements {position:absolute; bottom:1%; color:#C6C7CB;}
-		 
-		 #appLinks {padding-bottom:100px; padding-top:15px;}
 
 		 #histogramContainer {position:absolute; right:30%; z-index:5; display:none; width:40%; height:60%; top:12%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
 		 #histogram {position:absolute; left:5%; top:20px; z-index:5; display:none; width:90%; height:93%; top:20px; background-color:#CCCCFF; opacity:0.9;} 
@@ -70,7 +74,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #learnMorePopupVF {position:absolute; right:20%; z-index:5; display:none; top:18%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
 		 #learnMorePopupSA {position:absolute; right:20%; z-index:5; display:none; top:26%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
 		 #learnMorePopupPSD {position:absolute; right:20%; z-index:5; display:none; top:30%; background-color:#CCCCFF; border-radius:8px; opacity:0.9;} 
-		 
+				 
 		 #loaderGIF {display:none; padding-left:30px;}
 		 
 		 #maker, #MCContainer, #supercellContainer {margin-left:20px;} 
@@ -80,6 +84,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		 #makeMOF {position:absolute; left:72%;}  
 		 
 		 #mcDemo {position:absolute; left:40%; }
+
+		 #mofImage {display:inline;  width:300px; height:auto; float:left;}
 		 
 		 #mofFail {display:none;}
 		 
@@ -91,7 +97,8 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		
 		 #psdGraphLink, #psdDataLink {margin-right:15px; margin-left:5px; padding-bottom:10px; text-decoration:underline; font-size:1.2em; color:#ffffff}
 		 
-		 #siteDescription {padding-right:6%; padding-left:2%; padding-top:30px; margin-top:20px; color: #C6C7CB;}
+		 #siteDescription {padding-right:6%; padding-left:2%; padding-top:20px; margin-top:20px; color: #C6C7CB;}
+		 
 		 
 		 #unitcellInfo {position:absolute; z-index:2; top:90px; left:260px; width:150px; color: #35B9DA;}
 		 
@@ -100,6 +107,7 @@ h3 {padding-bottom:5px; padding-top:5px;}
 		
 		
 		/*  Classes */
+		.aboutPageLink {color:#C5C5C97;}
 		
 		.accordion {width:100%;}
 		

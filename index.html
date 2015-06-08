@@ -39,6 +39,7 @@
   <li><a href="./mofPage.html"><span>MOF Explorer</span></a></li>
   <li><a href="./demo.html"><span>Demo Module</span></a></li>
   <li><a href="./maker.html"><span>MOF Maker</span></a></li>
+  <li><a href="./about.html"><span>About</span></a></li>
 </ul>All About MOFs</b></div>
 <br />
 <br />
@@ -243,10 +244,11 @@ a sphere: <br /> </p>
 	probeZ = z + rad*zu; <br />
 	</code></div>
 <p>
-A check is perfomed to see if the probe overlaps with any other structure atoms (with PBC considered). </p>
+A check is perfomed to see if the probe overlaps with any other structure atoms (with PBC considered). If it does not, a counter is incremented to indicate a successfully placed probe. 
+Once the atom is done being probed, its accessible surface area is computed. </p>
 <div class="saExplain"><img class="saImage" src="./Images/sa_2.bmp" /></div>
-<p> If it does not, a counter is incremented to indicate a successfully placed probe. 
-Once the atom is done being probed, its accessible surface area is computed. <br /> </p>
+<p> In the above figure, 3 out 5 of the probes do not overlap with any structure atoms. The surface area of the structure atom in question
+is  (3/5 &#960; r <sup>2</sup>). <br /> </p>
 <div class="codeContainer"><code class="prettyprint">
 	for (i=0;i&lt;probesPerAtom;i++) { // for each of the probes given per atom <br />
 		overlapP = probeOverlap([probeX,probeY,probeZ]); <br />
@@ -332,7 +334,7 @@ Plotting is performed with a javascript library called flot.
 
 
 <div id="acknowledgements">
-This site was made by an undergraduate student at Northwestern University, Maxime Usdin, with the help and supervision of Greg Chung and Dr Randall Snurr. 
+This site was made by Maxime Usdin, with the help and supervision of Greg Chung and Dr Randall Snurr of the Department of Chemical and Biological Engineering at Northwestern University. 
 
 </div> <!-- acknowledgements -->
 </div> <!-- how does it work div -->
