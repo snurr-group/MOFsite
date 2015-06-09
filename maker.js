@@ -80,16 +80,46 @@ initializeJmol(nameString);
 		$.getJSON("MOF-database.json", function(data) {
 			MOFdata = data;
 		});
-		$.getJSON("Blocks-database.json", function(data) {
-			blockdata = data;
-		});
 
+var possibleMOFArray = [["bb1", "cn1"], ["bb1", "cn1", "bb4"], ["bb2", "cn1"], ["bb1", "cn2"], ["bb3","cn3"]];
+var blockArray = ["bb1", "bb2", "bb3", "bb4", "cn1", "cn2", "cn3"];		
 		
+// add border to selected building block and increase transperancy of blocks that can not be combined		
 $(".buildBlock").click(function () {
 		if ($("#mofFail").is(":visible")) {
 			$("#mofFail").hide();
 		}
+		
+		currentClass = $(this).attr('class');
+		var notAllowed = currentClass.indexOf('notPossible') > -1;
+		if (!notAllowed) {
+					
 		$(this).toggleClass("selected");
+		
+		var selectedID = $(this).attr('id');
+		
+		var index = 0;
+		var possibleBlockArray = [];
+		for (i=0;i<possibleMOFArray.length;i++) {
+			if (isInArray(selectedID,possibleMOFArray[i])) {
+				for (j=0; j<possibleMOFArray[i].length; j++) {
+						possibleBlockArray[index] = possibleMOFArray[i][j]; 	
+						index++;		
+				}	
+			}
+		}
+		
+		possibleBlockArray=possibleBlockArray.filter(function(item,i,allItems){ // kill duplicates 
+		return i==allItems.indexOf(item);
+		});
+		
+		for (i=0;i<blockArray.length;i++) {
+			if (!isInArray(blockArray[i],possibleBlockArray)) {
+				$('#' + blockArray[i]).addClass("notPossible"); // flag all not possible blocks
+			}
+		}
+	}
+		
 	});
 	
 $("#saveMaker").click(function() {
@@ -100,10 +130,9 @@ $("#saveMaker").click(function() {
 		var hashArray =[];
 		i=0;
 		$(".selected").each(function () {
-			hashArray[i] = blockdata[$(this).attr('hash')];
+			hashArray[i] = $(this).attr('id');
 			i++;
-		}
-		);
+		});
 		hashArray = hashArray.sort();
 		hash = hashArray.join('');
 		if (MOFdata[hash] == null) {
@@ -118,6 +147,7 @@ $("#saveMaker").click(function() {
 			$('#learnMore').attr('href',mof['link']);
 		}
 		$(".buildBlock").removeClass("selected");
+		$(".buildBlock").removeClass("notPossible");
 	});
 	
 	
@@ -181,7 +211,6 @@ $("#saveMaker").click(function() {
 		gamma = angle[2]*Math.PI/180;
 		
 		A = cellA;
-		console.log(A);
 		B = cellB;
 		C = cellC;
 		
@@ -245,6 +274,7 @@ $("#saveMaker").click(function() {
 	
 	function clearAll() {
 		$(".buildBlock").removeClass("selected");
+		$(".buildBlock").removeClass("notPossible");
 		hashArray = [];
 	}
 	
@@ -351,16 +381,21 @@ $("#saveMaker").click(function() {
 			submitChannels();		
 	});
 
-	$("#learnMore").click(function() {
-		$("#learnMorePopup").show();
-		$("#learnMorePopup").draggable();
-		$("#learnMoreContent").show();
-		
+	//~ $("#learnMore").click(function() {
+		//~ $("#learnMorePopup").show();
+		//~ $("#learnMorePopup").draggable();
+		//~ $("#learnMoreContent").show();
+		//~ 
+	//~ });
+	//~ 
+	$("#closeLMPopupChannel").click(function() {
+		$("#learnMorePopupChannel").hide();
 	});
 	
-	$("#closeLMPopup").click(function() {
-		$("#learnMorePopup").hide();
-		$("#learnMoreContent").hide();
+	$("#learnChannel").click(function() {
+		$("#learnMorePopupChannel")
+		.show()
+		.draggable();
 	});
 	
 	
@@ -447,5 +482,13 @@ $("#saveMaker").click(function() {
 		function polarVect(r,t,p) {
 		return [r*Math.sin(p)*Math.cos(t), r*Math.sin(p)*Math.sin(t), r*Math.cos(p)];
 	}
+	
+	$("#explorerLink").click(function() {
+		window.location.href = './mofPage.html#' + name; 
+	});
+	
+		function isInArray(value, arr) {
+  return arr.indexOf(value) > -1;
+}	
 	
 });

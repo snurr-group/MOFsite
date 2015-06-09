@@ -1,5 +1,3 @@
-
-
 onmessage = function(e) {	
 	var overlap = [];
 	var done = false;

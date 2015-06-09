@@ -46,7 +46,14 @@ $(function() {
 	function showMOF() {
 		name = "DOTSOV";
 		// name of initial load, subsequently name of loaded file
-		var nameString = "./MOFs/" + name + ".cif"; // nameString not used elsewhere, consolidate this
+		preloadedMOF = window.location.hash.substring(1);
+		var mofNameArray = ["DOTSOV", "KOJZAL", "MEHMET", "MIBQAR", "VUJBEI"];
+		if (isInArray(preloadedMOF, mofNameArray)) { 
+		var nameString = "./MOFs/" + preloadedMOF + ".cif"; // nameString not used elsewhere, consolidate this
+		}
+		else {
+			nameString = "./MOFs/DOTSOV.cif";
+		}
 		// path to loaded file
 		initializeJmol(nameString);
 		// get JSON files which act as hashtables for MOF generation
@@ -1017,5 +1024,8 @@ $(function() {
 		}
 	}
 	);
+	function isInArray(value, arr) {
+  return arr.indexOf(value) > -1;
+}	
 	////////////
 });

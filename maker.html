@@ -38,8 +38,8 @@
 <div id="viewercontainer2">
 <span id="viewer2" style="z-index:1;"> </span>
 <div class="pageTitle"><b><ul class="menu">
-  <li><a href="./index.html"><span>Main Page</span></a></li>
-  <li><a href="./mofPage.html"><span>MOF Explorer</span></a></li>
+  <li><a href="./index.html"><span>Home</span></a></li>
+  <li><a id="explorerLink"><span>MOF Explorer</span></a></li>
   <li><a href="./demo.html"><span>Demo Module</span></a></li>
   <li><a href="./maker.html" class="active"><span>MOF Maker</span></a></li>
    <li><a href="./about.html"><span>About</span></a></li>
@@ -102,12 +102,10 @@ Make a MOF</b></div>
 		<br />
 		<br />
 		<span class="btn" id="saveChannel">Save File</span> or
-		<span class="btn" id="learnMore">Learn More</span> 
-		
-		<br />
+		<span class="btn" id="learnChannel">Learn More</span> 
 		<br />
 		
-		<img id="channelLoaderGIF" src="./Images/ajax_clock_small.gif" />
+		<span id="channelLoaderGIF"><br /> Please wait  <img src="./Images/ajax_clock_small.gif" /> <br /></span>
 		</span>
 		
 		
@@ -145,16 +143,16 @@ Make a MOF</b></div>
 
 		
 		<p class="makerTitle">Metals</p>
-		 <img hash="cu2" class="buildBlock" src="./Images/cu2.png" >     
-		 <img hash="zn4o" class="buildBlock" src="./Images/zn4o.png" >  
-		<img hash="zn2" class="buildBlock" src="./Images/zn2.png" /> 
+		 <img id="cn1" class="buildBlock" src="./Images/cu2.png" >     
+		 <img id="cn2" class="buildBlock" src="./Images/zn4o.png" >  
+		<img id="cn3" class="buildBlock" src="./Images/zn2.png" /> 
 		
 
 		<p class="makerTitle">Organics</p>
-		 <img hash="phenyl" class="buildBlock" src="./Images/phenyldicarboxylate.png" /> 
-		 <img hash="triphenyltricarboxylate" class="buildBlock" src="./Images/tetraphenyltricarboxylate.png" /> 
-		 <img hash="tetraphenylhexacarboxylate" class="buildBlock" src="./Images/tetraphenylhexacarboxylate.png" />
-		 <img hash="n2" class="buildBlock" id="buildBlock4" src="./Images/diazenediphenylcarboxylate.png" /> 
+		 <img id="bb1" class="buildBlock" src="./Images/phenyldicarboxylate.png" /> 
+		 <img id="bb2" class="buildBlock" src="./Images/tetraphenyltricarboxylate.png" /> 
+		 <img id="bb3" class="buildBlock" src="./Images/tetraphenylhexacarboxylate.png" />
+		 <img id="bb4" class="buildBlock" src="./Images/diazenediphenylcarboxylate.png" /> 
 		<br />
 		<br />
 		<span class="controlButton btn" id="generate"> Generate! </span> 
@@ -173,7 +171,7 @@ Make a MOF</b></div>
 	 	</span> <!-- end right panel span -->
 
 <p id="unitcellInfo"></p>
-<span id="learnMorePopup"><a href="#" id="closeLMPopup">X</a><div id="learnMoreContent">The channel space is computed by placing probes at all empty locations. <br />
+<span id="learnMorePopupChannel"><a href="#" id="closeLMPopupChannel">X</a><div id="learnMoreContent">The channel space is computed by placing probes at all empty locations. <br />
 The resultant XYZ file can be opened in most common molecular visualizers. </div></span>
 </div>		
 
