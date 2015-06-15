@@ -11,19 +11,14 @@
 		 <script src="./jsmol/JSmol.min.nojq.js"></script>
 		<script src="./main.js"></script> 
 		<script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
-<!--
-		 <script src="./flot/jquery.flot.min.js"></script>
--->
+
 		 
 		<title>MOF Lab</title>
 		<meta name="description" content="">
 		<meta name="author" content="Maxime Usdin">
 		
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<!-- Replace favicon.ico & apple-titleouch-icon.png in the root of your domain and delete these references -->
-		<link rel="shortcut icon" href="/favicon.ico">
-		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	
 		<link rel="stylesheet" href="./mof.css">
 		<link rel="stylesheet" href="./CSS/jquery-ui.min.css">
 		<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
@@ -40,7 +35,7 @@
   <li><a href="./demo.html"><span>Demo Module</span></a></li>
   <li><a href="./maker.html"><span>MOF Maker</span></a></li>
   <li><a href="./about.html"><span>About</span></a></li>
-</ul>MOF Lab</b></div>
+</ul>MOF Lab - A web module for metal-organic frameworks</b></div>
 <br />
 <br />
 <br />
@@ -52,8 +47,13 @@ gas adsorption for storage or separations. This site is intended to serve as a l
 Here you may explore the physical properties of MOFs in MOF Explorer, learn about Monte Carlo 
 simulations in the Demo module, or combine building blocks to make your own MOF in MOF Maker.
 -->
-Explore the physical properties of Metal Organic Frameworks (MOFs) in MOF Explorer, learn about Monte Carlo 
-simulations in the Demo module, or combine building blocks to make your own MOF in MOF Maker.
+<!--
+Explore the physical properties of Metal Organic Frameworks (MOFs) in <a href="./mofPage.html" class="homePageLink">MOF Explorer</a>, learn about Monte Carlo 
+simulations in the <a href="./demo.html" class="homePageLink">Demo Module</a>, or combine building blocks to make your own MOF in <a href="./maker.html" class="homePageLink">MOF Maker</a>.
+Learn more about how this site works below or at the <a href="./about.html" class="homePageLink">About Page</a>.
+-->
+MOF Lab is an educational and reasearch tool to provide an online platform to visualize Metal-Organic Frameworks and calculate their physical properties. 
+
 
 </p>
 
@@ -78,266 +78,38 @@ simulations in the Demo module, or combine building blocks to make your own MOF 
 -->
 <br />
 <br />
-<div id="howDoesItWork">
-	<div id="bar"></div>
+<div id="bar"></div>
+<!-- -->
+<div id="aboutDescription">
+	This website and associated files were developed by Maxime Usdin with the help and supervision of Greg Chung and Dr Randall Snurr of the Department of Chemical and Biological Engineering at Northwestern University. <br />
+Files are hosted by GitHub <a class="aboutPageLink" href="https://github.com/mausdin/MOFsite" >here</a>, and protected
+under <a class="aboutPageLink" href="./license.txt"> this license</a>. <br /><br />
+	This site aims to serve as an educational and reasearch tool to provide an online platform to visualize Metal-Organic Frameworks and calculate their physical properties.  <br />
+	All functions run locally using Javascript exclusively. If operation is slow, consider closing all other tabs or restarting the browser. <br /><br />
+<p id="mofImageContainer"><img id="mofImage" src="./Images/MOF-5.png" /> 
 
-<h3 id="howTitle">How does it work?</h3>
 
-<div class="accordion">
-<h3 class="accTitle">Molecular Visualization</h3>
-<div>
-<p>All of the structures are represented using JSMol, a free javascript molecular visualizer. Each atom in a strucutre has a unique position given by (x,y,z) coordinates, and a 
-diameter given by a value measured in Angstroms (&#197;). Each atom is assumed to be a sphere with a defined center and diameter. This simplification drives the visualization and 
-simplifies calculation. Colors are used to show different atom types, the most common being grey for Carbon, white for Hydrogen, red for Oxygen, blue for Nitrogen. MOFs are often crystalline or lattice structures consisting of many repeating units. The smallest such unit is the unit cell and is the default view when a structure is loaded. 
-A supercell arises when a unit cell is repeated several times. To visualize a supercell, imagine that the structure continues from any boundary back around to that accross from it. 
-Or open MOF Explorer and set the supercell parameters.</p>
-</div>
-
-<h3 class="accTitle">Periodic Boundary Conditions</h3>
-<div>
-
-<p> When performing calculations it is often important to know the distance between two structure atoms. Due to periodic boundary 
-conditions (PBC), the nearest atom to a point might not be in the same unit cell. To account for this, all distances are computed twice, as a straight line between points and then taking
-PBC into consideration. The former yields a distance vector between two points, the latter applies PBC to the vector by considering the image of a point - its analog in the neighboring cell.
-An important distinction can be made between unit cells that are orthorhombic (all angles are right angles) or not. 
-For those that are, PBC calculations take two steps. First, each component of the distance vector is compared to the unit cell length.
-If point A is less than half a unit cell from point B, then the image of A in the neighboring cell (A') must be further away. No calculations are made because the original value is the smallest distance. 
-Conversely, if A is more than half the unit cell from B, then A' is closer than A. The distance of A to B becomes the distance from A' to B by shifting the position of A to A':  
+Each page of this website allows for various aspects of MOFs to be explored: <br /><br />
+<ul>
+<li>The <a href="./mofPage.html" class="aboutPageLink">MOF Explorer</a> allows you to perform Monte Carlo simulations to calculate the void fraction and surface area of a structure, or determine its pore size distribution using an optimized
+algorithm. Details of how calculations are performed may be found on the <a href="./about.html" class="aboutPageLink">About Page</a>. You may also explore your own structures using the file upload on the MOF Explorer page.  </li><br /><br />
+<li>The <a href="./demo.html" class="aboutPageLink">Demo Module</a> allows you to perform Monte Carlo simulations on a sphere in a box. This simple case provides insight into statistical modelling and can be used to find an optimal number of 
+probes at which the analytical and the calculated solutions converge. </li><br /><br />
+<li>The <a href="./maker.html" class="aboutPageLink">MOF Maker</a> allows you to assemble MOFs from metal and organic building blocks. Opening MOF Explorer allows you
+to probe the physical properties of the new structure.</li><br /><br />
+</ul>
 </p>
-<div class="pbcExplain"><img class="pbcImage" src="./Images/pbc_1.bmp" /></div>
-<p>
-If the cell is not orthorhombic, some of the implicit simplifications above no longer hold. Instead, matrix transformations are used to compute the distance to the image. There is a matrix
-that defines any unit cell and can be found with: 
-<br />
-<div class="codeContainer"><code class="prettyprint">
-	// A, B, C are vector lengths <br />
-	// (b) is in the xz-plane and (c) has a positive y component. <br />
-	// alpha is the angle (bc), beta is (ac), gamma is (ab) <br />
-	a_x = A; <br />
-	a_y = 0.0; <br />
-	a_z = 0.0; <br />
-	b_x = B * Math.cos(gamma); <br />
-	b_y = B * Math.sin(gamma); <br />
-	b_z = 0.0; <br />
-	c_x = C * Math.cos(beta); <br />
-	c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y; <br />
-	c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2)); <br />
-		
-	cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];</code> </div> 
-<br />
-<p>
-The inverse of the cell matrix allows for the transformation of the cell to a non-slanted, or orthogonal basis. The same calculations as for an orthorhombic cell are then performed, subtracting 
-a vector length from the position if the distance is more than half of the vector (here unit cell and vector are not interchangeable). The distance vector is then transformed back to the 
-original basis by multiplication of the cell matrix. The result is a modified distance vector that takes into account PBC: <br /></p>
-<div class="pbcExplain"><img class="pbcImage" src="./Images/pbc_2.bmp" /></div>
-<p>To determine if the cell is orthorhombic, a check is performed to see if the cell lengths are all equal and all angles are 90&#176;. Based on the result, PBC are calculated using one of the two above methods.</p>
-<div class="codeContainer"><code class="prettyprint">
-function pbCond(dist) { <br />
-	
-	if (notOrthorhombic) {	<br />
-		fractional = [0,0,0];	<br />
-		fractional = matrixDotVector(inverseMatrix, dist); <br />
-		xVect = [0,0,0]; <br />
-		xVect[0] = fractional[0] - Math.round(fractional[0]); <br />
-		xVect[1] = fractional[1] - Math.round(fractional[1]); <br />
-		xVect[2] = fractional[2] - Math.round(fractional[2]); <br />
-		cartesian = matrixDotVector(cellMatrix, xVect); <br />
-		return cartesian; <br />
-	}  <br />
-			
-			else { <br />
-			if (dist[0] > cellSize[0]/2) { <br />
-					dist[0] = dist[0] - cellSize[0]; <br /> 
-			} <br />
-			if (dist[1] > cellSize[1]/2) { <br />
-					dist[1] = dist[1] - cellSize[1]; <br /> 
-			} <br />
-			if (dist[2] > cellSize[2]/2) { <br />
-					dist[2] = dist[2] - cellSize[2]; <br /> 
-			} <br />
-		return dist; <br />
-		}	
-		}<br />
-</code>
-</div>
-</p>
+
+
+
 </div>
 
 
-<h3 class="accTitle">Void Fraction</h3>
-<div>
-<p>The void fraction of a structure is a measure of the volume it occupies within a unit cell. A hollower or emptier cell corresponds to a greater void fraction. Calculating the void
-fraction is akin to throwing a large number of darts at the structure and seeing how many hit. Instead of darts the simulation uses spherical probes of a given size (point probes have size 0).
-These probes are inserted randomly into the unit cell and those that overlap with the structure are removed. This is done by comparing the distance from the probe to each of the structure atoms
-with the sum of their radii. If the sum of the radii is larger than the distance, then the two overlap and the probe is flagged for deletion.
-</p>
-<div class="vfExplain"><img class="vfImage" src="./Images/vf_1.bmp" /></div>
-<p>
-The ratio of those that remain to the total used is the void fraction.
-</p>
-<br />
-<div class="codeContainer"><code class="prettyprint">	
-	for (i=0;i&lt;numProbes;i++) { // for all of the probes
-		<br />
-		x1 = probeLocation[i][0]; <br /> 
-		y1 = probeLocation[i][1]; <br />
-		z1 = probeLocation[i][2]; <br />
-
-		var dr = 0; <br />
-		for (k=0;k&lt;numStructureAtoms;k++) { // compare to coordinates of structure <br />
-			
-			if (!isInArray(i,flagged)) { <br />
-			x2 = atomLocation[k]['x']; <br />
-			y2 = atomLocation[k]['y']; <br />
-			z2 = atomLocation[k]['z']; <br />
-			
-			radius = atomDiameters[atoms[k]['sym']]/2; <br />
-			
-			dist = distance(x1,y1,z1,x2,y2,z2); <br />
-			
-			dist = pbCond(dist); <br />
-			
-			dr = Math.sqrt(Math.pow(dist[0],2) + Math.pow(dist[1],2) + Math.pow(dist[2],2)); <br />			
-			
-			if (dr &gt; (probeRadius + radius)) { <br />
-				flagged[index] = i; <br />
-				index++; <br />
-			} 	}  }  }		<br />
-			flaggedProbeCount = flagged.length; <br />
-			vFraction = 1-flaggedProbeCount/numProbes; <br />
-</code> </div>
-<p>
-<br />
-This calculation makes use of a function <code id="inTextCode">pbCond</code> which accepts the distance vector between two points as an argument and returns a distance vector. Details of periodic boundary
-conditions can be found above in the <a>periodic boundary conditions</a> section.
-</p>
-</div>
-
-
-<h3 class="accTitle">Surface Area</h3>
-<div>
-
-<p> The surface area of a MOF is a measure of the exposure of atoms to their surroundings. The term surface area conventionally refers to the van der Waals surface area which can 
-be thought of as the size of a sheet required to cover a structure. Another measure of surface area is the solvent-accessible surface area which considers only the surfaces where a solvent
-molecule could be found. 
-</p>
-<div class="saExplain"><img class="saImage" src="./Images/sa_1.bmp" /></div>
-<p>
-The absolute and solvent-accessible surface areas are equivalent for a solvent of size 0. Measuring the solvent-accessible surface area can be thought of as rolling
-a ball over the entire surface and measuring the area covered. Larger spheres will not be able to enter cavities in the structure and will result in a smaller measured surface area. 
-<br />The surface area is measured by first randomly placing probes on the surface of structure atoms. This is achieved by taking the center of a structure atom and genrating random points
-at a fixed distance from it. The distance is the sum of the radii of the structure atom and the probe. The following code shows how to generate uniformly distributed points on the surface of 
-a sphere: <br /> </p>
-<div class="codeContainer"><code class="prettyprint">
-	theta = 2*Math.PI*Math.random(); <br />
-	phi = Math.acos(2*Math.random()-1.0); <br />
-	xu = Math.cos(theta)*Math.sin(phi); <br />
-	yu = Math.sin(theta)*Math.sin(phi); <br />
-	zu = Math.cos(phi); <br />
-	
-	rad = atomRad + probeRad; <br />
-	
-// x, y, z are the location of the structure atom in question <br />
-
-	probeX = x + rad*xu; <br />
-	probeY = y + rad*yu; <br />
-	probeZ = z + rad*zu; <br />
-	</code></div>
-<p>
-A check is perfomed to see if the probe overlaps with any other structure atoms (with PBC considered). If it does not, a counter is incremented to indicate a successfully placed probe. 
-Once the atom is done being probed, its accessible surface area is computed. </p>
-<div class="saExplain"><img class="saImage" src="./Images/sa_2.bmp" /></div>
-<p> In the above figure, 3 out 5 of the probes do not overlap with any structure atoms. The surface area of the structure atom in question
-is  (3/5 &#960; r <sup>2</sup>). <br /> </p>
-<div class="codeContainer"><code class="prettyprint">
-	for (i=0;i&lt;probesPerAtom;i++) { // for each of the probes given per atom <br />
-		overlapP = probeOverlap([probeX,probeY,probeZ]); <br />
-if (!overlapP) { // if probe has no overlaps <br />
-		notOverlap++; // increment number of non-overlapped	 <br />
-	} <br />
-	
-	if (i == probesPerAtom -1) { // on the last iteration of the for loop, compute the surface area <br />
-		totalRad = atomRad + probeRad; // sum of radii <br />
-		// surface area of sphere S with radius (r(probe) + r(atom)) * non-overlapping probe fraction <br />
-		surfaceArea = 4*Math.PI*Math.pow(totalRad,2)*notOverlap/probesPerAtom;  <br />
-		} 
-	} <br />
-</code> </div>
-<p>
-This is repeated for all of the structure atoms and the resultant volumetric and gravimetric surface areas (using atomic masses) are given. 
-</p>
-</div>
-
-<h3 class="accTitle">Pore Size Distribution</h3>
-<div>
-<p>
-Some MOFs are finding applications for gas adsorption due to their highly porous nature. The pores of a MOF can be quantified using a pore size distribution (PSD). The PSD is a measure
-of the size and relative availability of pores in a structure and is presented as a plot of pore size and relative abundance. Finding the size of a pore using random sampling requires 
-locating the largest sphere that encompasses a given point but does not overlap with any of the structure atoms. 
-The PSD is the only physical property here that is not measured using a Monte Carlo simulation. Instead a more optimal algorithm is employed. <br /> </p>
-<div class="psdExplain"><img class="psdImage" src="./Images/psd_1.bmp" /></div>
-<p>
-For each of the probes specified a random point is generated outside of any structure atoms. A small sphere is made centered at this point and its radius incremented until it overlaps with a structure 
-atom. The point is then moved slighlty in each of the six directions and the procedure is repeated. If a larger sphere can be made centered at a shifted point and this sphere encompasses the
-original point, then it is accepted as the new standard against which spheres are compared when this procedure is repeated. When shifting the point slightly no longer yields a larger sphere,
-the largest probe size is recorded as the pore size for that point. This is performed with points uniformly distributed throghout the unit cell gives the pore size distribution which is normalized 
-and plotted. <br /> </p>
-<div class="codeContainer"><code class="prettyprint">
- for (q=0;q&lt;numProbes;q++) { <br />
-
-	r = largestRadius(probePoint,0); // find the largest radius at the point, beginning with 0 <br />
-	testPointArray = incrementPoint(probePoint); // create an array of points shifted from the original point slightly <br />
-	
-	// recursively find the largest pore by finding the largest radius at each of the shifted points <br />
-	// take the point which yields the largest radius, create an array of shifted points from there and repeat <br />
-	probeSize = findPore(testPointArray,r); <br />
-	
-	
-	probeSizeArray = binArray(probeSize,probeSizeArray); // for graphing purposes bin the array of pore sizes to the probe size found - the negative derrivative of this array is plotted <br /> 
-}
-<br />
-<br />
-function largestRadius(point,startingRadius) { <br />
-	i=startingRadius; <br />
-	while (!checkOverlap(point,i)) { <br />
-		i+=stepSize; <br />
-	} <br />
-	return i; <br />
-} <br />
-<br />
-function incrementPoint(point) { // six directions, + x,y,z; - x,y,z <br />
-	pointArray = []; <br />
-	for (j=0;j&lt;3;j++) { <br />
-		up[j] = point[j] + step; // step is a fixed stepsize of 0.05 <br />
-		down[j] = point[j] - step; <br />
-	} <br />
-	pointArray[0] = [up[0], point[1], point[2]]; <br />
-	pointArray[1] = [point[0], up[1], point[2]]; <br />
-	pointArray[2] = [point[0], point[1], up[2]]; <br />
-	pointArray[3] = [down[0], point[1], point[2]]; <br />
-	pointArray[4] = [point[0], down[1], point[2]]; <br />
-	pointArray[5] = [point[0], point[1], down[2]]; <br />
-	
-	return pointArray;	<br />
-}<br />
- 
- </code></div>
- <p>
-Plotting is performed with a javascript library called flot. 
-</p>
-</div>
-
-</div> <!-- end accordion -->
-<br />
-<br />
 
 
 
-<div id="acknowledgements">
-This site was made by Maxime Usdin with the help and supervision of Greg Chung and Dr Randall Snurr of the Department of Chemical and Biological Engineering at Northwestern University. 
+<!-- -->
 
-</div> <!-- acknowledgements -->
-</div> <!-- how does it work div -->
 
 
 </div> <!-- end page -->
