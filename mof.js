@@ -1,4 +1,5 @@
 $(function() {
+	windowHeight = $(window).height();
 	// layout
 	// VARIABLES
 	// SCRIPT/FUNCTIONS
@@ -54,7 +55,8 @@ $(function() {
 		$.getJSON("unitcells.json", function(data) {
 			unitcells = data;
 			unitCellInfo = unitcells[preloadedMOF];
-			side = [unitCellInfo["a"], unitCellInfo["b"], unitCellInfo["c"]];
+			side = [+unitCellInfo["a"], +unitCellInfo["b"], +unitCellInfo["c"]];
+			console.log(side);
 			angle = [unitCellInfo["alpha"], unitCellInfo["beta"], unitCellInfo["gamma"]];
 			displayUnitcellInfo(side,angle);
 			vectorCalculations(side,angle);
