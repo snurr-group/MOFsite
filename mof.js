@@ -304,6 +304,7 @@ $(function() {
 		}
 		
 		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
+		console.log(atomInfo);
 		
 		$.getJSON("atomMasses.json", function(data) {
 			masses = data;
@@ -313,6 +314,7 @@ $(function() {
 				mass += +masses[sym];
 			}
 			mass = mass.toFixed(3);
+			console.log(mass);
 			////
 			//// This code is in the SA worker call, see if can make variable global and remove from there. 
 			if (!isTriclinic) {
