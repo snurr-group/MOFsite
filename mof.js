@@ -1,5 +1,4 @@
 $(function() {
-	windowHeight = $(window).height();
 	// layout
 	// VARIABLES
 	// SCRIPT/FUNCTIONS
@@ -51,6 +50,15 @@ $(function() {
 		var mofNameArray = ["DOTSOV", "KOJZAL", "MEHMET", "MIBQAR", "VUJBEI"];
 		if (isInArray(preloadedMOF, mofNameArray)) { 
 		var nameString = "./MOFs/" + preloadedMOF + ".cif"; // nameString not used elsewhere, consolidate this
+		isTriclinic = false; 
+		$.getJSON("unitcells.json", function(data) {
+			unitcells = data;
+			unitCellInfo = unitcells[preloadedMOF];
+			side = [unitCellInfo["a"], unitCellInfo["b"], unitCellInfo["c"]];
+			angle = [unitCellInfo["alpha"], unitCellInfo["beta"], unitCellInfo["gamma"]];
+			displayUnitcellInfo(side,angle);
+			vectorCalculations(side,angle);
+		});
 		}
 		else {
 			nameString = "./MOFs/DOTSOV.cif";
@@ -60,9 +68,6 @@ $(function() {
 		// get JSON files which act as hashtables for MOF generation
 		$.getJSON("MOF-database.json", function(data) {
 			MOFdata = data;
-		});
-		$.getJSON("Blocks-database.json", function(data) {
-			blockdata = data;
 		});
 		$.getJSON("atomMasses.json", function(data) {
 			masses = data;
@@ -928,6 +933,12 @@ $(function() {
 		
 		displayUnitcellInfo(side,angle);
 		
+		cellMatrix = vectorCalculations(side, angle);
+		
+		return cellMatrix;
+	}
+	
+	function vectorCalculations(side, angle) {
 		// an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
 		// (b) is in the xz-plane and (c) has a positive y component.
 		// further, alpha is the angle (bc), beta is (ac), gamma is (ab)
@@ -972,8 +983,7 @@ $(function() {
 		c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y;
 		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
 		
-		cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
-		return cellMatrix;
+		return [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
 	}
 	
 	///////////////////
