@@ -57,6 +57,7 @@ $(function() {
 			unitCellInfo = unitcells[preloadedMOF];
 			side = [+unitCellInfo["a"], +unitCellInfo["b"], +unitCellInfo["c"]];
 			angle = [+unitCellInfo["alpha"], +unitCellInfo["beta"], +unitCellInfo["gamma"]];
+			density = +unitCellInfo["density"];
 			displayUnitcellInfo(side,angle);
 			vectorCalculations(side,angle);
 		});
@@ -304,9 +305,12 @@ $(function() {
 		}
 		
 		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		console.log(atomInfo);
+		
 		
 		$.getJSON("atomMasses.json", function(data) {
+			// atomInfo is empty for a preloaded MOF - when switching from maker to explorer
+			// the if statement is a workaround and results in the density being displayed from unitcells.json
+			if (atomInfo.length > 0) { 
 			masses = data;
 			mass = 0;
 			for (i=0;i<atomInfo.length;i++) {
@@ -314,7 +318,7 @@ $(function() {
 				mass += +masses[sym];
 			}
 			mass = mass.toFixed(3);
-			console.log(mass);
+			
 			////
 			//// This code is in the SA worker call, see if can make variable global and remove from there. 
 			if (!isTriclinic) {
@@ -331,6 +335,7 @@ $(function() {
 			
 			density = massGrams / (cellVol * Math.pow(10,-24)); // density in g/cm3
 			density = density.toFixed(3);
+			}
 			$("#unitcellInfo").html('density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
 		});
 	} // end displayUnitCellInfo
