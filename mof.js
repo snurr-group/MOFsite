@@ -25,6 +25,7 @@ $(function() {
 	var vectC = [];
 	var cellVol = 0;
 	var mass = 0;
+	var density = 0;
 	var channelString = '';
 	var loadedName = '';
 	var channelStrings = {};
@@ -113,6 +114,7 @@ $(function() {
 		  .addClass("padded");
 		  
 		  //mass = 9677.7 Da 
+		  density = 0.885;
 		$("#unitcellInfo").html('density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 	}
 	/////////////////////////////////
@@ -127,22 +129,6 @@ $(function() {
 		// drag and drop controls
 	var obj = $("#uploadBox"); 
 	
-
-	//~ obj.on('dragenter', function (e) {
-		//~ e.stopPropagation();
-		//~ e.preventDefault();
-	//~ //	obj.addClass("border");
-	//~ }
-	//~ );
-	//~ obj.on('dragleave', function(e) {
-		//~ //obj.removeClass('border');
-	//~ }
-	//~ );
-	//~ obj.on('dragover', function (e) {
-		//~ e.stopPropagation();
-		//~ e.preventDefault();
-	//~ }
-	//~ );
 	obj.on('drop', function (e) {
 		e.preventDefault();
 		var files = e.originalEvent.dataTransfer.files;
@@ -200,15 +186,7 @@ $(function() {
 		e.stopPropagation();
 		e.preventDefault();
 	});
-	// 
-	
-	//~ function handleFileUpload(files,obj) {
-		//~ for (var i = 0; i < files.length; i++) {
-			//~ var fd = new FormData();
-			//~ fd.append('file', files[i]);
-		//~ }
-	//~ }
-	
+	// end drop
 	
 	// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
 	function handleFileSelect(evt) {
@@ -312,15 +290,6 @@ $(function() {
 		}
 	});	
 		
-		
-		//~ 
-	//~ // prevent form submission when supercell is submitted
-	//~ $("#supercellSelector").submit(function(event) {
-		//~ event.preventDefault();
-	//~ }
-	//~ );
-	//~ //  load supercell of current structure based on radio input
-
 	
 	function displayUnitcellInfo(sides,angles) {
 		for (i=0;i<sides.length;i++) {
@@ -576,7 +545,6 @@ $(function() {
 					randCoord[1] = randCoord[1].toFixed(4);
 					randCoord[2] = randCoord[2].toFixed(4);
 					coordinateArray[i-1] = randCoord;
-					//~ inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
 				}
 				loaded = false;
 			}
@@ -598,7 +566,6 @@ $(function() {
 							for (i=1;i<=probeNumber;i++) {
 					coordinates = getRandomCo(i);
 					// updates coordinateArray as well
-					//~ inlineString+= ' B ' + coordinates + '\n';
 				}
 			} else {
 				tricFunc();
@@ -612,7 +579,6 @@ $(function() {
 				if (typeof(w) == "undefined") {
 				var worker = new Worker("overlap_worker.js");
 				}
-				//~ Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 40; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var vfIncrement = 10;
 				var upperBound = Math.ceil(probeNumber/vfIncrement); 
@@ -640,7 +606,8 @@ $(function() {
 							//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
 							vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);
 							$(".meter").hide();
-							$("#addmeVF").append('The void fraction is ' + vFraction + '<br /><br /> ');
+							vVolume = 1/density*vFraction;
+							$("#addmeVF").append('The void fraction is ' + vFraction + '.<br /> The void volume is ' + vVolume +'.<br /><br /> ');
 							worker.terminate();
 						}
 					}
