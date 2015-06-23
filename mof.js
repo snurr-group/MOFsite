@@ -1,5 +1,5 @@
 $(function() {
-	windowHeight = $(window).height();
+	var windowHeight = $(window).height();
 	// layout
 	// VARIABLES
 	// SCRIPT/FUNCTIONS
