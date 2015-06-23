@@ -606,8 +606,8 @@ $(function() {
 							//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
 							vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);
 							$(".meter").hide();
-							vVolume = 1/density*vFraction;
-							$("#addmeVF").append('The void fraction is ' + vFraction + '.<br /> The void volume is ' + vVolume +'.<br /><br /> ');
+							vVolume = (1/density*vFraction).toFixed(3);
+							$("#addmeVF").append('The void fraction is ' + vFraction + '.<br /> The void volume is ' + vVolume +' cm<sup>3</sup>/g.<br /><br /> ');
 							worker.terminate();
 						}
 					}
