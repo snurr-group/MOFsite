@@ -1,5 +1,5 @@
 $(function() {
-	windowHeight = $(window).height();
+	var windowHeight = $(window).height();
 	// layout
 	// VARIABLES
 	// SCRIPT/FUNCTIONS
@@ -25,6 +25,7 @@ $(function() {
 	var vectC = [];
 	var cellVol = 0;
 	var mass = 0;
+	var density = 0;
 	var channelString = '';
 	var loadedName = '';
 	var channelStrings = {};
@@ -50,6 +51,16 @@ $(function() {
 		var mofNameArray = ["DOTSOV", "KOJZAL", "MEHMET", "MIBQAR", "VUJBEI"];
 		if (isInArray(preloadedMOF, mofNameArray)) { 
 		var nameString = "./MOFs/" + preloadedMOF + ".cif"; // nameString not used elsewhere, consolidate this
+		isTriclinic = false; 
+		$.getJSON("unitcells.json", function(data) {
+			unitcells = data;
+			unitCellInfo = unitcells[preloadedMOF];
+			side = [+unitCellInfo["a"], +unitCellInfo["b"], +unitCellInfo["c"]];
+			angle = [+unitCellInfo["alpha"], +unitCellInfo["beta"], +unitCellInfo["gamma"]];
+			density = +unitCellInfo["density"];
+			displayUnitcellInfo(side,angle);
+			vectorCalculations(side,angle);
+		});
 		}
 		else {
 			nameString = "./MOFs/DOTSOV.cif";
@@ -59,9 +70,6 @@ $(function() {
 		// get JSON files which act as hashtables for MOF generation
 		$.getJSON("MOF-database.json", function(data) {
 			MOFdata = data;
-		});
-		$.getJSON("Blocks-database.json", function(data) {
-			blockdata = data;
 		});
 		$.getJSON("atomMasses.json", function(data) {
 			masses = data;
@@ -113,6 +121,7 @@ $(function() {
 		  .addClass("padded");
 		  
 		  //mass = 9677.7 Da 
+		  density = 0.885;
 		$("#unitcellInfo").html('density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
 	}
 	/////////////////////////////////
@@ -127,22 +136,6 @@ $(function() {
 		// drag and drop controls
 	var obj = $("#uploadBox"); 
 	
-
-	//~ obj.on('dragenter', function (e) {
-		//~ e.stopPropagation();
-		//~ e.preventDefault();
-	//~ //	obj.addClass("border");
-	//~ }
-	//~ );
-	//~ obj.on('dragleave', function(e) {
-		//~ //obj.removeClass('border');
-	//~ }
-	//~ );
-	//~ obj.on('dragover', function (e) {
-		//~ e.stopPropagation();
-		//~ e.preventDefault();
-	//~ }
-	//~ );
 	obj.on('drop', function (e) {
 		e.preventDefault();
 		var files = e.originalEvent.dataTransfer.files;
@@ -200,15 +193,7 @@ $(function() {
 		e.stopPropagation();
 		e.preventDefault();
 	});
-	// 
-	
-	//~ function handleFileUpload(files,obj) {
-		//~ for (var i = 0; i < files.length; i++) {
-			//~ var fd = new FormData();
-			//~ fd.append('file', files[i]);
-		//~ }
-	//~ }
-	
+	// end drop
 	
 	// once a file is uploaded, perform unit cell calculations, generate cell matrix (with inverse)		
 	function handleFileSelect(evt) {
@@ -312,15 +297,6 @@ $(function() {
 		}
 	});	
 		
-		
-		//~ 
-	//~ // prevent form submission when supercell is submitted
-	//~ $("#supercellSelector").submit(function(event) {
-		//~ event.preventDefault();
-	//~ }
-	//~ );
-	//~ //  load supercell of current structure based on radio input
-
 	
 	function displayUnitcellInfo(sides,angles) {
 		for (i=0;i<sides.length;i++) {
@@ -330,7 +306,11 @@ $(function() {
 		
 		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
 		
+		
 		$.getJSON("atomMasses.json", function(data) {
+			// atomInfo is empty for a preloaded MOF - when switching from maker to explorer
+			// the if statement is a workaround and results in the density being displayed from unitcells.json
+			if (atomInfo.length > 0) { 
 			masses = data;
 			mass = 0;
 			for (i=0;i<atomInfo.length;i++) {
@@ -338,6 +318,7 @@ $(function() {
 				mass += +masses[sym];
 			}
 			mass = mass.toFixed(3);
+			
 			////
 			//// This code is in the SA worker call, see if can make variable global and remove from there. 
 			if (!isTriclinic) {
@@ -354,6 +335,7 @@ $(function() {
 			
 			density = massGrams / (cellVol * Math.pow(10,-24)); // density in g/cm3
 			density = density.toFixed(3);
+			}
 			$("#unitcellInfo").html('density = ' + density + ' g/cm<sup>3</sup> <br /> a = ' + sides[0] + ' &#197; <br /> b = ' + sides[1] + ' &#197; <br /> c = ' + sides[2] + ' &#197; <br /> &#945; = ' + angles[0] + '&#176; <br /> &#946; = ' + angles[1] + '&#176; <br /> &#947; = ' + angles[2] + '&#176;');   
 		});
 	} // end displayUnitCellInfo
@@ -576,7 +558,6 @@ $(function() {
 					randCoord[1] = randCoord[1].toFixed(4);
 					randCoord[2] = randCoord[2].toFixed(4);
 					coordinateArray[i-1] = randCoord;
-					//~ inlineString += ' B ' + randCoord[0] + ' ' + randCoord[1] + ' ' + randCoord[2] + '\n';
 				}
 				loaded = false;
 			}
@@ -598,7 +579,6 @@ $(function() {
 							for (i=1;i<=probeNumber;i++) {
 					coordinates = getRandomCo(i);
 					// updates coordinateArray as well
-					//~ inlineString+= ' B ' + coordinates + '\n';
 				}
 			} else {
 				tricFunc();
@@ -612,7 +592,6 @@ $(function() {
 				if (typeof(w) == "undefined") {
 				var worker = new Worker("overlap_worker.js");
 				}
-				//~ Jmol.script(jmolApplet0, 'set autobond off; delete B*; var q = "' + inlineString + '"; load APPEND "@q"; zoom 40; select boron; spacefill ' + probeDisplaySize + ';');
 				flaggedProbeCount = 0;
 				var vfIncrement = 10;
 				var upperBound = Math.ceil(probeNumber/vfIncrement); 
@@ -640,7 +619,8 @@ $(function() {
 							//$("#addme").append('<br /><br />' + probeNumber + ' probes used, ' + flaggedProbeCount + ' probes overlapped with the given structure.');	
 							vFraction = (1-flaggedProbeCount/probeNumber).toFixed(3);
 							$(".meter").hide();
-							$("#addmeVF").append('The void fraction is ' + vFraction + '<br /><br /> ');
+							vVolume = (1/density*vFraction).toFixed(3);
+							$("#addmeVF").append('The void fraction is ' + vFraction + '.<br /> The void volume is ' + vVolume +' cm<sup>3</sup>/g.<br /><br /> ');
 							worker.terminate();
 						}
 					}
@@ -961,6 +941,12 @@ $(function() {
 		
 		displayUnitcellInfo(side,angle);
 		
+		cellMatrix = vectorCalculations(side, angle);
+		
+		return cellMatrix;
+	}
+	
+	function vectorCalculations(side, angle) {
 		// an assumption is made at this point that vector (a) is parallel to the x-axis or (1,0,0)
 		// (b) is in the xz-plane and (c) has a positive y component.
 		// further, alpha is the angle (bc), beta is (ac), gamma is (ab)
@@ -1005,8 +991,7 @@ $(function() {
 		c_y = (B * C * Math.cos(alpha) - b_x * c_x) / b_y;
 		c_z = Math.sqrt(Math.pow(C,2) - Math.pow(c_x,2) - Math.pow(c_y,2));
 		
-		cellMatrix = [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
-		return cellMatrix;
+		return [a_x, a_y, a_z, b_x, b_y, b_z, c_x, c_y, c_z];
 	}
 	
 	///////////////////
