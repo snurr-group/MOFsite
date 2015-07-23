@@ -303,10 +303,12 @@ for (i=0;i<noOverlapCoords.length;i++) {
 		index++;
 	}
 }
-var fileString = returnCoords.length + "\n" + "Probes\n";
+//var fileString = returnCoords.length + "\n" + "Probes\n";
+var fileString = '';
 for (i=0;i<returnCoords.length;i++) {
 	cur = returnCoords[i];
-	fileString +='B ' + cur[0] + ' ' + cur[1] + ' ' + cur[2] + '\n';
+	num = i+1;
+	fileString +='ATOM    ' + num + '  B  LIG           ' + cur[0] + '   ' + cur[1] + '   ' + cur[2] + '   1.00  0.00     B' +'\n';
 }
 
 

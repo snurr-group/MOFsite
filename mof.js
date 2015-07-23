@@ -459,7 +459,7 @@ $(function() {
 			
 			if (fileRequested) {
 				var blob = new Blob([xyzFile], {type: "text/plain;charset=utf-8"});
-				saveAs(blob, "structureChannels.xyz");
+				saveAs(blob, "structureChannels.pdb");
 				fileRequested = false;
 			}
 			$("#channelLoaderGIF").hide();
