@@ -45,7 +45,7 @@ $(function() {
 	showMOF();
 	
 	function showMOF() {
-		name = "DOTSOV";
+		name = "NU-1000";
 		// name of initial load, subsequently name of loaded file
 		preloadedMOF = window.location.hash.substring(1);
 		var mofNameArray = ["DOTSOV", "KOJZAL", "MEHMET", "MIBQAR", "VUJBEI"];
@@ -63,7 +63,7 @@ $(function() {
 		});
 		}
 		else {
-			nameString = "./MOFs/DOTSOV.cif";
+			nameString = "./MOFs/NU-1000.cif";
 		}
 		// path to loaded file
 		initializeJmol(nameString);
@@ -111,9 +111,9 @@ $(function() {
 			  console: 2,
 			  monitorZIndex: 3
 		};
-		// hardcoded DOTSOV cell matrix
-		cellMatrix = [26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833];
-		angle = [90.00, 90.00, 90.00];
+		// hardcoded NU-1000 cell matrix
+		cellMatrix = [ 39.97, 0, 0, -19.999999999999993, 34.64101615137755, 0, 2.0304643929863113e-15, 3.51686749161179e-15, 33.16 ];
+		angle = [90.00, 90.00, 120.00];
 		inverseMatrix = inverse3x3(cellMatrix);
 		// JSmol Applet
 		var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
@@ -121,9 +121,9 @@ $(function() {
 		  .append(myJmol)
 		  .addClass("padded");
 		  
-		  //mass = 9677.7 Da 
-		  density = 0.885;
-		$("#unitcellInfo").html('density = 0.885 g/cm<sup>3</sup> <br /> a = 26.283 &#197; <br /> b = 26.283 &#197; <br /> c = 26.283 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 90.000&#176;');   
+		  
+		  density = 0.473;
+		$("#unitcellInfo").html('density = 0.473 g/cm<sup>3</sup> <br /> a = 39.970 &#197; <br /> b = 40.000 &#197; <br /> c = 33.160 &#197; <br /> &#945; = 90.000&#176; <br /> &#946; = 90.000&#176; <br /> &#947; = 120.000&#176;');   
 	}
 	/////////////////////////////////
 	// end initializeJmol
@@ -224,6 +224,7 @@ $(function() {
 					var c  = Jmol.getPropertyAsArray(jmolApplet0, "boundBoxInfo");
 					// used for corner locations
 					cellMatrix = computeCellMatrix(t);
+					console.log(cellMatrix);
 					// also updates isTriclinc
 					inverseMatrix = inverse3x3(cellMatrix);
 					userLoaded = true;
@@ -982,7 +983,7 @@ $(function() {
 		B = cellB;
 		C = cellC;
 		
-		a_x = A;
+		a_x = +A;
 		a_y = 0.0;
 		a_z = 0.0;
 		b_x = B * Math.cos(gamma);
