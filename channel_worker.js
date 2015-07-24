@@ -4,6 +4,7 @@ var triclinic = e.data[1];
 var	cellMatrix = e.data[2];
 var	inverseMatrix = e.data[3];
 var cellSize = e.data[4];
+var angles = e.data[7];
 var unitResolution = parseFloat(e.data[5]);
 var probeSize = parseFloat(e.data[6])/2;
 var layerX = [];
@@ -304,7 +305,7 @@ for (i=0;i<noOverlapCoords.length;i++) {
 	}
 }
 //var fileString = returnCoords.length + "\n" + "Probes\n";
-var fileString = '';
+var fileString = 'CRYST1 ' + cellSize[0].toFixed(3) + ' ' + cellSize[1].toFixed(3) + ' ' + cellSize[2].toFixed(3) + ' ' + angles[0].toFixed(2) + ' ' + angles[1].toFixed(2) + ' ' + angles[2].toFixed(2) + ' \n';
 for (i=0;i<returnCoords.length;i++) {
 	cur = returnCoords[i];
 	num = i+1;

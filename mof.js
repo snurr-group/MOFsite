@@ -113,6 +113,7 @@ $(function() {
 		};
 		// hardcoded DOTSOV cell matrix
 		cellMatrix = [26.2833, 0, 0, 1.6093879608014814e-15, 26.2833, 0, 1.6093879608014814e-15, 1.6093879608014816e-15, 26.2833];
+		angle = [90.00, 90.00, 90.00];
 		inverseMatrix = inverse3x3(cellMatrix);
 		// JSmol Applet
 		var myJmol = Jmol.getAppletHtml("jmolApplet0", Info);
@@ -432,7 +433,7 @@ $(function() {
 		}
 		channelString = '';
 		var atomInfo = Jmol.getPropertyAsArray(jmolApplet0, "atomInfo");
-		worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC], resolution, probeR]);
+		worker.postMessage([atomInfo, isTriclinic, cellMatrix, inverseMatrix, [cellA, cellB, cellC], resolution, probeR, angle]);
 		worker.onmessage = function(event) {
 			response = event.data;
 			coords = response[0];

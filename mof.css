@@ -5,8 +5,8 @@ html, body {
     font-family: 'Source Sans Pro', sans-serif;
     background-image: url('./Images/gradBlue2.png');
 }
-span, p, div {
-font-size:12pt;
+span, p {
+font-size:9pt;
 }
 
 p {font-family: 'Source Sans Pro', sans-serif;}
