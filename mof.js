@@ -92,7 +92,7 @@ $(function() {
 			serverURL: "php/jsmol.php",  // this is not applied by default; you should set this value explicitly
 			// src: initialMOF,          // file to load
 			//script: "set antialiasDisplay;background white; load " + str + "; set appendNew false; set defaultDropScript 'zap; load ASYNC " + f + "; console; var r = " + f + "; print r; spacefill only;'; zoom 60; spacefill only;",       // script to run
-			script: "set antialiasDisplay; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill 23%; wireframe 0.15; background image './Images/gradBlue2.png';",       // script to run
+			script: "set antialiasDisplay; load " + str + " {1 1 1}; rotate y 30; rotate x 30; set appendNew false; set defaultDropScript '';  set displayCellParameters false; zoom 40; spacefill 23%; wireframe 0.15; background image './Images/gradBlue2.png'; set platformSpeed = 2",       // script to run
 			defaultModel: "",   // name or id of a model to be retrieved from a database
 			addSelectionOptions: false,  // to interface with databases
 			debug: false
